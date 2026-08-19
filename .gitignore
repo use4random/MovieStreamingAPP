@@ -2,3 +2,5 @@ client/node_modules/
 client/.vercel/
 server/node_modules/
 server/.vercel/
+
+.vercel

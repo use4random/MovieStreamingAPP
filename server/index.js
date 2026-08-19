@@ -56,10 +56,15 @@ app.get('*', (req, res) => {
     }
 });
 
-// Start Server
-app.listen(PORT, () => {
-    console.log(`\n=================================================`);
-    console.log(`🚀 MULTIMOVIES CYBER BACKEND RUNNING ON PORT ${PORT}`);
-    console.log(`📡 TMDB API Gateway: http://localhost:${PORT}/api/health`);
-    console.log(`=================================================\n`);
-});
+// Start Server (Listen only when running directly outside Vercel Serverless environment)
+if (!process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`\n=================================================`);
+        console.log(`🚀 MULTIMOVIES CYBER BACKEND RUNNING ON PORT ${PORT}`);
+        console.log(`📡 TMDB API Gateway: http://localhost:${PORT}/api/health`);
+        console.log(`=================================================\n`);
+    });
+}
+
+export default app;
+

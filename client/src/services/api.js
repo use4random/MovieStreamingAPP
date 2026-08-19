@@ -1,4 +1,5 @@
-const API_BASE = '/api';
+const API_BASE = import.meta.env.VITE_API_BASE || '/api';
+
 
 export const IMG_W500 = 'https://image.tmdb.org/t/p/w500';
 export const IMG_W780 = 'https://image.tmdb.org/t/p/w780';

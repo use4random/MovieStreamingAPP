@@ -1,0 +1,9 @@
+{
+  "name": "multimovies-app",
+  "version": "2.0.0",
+  "private": true,
+  "scripts": {
+    "build": "cd client && npm install && npm run build",
+    "dev": "concurrently \"cd server && npm run dev\" \"cd client && npm run dev\""
+  }
+}
