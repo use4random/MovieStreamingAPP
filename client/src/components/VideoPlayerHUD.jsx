@@ -156,13 +156,13 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
                             key={`${currentServer?.id}-${iframeSrc}`}
                             src={iframeSrc}
                             allowFullScreen
-                            allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-                            sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-popups allow-modals"
+                            allow="autoplay; encrypted-media; picture-in-picture; fullscreen; accelerometer; gyroscope"
                             referrerPolicy="no-referrer-when-downgrade"
                             loading="eager"
                             title={title}
                             onError={handleIframeError}
                         />
+
                     )}
 
                 </div>
