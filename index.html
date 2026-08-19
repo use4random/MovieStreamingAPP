@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MultiMovies | Next-Gen Cyber Cinema & Streaming Hub</title>
+    <meta name="description" content="MultiMovies - Futuristic streaming experience. Watch thousands of HD/4K movies, TV series, anime, and cartoons with zero buffering and cyber HUD player.">
+    <meta name="theme-color" content="#07070a">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="MultiMovies | Next-Gen Cyber Cinema">
+    <meta property="og:description" content="Stream thousands of 4K Movies & TV Series in Next-Gen Cyberpunk Interface.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://image.tmdb.org/t/p/w780/placeholder.jpg">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230a0a10' stroke='%23ff1e42' stroke-width='2'/%3E%3Cpath d='M8 22V10l8 6 8-6v12' fill='none' stroke='%23ff1e42' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='16' cy='16' r='2' fill='%2300f2fe'/%3E%3C/svg%3E">
+    
+    <!-- Modern Futuristic Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome 6 Pro/Free Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="cyber-theme">
+
+    <!-- Cyber Ambient Lights -->
+    <div class="ambient-glow ambient-glow-1"></div>
+    <div class="ambient-glow ambient-glow-2"></div>
+    <div class="cinema-backdrop" id="cinemaBackdrop" onclick="toggleCinemaMode(false)"></div>
+
+    <!-- ============ HEADER ============ -->
+    <header class="site-header" id="siteHeader">
+        <div class="header-top-bar">
+            <div class="top-bar-content">
+                <span class="live-pulse-badge"><span class="pulse-dot"></span> 4K QUANTUM SERVERS LIVE</span>
+                <div class="top-bar-links">
+                    <button class="sound-toggle-btn" id="soundToggleBtn" onclick="toggleAudioFX()" title="Toggle Cyber Audio FX">
+                        <i class="fas fa-volume-up"></i> <span id="soundStatusText">AUDIO: ON</span>
+                    </button>
+                    <a href="https://t.me/" target="_blank" class="tele-link"><i class="fab fa-telegram"></i> Join Telegram Hub</a>
+                </div>
+            </div>
+        </div>
+        <div class="header-main">
+            <div class="header-left">
+                <button class="mobile-toggle" onclick="toggleMobileMenu()" aria-label="Toggle Menu">
+                    <span class="bar bar-1"></span>
+                    <span class="bar bar-2"></span>
+                    <span class="bar bar-3"></span>
+                </button>
+                
+                <a href="#home" class="logo-link" onclick="navigateTo('home', {}, true, event)">
+                    <div class="logo-badge">
+                        <i class="fas fa-play"></i>
+                    </div>
+                    <div class="logo-text">
+                        <span>MULTI</span>MOVIES
+                        <span class="logo-sub">CYBER EDITION</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Desktop Nav -->
+            <nav class="main-nav-wrap">
+                <ul class="main-nav" id="mainNav">
+                    <li><a href="#home" class="nav-link active" onclick="navigateTo('home', {}, true, event)"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="#collections" class="nav-link" onclick="navigateTo('collections', {}, true, event)"><i class="fas fa-layer-group text-brand"></i> Collections <span style="font-size:9px;background:var(--brand);color:#fff;padding:1px 5px;border-radius:4px;font-weight:800;">HOT</span></a></li>
+                    <li><a href="#watchlist" class="nav-link nav-watchlist" onclick="navigateTo('watchlist', {}, true, event)"><i class="fas fa-heart"></i> Watchlist <span class="watchlist-nav-pill" id="navWatchlistBadge">0</span></a></li>
+                    
+                    <li class="has-dropdown">
+                        <a href="#" class="nav-link" onclick="event.preventDefault()">Genre <i class="fas fa-angle-down"></i></a>
+                        <ul class="dropdown-menu cyber-dropdown" id="genreDropdown">
+                            <!-- Populated dynamically via JS -->
+                        </ul>
+                    </li>
+                    
+                    <li class="has-dropdown">
+                        <a href="#" class="nav-link" onclick="event.preventDefault()">Category <i class="fas fa-angle-down"></i></a>
+                        <ul class="dropdown-menu cyber-dropdown">
+                            <li><a href="#genre/0/Trending/trending" onclick="navigateTo('genre', {id: 0, name: 'Trending Today', endpoint: 'trending_day'}, true, event)"><i class="fas fa-fire text-brand"></i> Trending Today</a></li>
+                            <li><a href="#genre/0/Trending/trending" onclick="navigateTo('genre', {id: 0, name: 'Trending This Week', endpoint: 'trending'}, true, event)"><i class="fas fa-bolt text-cyan"></i> Trending This Week</a></li>
+                            <li><a href="#genre/0/Top%20Rated/top_rated" onclick="navigateTo('genre', {id: 0, name: 'Top Rated All-Time', endpoint: 'top_rated'}, true, event)"><i class="fas fa-star text-gold"></i> Top Rated All-Time</a></li>
+                            <li><a href="#genre/28/Hollywood/popular/movie" onclick="navigateTo('genre', {id: 28, name: 'Hollywood Blockbusters', mediaType: 'movie'}, true, event)"><i class="fas fa-film"></i> Hollywood Movies</a></li>
+                            <li><a href="#genre/10749/Bollywood/popular/movie" onclick="navigateTo('genre', {id: 10749, name: 'Bollywood Pan-India', endpoint: 'bollywood'}, true, event)"><i class="fas fa-video"></i> Bollywood Pan-India</a></li>
+                            <li><a href="#genre/0/KDrama/kdrama" onclick="navigateTo('genre', {id: 0, name: 'K-Drama & K-Cinema', endpoint: 'kdrama'}, true, event)"><i class="fas fa-heart text-purple"></i> Korean Wave (K-Drama)</a></li>
+                        </ul>
+                    </li>
+                    
+                    <li class="has-dropdown">
+                        <a href="#" class="nav-link" onclick="event.preventDefault()">OTT Streams <i class="fas fa-angle-down"></i></a>
+                        <ul class="dropdown-menu cyber-dropdown">
+                            <li><a href="#genre/0/Netflix/netflix" onclick="navigateTo('genre', {id: 0, name: 'Netflix Originals & Hits', endpoint: 'netflix'}, true, event)"><span class="ott-tag netflix">N</span> Netflix Originals</a></li>
+                            <li><a href="#genre/0/Prime/prime" onclick="navigateTo('genre', {id: 0, name: 'Amazon Prime Video', endpoint: 'prime'}, true, event)"><span class="ott-tag prime">P</span> Prime Video</a></li>
+                            <li><a href="#genre/0/Disney/disney" onclick="navigateTo('genre', {id: 0, name: 'Disney+ Universe', endpoint: 'disney'}, true, event)"><span class="ott-tag disney">D+</span> Disney+ Originals</a></li>
+                            <li><a href="#genre/0/AppleTV/appletv" onclick="navigateTo('genre', {id: 0, name: 'Apple TV+ Exclusives', endpoint: 'appletv'}, true, event)"><span class="ott-tag apple"></span> Apple TV+</a></li>
+                            <li><a href="#genre/0/HBO/hbo" onclick="navigateTo('genre', {id: 0, name: 'HBO Max & Warner Bros', endpoint: 'hbo'}, true, event)"><span class="ott-tag hbo">HBO</span> HBO Max</a></li>
+                            <li><a href="#genre/0/Paramount/paramount" onclick="navigateTo('genre', {id: 0, name: 'Paramount+ & Universal', endpoint: 'paramount'}, true, event)"><span class="ott-tag prime" style="background:#0055ff;">P+</span> Paramount+</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="has-dropdown">
+                        <a href="#" class="nav-link" onclick="event.preventDefault()">Universes <i class="fas fa-angle-down"></i></a>
+                        <ul class="dropdown-menu cyber-dropdown">
+                            <li><a href="#genre/0/Marvel/marvel" onclick="navigateTo('genre', {id: 0, name: 'Marvel Cinematic Universe (MCU)', endpoint: 'marvel'}, true, event)"><i class="fas fa-shield-halved text-brand"></i> Marvel Cinematic (MCU)</a></li>
+                            <li><a href="#genre/0/DC/dc" onclick="navigateTo('genre', {id: 0, name: 'DC Extended Universe (DCEU)', endpoint: 'dc'}, true, event)"><i class="fas fa-mask"></i> DC Universe (DCEU)</a></li>
+                            <li><a href="#genre/0/Anime/anime_hub" onclick="navigateTo('genre', {id: 0, name: 'Anime Mega-Vault', endpoint: 'anime_hub'}, true, event)"><i class="fas fa-bolt text-gold"></i> Anime Mega-Vault</a></li>
+                            <li><a href="#search/Star%20Wars" onclick="navigateTo('search', {query: 'Star Wars'}, true, event)"><i class="fas fa-jedi"></i> Star Wars Saga</a></li>
+                            <li><a href="#search/Harry%20Potter" onclick="navigateTo('search', {query: 'Harry Potter'}, true, event)"><i class="fas fa-wand-magic-sparkles"></i> Wizarding World</a></li>
+                            <li><a href="#search/Fast%20and%20Furious" onclick="navigateTo('search', {query: 'Fast and Furious'}, true, event)"><i class="fas fa-gauge-high"></i> Fast & Furious</a></li>
+                            <li><a href="#search/Cyberpunk" onclick="navigateTo('search', {query: 'Cyberpunk'}, true, event)"><i class="fas fa-robot text-cyan"></i> Cyberpunk & Sci-Fi</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Search Action with Command Palette trigger -->
+            <div class="header-right">
+                <button class="quick-search-trigger" onclick="openSearchModal()" title="Search (Ctrl + K)">
+                    <i class="fas fa-search"></i>
+                    <span class="search-placeholder">Quick Search...</span>
+                    <kbd class="cyber-kbd">Ctrl K</kbd>
+                </button>
+            </div>
+        </div>
+        <div class="header-scanline"></div>
+    </header>
+
+    <!-- ============ QUICK COMMAND / SEARCH MODAL ============ -->
+    <div class="search-modal-overlay" id="searchModal" onclick="handleModalBackdropClick(event)">
+        <div class="search-modal-box">
+            <div class="search-modal-header">
+                <i class="fas fa-search search-modal-icon"></i>
+                <input type="text" id="modalSearchInput" placeholder="Search movies, anime, TV shows, actors..." autocomplete="off" oninput="handleLiveSearch(this.value)" onkeydown="handleSearchKeydown(event)">
+                <button class="modal-close-btn" onclick="closeSearchModal()" aria-label="Close search"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <!-- Quick Suggestion Tags -->
+            <div class="search-quick-tags">
+                <span class="tag-title"><i class="fas fa-bolt"></i> Trending:</span>
+                <button class="quick-tag" onclick="quickTagSearch('Marvel')">Marvel</button>
+                <button class="quick-tag" onclick="quickTagSearch('Avatar')">Avatar</button>
+                <button class="quick-tag" onclick="quickTagSearch('Spider-Man')">Spider-Man</button>
+                <button class="quick-tag" onclick="quickTagSearch('Batman')">Batman</button>
+                <button class="quick-tag" onclick="quickTagSearch('Anime')">Anime</button>
+            </div>
+            
+            <!-- Live Results Container -->
+            <div class="modal-results-container" id="modalSearchResults">
+                <div class="search-hint">
+                    <i class="fas fa-terminal"></i> Type keyword or press <kbd>Enter</kbd> to search everything
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ MOBILE MENU DRAWER ============ -->
+    <div class="mobile-overlay" id="mobileOverlay" onclick="toggleMobileMenu()"></div>
+    <aside class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-header">
+            <div class="logo-text" style="font-size:18px;">
+                <span>MULTI</span>MOVIES
+            </div>
+            <button class="mobile-menu-close" onclick="toggleMobileMenu()"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <div class="mobile-search-wrap">
+            <div class="mobile-search-box">
+                <input type="text" id="mobileSearchInput" placeholder="Search titles..." onkeydown="if(event.key==='Enter'){doMobileSearch();toggleMobileMenu();}">
+                <button onclick="doMobileSearch();toggleMobileMenu();"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+        
+        <ul class="mobile-nav" id="mobileNav">
+            <!-- Populated dynamically via JS -->
+        </ul>
+    </aside>
+
+    <!-- ============ MAIN APP CONTAINER ============ -->
+    <div class="site-container">
+        <!-- Main Content Area -->
+        <main class="main-content" id="mainContent">
+            <div class="cyber-loader-wrap">
+                <div class="cyber-spinner">
+                    <div class="spinner-ring"></div>
+                    <div class="spinner-core"><i class="fas fa-film"></i></div>
+                </div>
+                <div class="loader-text">INITIALIZING QUANTUM FEED...</div>
+            </div>
+        </main>
+        
+        <!-- Sidebar Widget Column -->
+        <aside class="sidebar" id="sidebar">
+            <!-- Populated dynamically via JS -->
+        </aside>
+    </div>
+
+    <!-- ============ FOOTER ============ -->
+    <footer class="site-footer">
+        <div class="footer-grid-glow"></div>
+        <div class="footer-inner">
+            <div class="footer-grid">
+                <div class="footer-col brand-col">
+                    <div class="footer-logo">
+                        <span class="badge-red">MULTI</span> <span class="badge-white">MOVIES</span>
+                    </div>
+                    <p class="footer-desc">
+                        Next-generation streaming ecosystem built for movie enthusiasts. Experience instant 4K streaming, multi-server cloud redundancy, dynamic seasons, and futuristic UI interactions.
+                    </p>
+                    <div class="footer-status-pill">
+                        <span class="status-indicator"></span> 5 FAST CLOUD SERVERS ONLINE
+                    </div>
+                </div>
+                
+                <div class="footer-col">
+                    <h4><i class="fas fa-compass text-brand"></i> Quick Explore</h4>
+                    <ul>
+                        <li><a href="#genre/0/Trending/trending" onclick="navigateTo('genre', {id: 0, name: 'Trending Now', endpoint: 'trending'}, true, event)">Trending Streams</a></li>
+                        <li><a href="#genre/0/Top%20Rated/top_rated" onclick="navigateTo('genre', {id: 0, name: 'Top Rated All-Time', endpoint: 'top_rated'}, true, event)">Top Rated Cinema</a></li>
+                        <li><a href="#genre/28/Action/popular/movie" onclick="navigateTo('genre', {id: 28, name: 'Action Thrillers', mediaType: 'movie'}, true, event)">Action Movies</a></li>
+                        <li><a href="#genre/878/Sci-Fi/popular/movie" onclick="navigateTo('genre', {id: 878, name: 'Sci-Fi & Cyberpunk', mediaType: 'movie'}, true, event)">Sci-Fi & Fantasy</a></li>
+                        <li><a href="#watchlist" onclick="navigateTo('watchlist', {}, true, event)">My Saved Watchlist</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h4><i class="fas fa-layer-group text-brand"></i> OTT Channels</h4>
+                    <ul>
+                        <li><a href="#search/Netflix" onclick="navigateTo('search', {query: 'Netflix'}, true, event)">Netflix Series</a></li>
+                        <li><a href="#search/Marvel" onclick="navigateTo('search', {query: 'Marvel'}, true, event)">Marvel MCU</a></li>
+                        <li><a href="#search/Disney" onclick="navigateTo('search', {query: 'Disney'}, true, event)">Disney+ Originals</a></li>
+                        <li><a href="#search/Anime" onclick="navigateTo('genre', {id: 16, name: 'Anime Collection'}, true, event)">Anime Hub</a></li>
+                        <li><a href="#search/HBO" onclick="navigateTo('search', {query: 'HBO'}, true, event)">HBO Max Exclusives</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-col">
+                    <h4><i class="fas fa-shield-halved text-brand"></i> Legal & Disclaimer</h4>
+                    <p class="legal-text">
+                        MultiMovies does not host any files on its servers. All contents are fetched via third-party APIs (TMDB) and public video embed engines for educational exploration only.
+                    </p>
+                    <ul class="legal-links">
+                        <li><a href="#" onclick="showToast('DMCA Policy: Non-hosting informational interface', 'info'); return false;">DMCA Policy</a></li>
+                        <li><a href="#" onclick="showToast('Privacy Policy: No logs, no telemetry', 'info'); return false;">Privacy Notice</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <div class="footer-bottom-left">
+                    &copy; 2026 <strong>MultiMovies Cyber Edition</strong>. Powered by TMDB & Quantum Streaming Architecture.
+                </div>
+                <div class="footer-bottom-right">
+                    <span class="latency-chip"><i class="fas fa-bolt"></i> Latency: <strong>14ms</strong></span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Cyber Button -->
+    <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Scroll to top">
+        <i class="fas fa-arrow-up"></i>
+        <span class="btn-glow-ring"></span>
+    </button>
+
+    <!-- JavaScript Application Logic -->
+    <script src="app.js"></script>
+</body>
+</html>
