@@ -16,6 +16,24 @@ export default function App() {
     const [searchOpen, setSearchOpen] = useState(false);
     const location = useLocation();
 
+    // Global Anti-Popunder & Ad Interceptor for Third-Party Embeds
+    useEffect(() => {
+        const nativeOpen = window.open;
+        window.open = function (url, target, features) {
+            // Allow internal app navigation or trusted origins
+            if (!url || typeof url !== 'string') return null;
+            if (url.startsWith('/') || url.includes(window.location.hostname)) {
+                return nativeOpen.call(window, url, target, features);
+            }
+            console.warn('[Popunder Shield] Blocked third-party ad popup:', url);
+            return null;
+        };
+
+        return () => {
+            window.open = nativeOpen;
+        };
+    }, []);
+
     // Ctrl+K shortcut for search
     useEffect(() => {
         const handleKeyDown = (e) => {
@@ -27,6 +45,7 @@ export default function App() {
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
+
 
     // Close search on route change
     useEffect(() => {
