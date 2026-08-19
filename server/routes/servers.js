@@ -19,10 +19,22 @@ const STREAM_SERVERS = [
                 : `https://vidlink.pro/movie/${id}?primaryColor=e50914&secondaryColor=b81d24&iconColor=ffffff&title=true&poster=true&autoplay=true`
     },
     {
+        id: 'vidsrc_me',
+        name: 'VidSrc Classic',
+        icon: 'fa-play-circle',
+        ping: '10ms',
+        quality: '1080p Ultra',
+        type: 'Fast Ultra Node',
+        getUrl: (type, id, s = 1, e = 1) =>
+            type === 'tv'
+                ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
+                : `https://vidsrc.me/embed/movie?tmdb=${id}`
+    },
+    {
         id: 'vidsrc_sbs',
         name: 'VidSrc SBS (Ultra)',
         icon: 'fa-film',
-        ping: '10ms',
+        ping: '12ms',
         quality: '4K IMAX',
         type: 'SBS Multi-Node',
         getUrl: (type, id, s = 1, e = 1) =>
@@ -43,11 +55,23 @@ const STREAM_SERVERS = [
                 : `https://autoembed.co/movie/tmdb/${id}`
     },
     {
+        id: '2embed_stream',
+        name: '2Embed Stream',
+        icon: 'fa-compact-disc',
+        ping: '16ms',
+        quality: '1080p',
+        type: 'Global CDN Node',
+        getUrl: (type, id, s = 1, e = 1) =>
+            type === 'tv'
+                ? `https://www.2embed.stream/embed/tv/${id}/${s}/${e}`
+                : `https://www.2embed.stream/embed/movie/${id}`
+    },
+    {
         id: 'vidsrc_pm',
         name: 'VidSrc PM',
         icon: 'fa-server',
         ping: '18ms',
-        quality: '1080p Ultra',
+        quality: '1080p HD',
         type: 'Cloud Edge Node',
         getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
@@ -65,30 +89,6 @@ const STREAM_SERVERS = [
             type === 'tv'
                 ? `https://vidsrc.io/embed/tv/${id}/${s}/${e}`
                 : `https://vidsrc.io/embed/movie/${id}`
-    },
-    {
-        id: 'vidsrc_me',
-        name: 'VidSrc Classic',
-        icon: 'fa-play-circle',
-        ping: '24ms',
-        quality: '1080p',
-        type: 'Secondary Backup',
-        getUrl: (type, id, s = 1, e = 1) =>
-            type === 'tv'
-                ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
-                : `https://vidsrc.me/embed/movie?tmdb=${id}`
-    },
-    {
-        id: '2embed_stream',
-        name: '2Embed Stream',
-        icon: 'fa-compact-disc',
-        ping: '28ms',
-        quality: '1080p',
-        type: 'Emergency Failover',
-        getUrl: (type, id, s = 1, e = 1) =>
-            type === 'tv'
-                ? `https://www.2embed.stream/embed/tv/${id}/${s}/${e}`
-                : `https://www.2embed.stream/embed/movie/${id}`
     }
 ];
 
@@ -110,8 +110,8 @@ async function checkNodeHealth(server) {
 
     try {
         const controller = new AbortController();
-        // Fast timeout of 3500ms to immediately catch slow/laggy nodes
-        const timeoutId = setTimeout(() => controller.abort(), 3500);
+        // Aggressive timeout of 1800ms to instantly prune slow or laggy nodes
+        const timeoutId = setTimeout(() => controller.abort(), 1800);
 
         const res = await fetch(url, {
             method: 'GET',
@@ -252,4 +252,5 @@ router.get('/', async (req, res) => {
 });
 
 export default router;
+
 

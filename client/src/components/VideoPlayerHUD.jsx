@@ -24,7 +24,7 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
         });
     }
 
-    // Fetch health data and auto-select fastest healthy server
+    // Fetch health data once and auto-select fastest healthy server
     useEffect(() => {
         let cancelled = false;
 
@@ -55,10 +55,8 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
     }, [id, season, episode]);
 
     useEffect(() => {
-        setLoading(true);
         setIframeError(false);
-        const timer = setTimeout(() => setLoading(false), 50);
-        return () => clearTimeout(timer);
+        setLoading(false);
     }, [selectedServer, id, season, episode]);
 
     const toggleCinema = () => {
@@ -76,14 +74,7 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
 
     const handleIframeError = useCallback(() => {
         setIframeError(true);
-        setLoading(true);
-        setTimeout(() => {
-            setIframeError(false);
-            setSelectedServer(prev => {
-                const next = (prev + 1) % activeServers.length;
-                return next;
-            });
-        }, 300);
+        setSelectedServer(prev => (prev + 1) % Math.max(activeServers.length, 1));
     }, [activeServers.length]);
 
     const getNodeHealthStatus = (serverId) => {
@@ -93,26 +84,20 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
 
     /**
      * Providers that natively support iframe embedding without X-Frame-Options.
-     * These do NOT need our proxy even on localhost.
      */
     const NATIVE_IFRAME_HOSTS = [
         'youtube.com',
         'youtu.be',
         'vidlink.pro',
+        'vidsrc.me',
         'vidsrc.sbs',
         'autoembed.co',
+        '2embed.stream',
+        '2embed.cc',
         'vidsrc.pm',
-        'vidsrc.io',
-        'vidsrc.me',
-        '2embed.stream'
+        'vidsrc.io'
     ];
 
-    /**
-     * On localhost, route embed URLs through our header-stripping proxy so
-     * X-Frame-Options / CSP headers are stripped before the browser sees them.
-     * Providers in NATIVE_IFRAME_HOSTS are already iframe-safe and skip the proxy.
-     * On production (real domain) embed providers already allow direct embedding.
-     */
     const getIframeSrc = (rawUrl) => {
         if (!rawUrl) return '';
         const isNative = NATIVE_IFRAME_HOSTS.some(host => rawUrl.includes(host));
@@ -122,6 +107,7 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
         }
         return rawUrl;
     };
+
 
     const currentServer = activeServers[selectedServer] || activeServers[0];
     const iframeSrc = getIframeSrc(currentServer?.url);

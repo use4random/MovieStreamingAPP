@@ -62,22 +62,26 @@ router.get('/embed', async (req, res) => {
 
     // Only allow known embed providers for security
     const ALLOWED_HOSTS = [
+        'vidlink.pro',
+        'vidsrc.me',
         'vidsrc.sbs',
+        'autoembed.co',
+        '2embed.stream',
+        '2embed.cc',
+        'vidsrc.pm',
+        'vidsrc.io',
         'vidsrc.pro',
         'vidsrc.icu',
         'vidsrc.xyz',
         'vidsrc.to',
-        'vidsrc.me',
         'embed.su',
-        'autoembed.co',
         'smashystream.com',
-        '2embed.cc',
         'player.videasy.net',
         'vid2fcdn.xyz',
-        'vidlink.pro',
         'player.smashy.stream',
         'moviesapi.club',
     ];
+
 
     const isAllowed = ALLOWED_HOSTS.some(host =>
         targetUrl.hostname === host || targetUrl.hostname.endsWith('.' + host)
