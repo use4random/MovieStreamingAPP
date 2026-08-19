@@ -1,4 +1,5 @@
-const API_BASE = import.meta.env.VITE_API_BASE || '/api';
+const API_BASE = (import.meta.env.VITE_API_BASE || '/api').replace(/\/$/, '');
+
 
 
 export const IMG_W500 = 'https://image.tmdb.org/t/p/w500';
@@ -29,7 +30,9 @@ export function getRating(vote) {
 }
 
 async function request(endpoint, params = {}) {
-    const url = new URL(API_BASE + endpoint, window.location.origin);
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const url = new URL(`${API_BASE}${cleanEndpoint}`, window.location.origin);
+
     Object.entries(params).forEach(([k, v]) => {
         if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, v);
     });
