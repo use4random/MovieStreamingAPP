@@ -4,7 +4,11 @@ const AudioContext = createContext();
 
 export function AudioProvider({ children }) {
     const [enabled, setEnabled] = useState(() => {
-        return localStorage.getItem('mm_audio_fx') !== 'false';
+        try {
+            return localStorage.getItem('mm_audio_fx') !== 'false';
+        } catch {
+            return true;
+        }
     });
 
     const ctxRef = useRef(null);
@@ -62,7 +66,9 @@ export function AudioProvider({ children }) {
     const toggleAudio = () => {
         setEnabled(prev => {
             const next = !prev;
-            localStorage.setItem('mm_audio_fx', next);
+            try {
+                localStorage.setItem('mm_audio_fx', next);
+            } catch (e) {}
             return next;
         });
     };

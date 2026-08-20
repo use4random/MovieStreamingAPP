@@ -41,23 +41,33 @@ export default function App() {
         // 1. Override window.open to trap all popup attempts across mobile and desktop
         const nativeOpen = window.open;
         window.open = function (url, target, features) {
-            if (url && isInternalUrl(url)) {
-                return nativeOpen.call(window, url, target, features);
+            try {
+                if (url && isInternalUrl(url)) {
+                    return nativeOpen.call(window, url, target, features);
+                }
+                console.warn('[Popunder Shield] Blocked external window.open popup attempt:', url || 'empty_url');
+                return dummyWindow;
+            } catch {
+                return dummyWindow;
             }
-            console.warn('[Popunder Shield] Blocked external window.open popup attempt:', url || 'empty_url');
-            return dummyWindow;
         };
 
         // 2. Override HTMLAnchorElement.prototype.click to catch dynamic hidden anchor insertions
-        const nativeAnchorClick = HTMLAnchorElement.prototype.click;
-        HTMLAnchorElement.prototype.click = function () {
-            const href = this.getAttribute('href') || this.href;
-            if (href && !isInternalUrl(href) && (this.target === '_blank' || (typeof href === 'string' && href.startsWith('http')))) {
-                console.warn('[Popunder Shield] Blocked dynamic anchor ad click:', href);
-                return;
-            }
-            return nativeAnchorClick.apply(this, arguments);
-        };
+        if (typeof HTMLAnchorElement !== 'undefined' && HTMLAnchorElement.prototype) {
+            const nativeAnchorClick = HTMLAnchorElement.prototype.click;
+            HTMLAnchorElement.prototype.click = function () {
+                try {
+                    const href = this.getAttribute('href') || this.href;
+                    if (href && !isInternalUrl(href) && (this.target === '_blank' || (typeof href === 'string' && href.startsWith('http')))) {
+                        console.warn('[Popunder Shield] Blocked dynamic anchor ad click:', href);
+                        return;
+                    }
+                    return nativeAnchorClick.apply(this, arguments);
+                } catch {
+                    // Prevent illegal invocation exceptions
+                }
+            };
+        }
 
         // 3. Capture-phase listener for click and mobile touch events to trap click-jacking popunders
         const handleGlobalEvent = (e) => {
