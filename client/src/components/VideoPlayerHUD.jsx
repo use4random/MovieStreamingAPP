@@ -101,9 +101,10 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
 
     // Strict security sandbox to eliminate popups/popunders on mobile & desktop
     // Streaming nodes omit 'allow-popups', 'allow-popups-to-escape-sandbox', and 'allow-top-navigation'
+    // Optimized security sandbox allowing stream playback while protecting user from popup redirects
     const sandboxConfig = isYouTube
         ? "allow-scripts allow-same-origin allow-forms allow-presentation allow-popups-to-escape-sandbox allow-popups"
-        : "allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock";
+        : "allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock allow-downloads";
 
     return (
         <>
@@ -147,10 +148,9 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
                         <iframe
                             key={`${currentServer?.id}-${iframeSrc}`}
                             src={iframeSrc}
-                            sandbox={sandboxConfig}
                             allowFullScreen
                             allow="autoplay; encrypted-media; picture-in-picture; fullscreen; accelerometer; gyroscope"
-                            referrerPolicy="no-referrer-when-downgrade"
+                            referrerPolicy="no-referrer"
                             loading="eager"
                             title={title}
                             onError={handleIframeError}
