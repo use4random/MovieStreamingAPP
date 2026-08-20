@@ -16,49 +16,74 @@ export default function App() {
     const [searchOpen, setSearchOpen] = useState(false);
     const location = useLocation();
 
-    // Global Anti-Popunder & Ad Interceptor for Third-Party Embeds
+    // Global Anti-Popunder & Strict Mobile Ad Interceptor
     useEffect(() => {
-        // 1. Override window.open
-        const nativeOpen = window.open;
-        window.open = function (url, target, features) {
-            if (!url || typeof url !== 'string') return null;
-            if (url.startsWith('/') || url.includes(window.location.hostname)) {
-                return nativeOpen.call(window, url, target, features);
+        const isInternalUrl = (url) => {
+            if (!url || typeof url !== 'string') return false;
+            if (url.startsWith('/') || url.startsWith('#') || url.startsWith('javascript:void') || url.startsWith('blob:')) return true;
+            try {
+                const parsed = new URL(url, window.location.origin);
+                return parsed.hostname === window.location.hostname;
+            } catch {
+                return false;
             }
-            console.warn('[Popunder Shield] Blocked window.open ad popup:', url);
-            return null;
         };
 
-        // 2. Override HTMLAnchorElement.prototype.click to catch dynamic hidden anchor creation
+        // Dummy window object to safely swallow ad script method calls (.focus(), .blur(), .close())
+        const dummyWindow = {
+            focus: () => {},
+            blur: () => {},
+            close: () => {},
+            postMessage: () => {},
+            location: { href: '' }
+        };
+
+        // 1. Override window.open to trap all popup attempts across mobile and desktop
+        const nativeOpen = window.open;
+        window.open = function (url, target, features) {
+            if (url && isInternalUrl(url)) {
+                return nativeOpen.call(window, url, target, features);
+            }
+            console.warn('[Popunder Shield] Blocked external window.open popup attempt:', url || 'empty_url');
+            return dummyWindow;
+        };
+
+        // 2. Override HTMLAnchorElement.prototype.click to catch dynamic hidden anchor insertions
         const nativeAnchorClick = HTMLAnchorElement.prototype.click;
         HTMLAnchorElement.prototype.click = function () {
             const href = this.getAttribute('href') || this.href;
-            if (href && typeof href === 'string' && !href.startsWith('/') && !href.includes(window.location.hostname) && (this.target === '_blank' || href.startsWith('http'))) {
-                console.warn('[Popunder Shield] Blocked dynamic anchor element ad click:', href);
+            if (href && !isInternalUrl(href) && (this.target === '_blank' || (typeof href === 'string' && href.startsWith('http')))) {
+                console.warn('[Popunder Shield] Blocked dynamic anchor ad click:', href);
                 return;
             }
             return nativeAnchorClick.apply(this, arguments);
         };
 
-        // 3. Capture-phase window click listener to trap click-jacking popunders
-        const handleGlobalClick = (e) => {
-            const target = e.target;
-            if (target && target.tagName === 'A') {
-                const href = target.getAttribute('href') || target.href;
-                if (href && typeof href === 'string' && (target.target === '_blank' || href.startsWith('http')) && !href.startsWith('/') && !href.includes(window.location.hostname)) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    console.warn('[Popunder Shield] Intercepted link popunder click:', href);
+        // 3. Capture-phase listener for click and mobile touch events to trap click-jacking popunders
+        const handleGlobalEvent = (e) => {
+            let target = e.target;
+            while (target && target !== document) {
+                if (target.tagName === 'A') {
+                    const href = target.getAttribute('href') || target.href;
+                    if (href && !isInternalUrl(href) && (target.target === '_blank' || (typeof href === 'string' && href.startsWith('http')))) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+                        console.warn('[Popunder Shield] Intercepted external link popunder event:', href);
+                        return false;
+                    }
                 }
+                target = target.parentElement;
             }
         };
 
-        window.addEventListener('click', handleGlobalClick, true);
+        const eventTypes = ['click', 'touchstart', 'touchend', 'pointerdown'];
+        eventTypes.forEach(type => window.addEventListener(type, handleGlobalEvent, true));
 
         return () => {
             window.open = nativeOpen;
             HTMLAnchorElement.prototype.click = nativeAnchorClick;
-            window.removeEventListener('click', handleGlobalClick, true);
+            eventTypes.forEach(type => window.removeEventListener(type, handleGlobalEvent, true));
         };
     }, []);
 

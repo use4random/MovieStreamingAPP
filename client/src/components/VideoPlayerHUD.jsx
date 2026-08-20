@@ -82,36 +82,28 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
         return healthData.nodes.find(n => n.id === serverId);
     };
 
-    /**
-     * Providers that natively support iframe embedding without X-Frame-Options.
-     */
-    const NATIVE_IFRAME_HOSTS = [
-        'youtube.com',
-        'youtu.be',
-        'vidlink.pro',
-        'vidsrc.me',
-        'vidsrc.sbs',
-        'autoembed.co',
-        '2embed.stream',
-        '2embed.cc',
-        'vidsrc.pm',
-        'vidsrc.io'
-    ];
+    const isYouTubeUrl = (url) => {
+        if (!url) return false;
+        return url.includes('youtube.com') || url.includes('youtu.be');
+    };
 
     const getIframeSrc = (rawUrl) => {
         if (!rawUrl) return '';
-        const isNative = NATIVE_IFRAME_HOSTS.some(host => rawUrl.includes(host));
-        if (isNative) return rawUrl;
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            return `/api/proxy/embed?url=${encodeURIComponent(rawUrl)}`;
-        }
-        return rawUrl;
+        if (isYouTubeUrl(rawUrl)) return rawUrl;
+        // Proxy all third-party stream embeds across all hostnames (mobile, LAN, production)
+        return `/api/proxy/embed?url=${encodeURIComponent(rawUrl)}`;
     };
-
 
     const currentServer = activeServers[selectedServer] || activeServers[0];
     const iframeSrc = getIframeSrc(currentServer?.url);
     const currentNodeHealth = getNodeHealthStatus(currentServer?.id);
+    const isYouTube = isYouTubeUrl(currentServer?.url);
+
+    // Strict security sandbox to eliminate popups/popunders on mobile & desktop
+    // Streaming nodes omit 'allow-popups', 'allow-popups-to-escape-sandbox', and 'allow-top-navigation'
+    const sandboxConfig = isYouTube
+        ? "allow-scripts allow-same-origin allow-forms allow-presentation allow-popups-to-escape-sandbox allow-popups"
+        : "allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock";
 
     return (
         <>
@@ -132,10 +124,10 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
                         )}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <button className="hud-btn" onClick={toggleCinema} title="Toggle Cinema Lights">
+                        <button className="hud-btn" onClick={(e) => { e.stopPropagation(); toggleCinema(); }} title="Toggle Cinema Lights">
                             <i className="fas fa-lightbulb"></i> Cinema Mode
                         </button>
-                        <button className="hud-btn" onClick={() => { setLoading(true); setIframeError(false); setTimeout(() => setLoading(false), 150); }} title="Re-sync Buffer">
+                        <button className="hud-btn" onClick={(e) => { e.stopPropagation(); setLoading(true); setIframeError(false); setTimeout(() => setLoading(false), 150); }} title="Re-sync Buffer">
                             <i className="fas fa-rotate"></i> Fast Re-Sync
                         </button>
                     </div>
@@ -155,6 +147,7 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
                         <iframe
                             key={`${currentServer?.id}-${iframeSrc}`}
                             src={iframeSrc}
+                            sandbox={sandboxConfig}
                             allowFullScreen
                             allow="autoplay; encrypted-media; picture-in-picture; fullscreen; accelerometer; gyroscope"
                             referrerPolicy="no-referrer-when-downgrade"
@@ -162,7 +155,6 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
                             title={title}
                             onError={handleIframeError}
                         />
-
                     )}
 
                 </div>

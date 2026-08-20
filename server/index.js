@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -8,6 +9,8 @@ import tmdbRoutes from './routes/tmdb.js';
 import collectionsRoutes from './routes/collections.js';
 import serverRoutes from './routes/servers.js';
 import proxyRoutes from './routes/proxy.js';
+import userRoutes from './routes/user.js';
+import { createRateLimiter } from './middleware/rateLimiter.js';
 
 dotenv.config();
 
@@ -17,26 +20,61 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
+// Security: Trust first proxy hop (Vercel/Cloudflare) for accurate client IP in rate limiting
+app.set('trust proxy', 1);
+
+// Security: Standard response headers (X-Content-Type-Options, HSTS, Referrer-Policy, etc.)
+// CSP disabled because it conflicts with proxied iframe embeds
+app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
+
+// Security: Environment-based CORS origin filtering
+// Default to restrictive in production if ALLOWED_ORIGINS is not explicitly set
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
+    : (process.env.NODE_ENV === 'production' ? [] : null);
+
 app.use(cors({
-    origin: '*',
+    origin: function (origin, callback) {
+        // Allow same-origin / server-to-server / curl requests with no origin header
+        if (!origin) return callback(null, true);
+        if (!allowedOrigins || allowedOrigins.includes('*')) return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        return callback(new Error('CORS policy violation: Origin not allowed.'));
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
-app.use(express.json());
+// Security: Limit JSON body size to prevent memory exhaustion DoS
+app.use(express.json({ limit: '100kb' }));
+
+// Rate Limiting: Apply sliding window rate limiters to protect against DoS
+const globalApiLimiter = createRateLimiter({ name: 'api_global', windowMs: 60000, max: 150 });
+const strictProxyLimiter = createRateLimiter({ name: 'api_proxy', windowMs: 60000, max: 40, message: { error: 'Rate limit exceeded for streaming proxy. Please wait a minute.' } });
+
+app.use('/api', globalApiLimiter);
+app.use('/api/proxy', strictProxyLimiter);
+
+// Edge CDN Caching: Attach stale-while-revalidate headers for API catalog GET requests
+app.use('/api', (req, res, next) => {
+    if (req.method === 'GET' && !req.path.startsWith('/proxy') && !req.path.startsWith('/user')) {
+        res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=600, stale-while-revalidate=1200');
+    }
+    next();
+});
 
 // API Routes
 app.use('/api', tmdbRoutes);
 app.use('/api/collections', collectionsRoutes);
 app.use('/api/servers', serverRoutes);
 app.use('/api/proxy', proxyRoutes);
+app.use('/api/user', userRoutes);
 
-// Health check endpoint
+// Health check endpoint (stripped version info in production)
 app.get('/api/health', (req, res) => {
     res.json({
         status: 'ONLINE',
-        system: 'MultiMovies Quantum API Gateway',
-        version: '2.0.0',
         timestamp: new Date().toISOString()
     });
 });

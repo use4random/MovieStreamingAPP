@@ -47,6 +47,24 @@ async function request(endpoint, params = {}) {
     }
 }
 
+async function requestMutate(endpoint, method = 'POST', body = {}) {
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    const url = new URL(`${API_BASE}${cleanEndpoint}`, window.location.origin);
+
+    try {
+        const res = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
+    } catch (err) {
+        console.warn(`API mutation error for ${endpoint}:`, err);
+        return null;
+    }
+}
+
 export const api = {
     getTrending: (type = 'all', window = 'week', page = 1) => request('/trending', { type, window, page }),
     getPopular: (type = 'movie', page = 1) => request('/popular', { type, page }),
@@ -62,4 +80,11 @@ export const api = {
     getCollections: () => request('/collections'),
     getServers: (type, id, season, episode) => request('/servers', { type, id, season, episode }),
     getServerHealth: () => request('/servers/health'),
+
+    // User Persistence & History APIs
+    getWatchlist: (userId = 'guest') => request('/user/watchlist', { userId }),
+    saveWatchlist: (item, userId = 'guest') => requestMutate('/user/watchlist', 'POST', { userId, item }),
+    removeWatchlist: (id, mediaType, userId = 'guest') => requestMutate('/user/watchlist', 'DELETE', { userId, id, mediaType }),
+    getPlaybackHistory: (userId = 'guest') => request('/user/history', { userId }),
+    updatePlaybackProgress: (payload, userId = 'guest') => requestMutate('/user/history', 'POST', { userId, ...payload }),
 };

@@ -1,9 +1,7 @@
 import express from 'express';
-import NodeCache from 'node-cache';
+import { cache } from '../utils/cache.js';
 
 const router = express.Router();
-// 2 minute cache for server health checks to maintain ultra-fast UI load
-const healthCache = new NodeCache({ stdTTL: 120, checkperiod: 60 });
 
 const STREAM_SERVERS = [
     {
@@ -11,7 +9,7 @@ const STREAM_SERVERS = [
         name: 'VidLink HD',
         icon: 'fa-bolt',
         ping: '8ms',
-        quality: '4K HDR',
+        quality: '4K Ultra HDR',
         type: 'Primary Node (Fastest)',
         getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
@@ -19,20 +17,32 @@ const STREAM_SERVERS = [
                 : `https://vidlink.pro/movie/${id}?primaryColor=e50914&secondaryColor=b81d24&iconColor=ffffff&title=true&poster=true&autoplay=true`
     },
     {
-        id: 'vidsrc_me',
-        name: 'VidSrc Classic',
-        icon: 'fa-play-circle',
+        id: 'nxsha',
+        name: 'Nxsha Cloud',
+        icon: 'fa-rocket',
         ping: '10ms',
-        quality: '1080p Ultra',
-        type: 'Fast Ultra Node',
+        quality: '1080p Multi-Sub',
+        type: 'High-Speed Edge Node',
         getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
-                ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
-                : `https://vidsrc.me/embed/movie?tmdb=${id}`
+                ? `https://nxshatv.cfd/embed/tv/${id}/${s}/${e}`
+                : `https://nxshatv.cfd/embed/movie/${id}`
+    },
+    {
+        id: 'videasy',
+        name: 'Videasy HD',
+        icon: 'fa-play',
+        ping: '11ms',
+        quality: '1080p Ultra',
+        type: 'Fast Direct Node',
+        getUrl: (type, id, s = 1, e = 1) =>
+            type === 'tv'
+                ? `https://player.videasy.net/tv/${id}/${s}/${e}`
+                : `https://player.videasy.net/movie/${id}`
     },
     {
         id: 'vidsrc_sbs',
-        name: 'VidSrc SBS (Ultra)',
+        name: 'VidSrc SBS',
         icon: 'fa-film',
         ping: '12ms',
         quality: '4K IMAX',
@@ -55,22 +65,22 @@ const STREAM_SERVERS = [
                 : `https://autoembed.co/movie/tmdb/${id}`
     },
     {
-        id: '2embed_stream',
-        name: '2Embed Stream',
-        icon: 'fa-compact-disc',
+        id: 'vidsrc_io',
+        name: 'VidSrc IO',
+        icon: 'fa-network-wired',
         ping: '16ms',
-        quality: '1080p',
-        type: 'Global CDN Node',
+        quality: '1080p HD',
+        type: 'Cloud Stream Node',
         getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
-                ? `https://www.2embed.stream/embed/tv/${id}/${s}/${e}`
-                : `https://www.2embed.stream/embed/movie/${id}`
+                ? `https://vidsrc.io/embed/tv/${id}/${s}/${e}`
+                : `https://vidsrc.io/embed/movie/${id}`
     },
     {
         id: 'vidsrc_pm',
         name: 'VidSrc PM',
         icon: 'fa-server',
-        ping: '18ms',
+        ping: '17ms',
         quality: '1080p HD',
         type: 'Cloud Edge Node',
         getUrl: (type, id, s = 1, e = 1) =>
@@ -79,16 +89,16 @@ const STREAM_SERVERS = [
                 : `https://vidsrc.pm/embed/movie/${id}`
     },
     {
-        id: 'vidsrc_io',
-        name: 'VidSrc IO',
-        icon: 'fa-network-wired',
-        ping: '20ms',
-        quality: '1080p HD',
-        type: 'Cloud Stream Node',
+        id: 'vidsrc_me',
+        name: 'VidSrc Classic',
+        icon: 'fa-play-circle',
+        ping: '18ms',
+        quality: '1080p Ultra',
+        type: 'Classic Backup Node',
         getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
-                ? `https://vidsrc.io/embed/tv/${id}/${s}/${e}`
-                : `https://vidsrc.io/embed/movie/${id}`
+                ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
+                : `https://vidsrc.me/embed/movie?tmdb=${id}`
     }
 ];
 
@@ -165,7 +175,7 @@ async function checkNodeHealth(server) {
 
 router.get('/health', async (req, res) => {
     const cacheKey = 'server-health';
-    const cached = healthCache.get(cacheKey);
+    const cached = await cache.get(cacheKey);
 
     if (cached) {
         return res.json({ ...cached, cached: true, timestamp: new Date().toISOString() });
@@ -212,7 +222,7 @@ router.get('/health', async (req, res) => {
         return (a.responseTime || 9999) - (b.responseTime || 9999);
     });
 
-    healthCache.set(cacheKey, healthData);
+    await cache.set(cacheKey, healthData, 120);
     res.json(healthData);
 });
 
@@ -220,12 +230,12 @@ router.get('/', async (req, res) => {
     const { type = 'movie', id, season = 1, episode = 1 } = req.query;
 
     // Retrieve health data if available or run fast check
-    let healthData = healthCache.get('server-health');
+    let healthData = await cache.get('server-health');
     if (!healthData) {
         const results = await Promise.allSettled(STREAM_SERVERS.map(s => checkNodeHealth(s)));
         const nodes = results.map((r, i) => r.status === 'fulfilled' ? r.value : { id: STREAM_SERVERS[i].id, healthy: false, responseTime: 9999 });
-        healthCache.set('server-health', { nodes });
         healthData = { nodes };
+        await cache.set('server-health', healthData, 120);
     }
 
     // Map servers and attach real dynamic ping & health filtering

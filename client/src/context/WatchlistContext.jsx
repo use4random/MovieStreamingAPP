@@ -21,7 +21,13 @@ export function WatchlistProvider({ children }) {
 
     const has = (id) => watchlist.some(item => String(item.id) === String(id));
 
+    const MAX_WATCHLIST_SIZE = 500;
+
     const add = (item) => {
+        if (watchlist.length >= MAX_WATCHLIST_SIZE) {
+            console.warn('[Watchlist] Maximum size reached (' + MAX_WATCHLIST_SIZE + ')');
+            return;
+        }
         if (!has(item.id)) {
             const newItem = {
                 id: item.id,

@@ -1,5 +1,5 @@
 import express from 'express';
-import NodeCache from 'node-cache';
+import { cache } from '../utils/cache.js';
 import { 
     UNIVERSES, 
     enrichMediaWithUniverse, 
@@ -8,13 +8,17 @@ import {
 } from '../data/universes.js';
 
 const router = express.Router();
-const cache = new NodeCache({ stdTTL: 300, checkperiod: 60 }); // 5 minutes cache
 
-const TMDB_KEY = process.env.TMDB_KEY || '1dc4cbf81f0accf4fa108820d551dafc';
+const TMDB_KEY = process.env.TMDB_KEY;
+if (!TMDB_KEY) {
+    console.warn('[Security Warning]: process.env.TMDB_KEY is not defined. Ensure TMDB_KEY is set in your environment file.');
+}
 const TMDB_BASE = process.env.TMDB_BASE || 'https://api.themoviedb.org/3';
 
-// Helper for fetching TMDB with caching and timeout
-async function fetchTMDB(endpoint, queryParams = {}, retries = 2) {
+async function fetchTMDB(endpoint, queryParams = {}, retries = 1) {
+    if (!TMDB_KEY) {
+        throw new Error('TMDB API Key missing in server configuration');
+    }
     const url = new URL(TMDB_BASE + endpoint);
     url.searchParams.set('api_key', TMDB_KEY);
     url.searchParams.set('language', 'en-US');
@@ -22,8 +26,12 @@ async function fetchTMDB(endpoint, queryParams = {}, retries = 2) {
         if (v !== undefined && v !== null) url.searchParams.set(k, v);
     });
 
-    const cacheKey = url.toString();
-    const cached = cache.get(cacheKey);
+    // Security: Use a sanitized cache key that strips the api_key to prevent secret leakage
+    const cacheUrl = new URL(url.toString());
+    cacheUrl.searchParams.delete('api_key');
+    const cacheKey = cacheUrl.toString();
+
+    const cached = await cache.get(cacheKey);
     if (cached) return cached;
 
     for (let attempt = 0; attempt <= retries; attempt++) {
@@ -36,11 +44,12 @@ async function fetchTMDB(endpoint, queryParams = {}, retries = 2) {
 
             if (!res.ok) throw new Error(`TMDB error HTTP ${res.status}`);
             const data = await res.json();
-            cache.set(cacheKey, data);
+            await cache.set(cacheKey, data, 300);
             return data;
         } catch (err) {
             if (attempt === retries) {
-                console.warn(`TMDB fetch error for ${endpoint} after ${retries + 1} attempts:`, err.message);
+                // Security: Only log the endpoint path, never the full URL with api_key
+                console.warn(`[TMDB] Fetch error for ${endpoint} after ${retries + 1} attempts:`, err.message);
                 throw err;
             }
             // Wait 300ms before retrying
@@ -205,6 +214,11 @@ router.get('/on-the-air', async (req, res) => {
 router.get('/media/:type/:id', async (req, res) => {
     try {
         const { type, id } = req.params;
+        // Security: Validate media type against allowlist to prevent path traversal
+        const VALID_MEDIA_TYPES = ['movie', 'tv'];
+        if (!VALID_MEDIA_TYPES.includes(type)) {
+            return res.status(400).json({ error: 'Invalid media type. Must be "movie" or "tv".' });
+        }
         const data = await fetchTMDB(`/${type}/${id}`, {
             append_to_response: 'credits,videos,similar,recommendations'
         });
@@ -219,7 +233,7 @@ router.get('/media/:type/:id', async (req, res) => {
         }
         res.json(data);
     } catch (err) {
-        res.status(500).json({ error: `Failed to fetch details for ${req.params.type} ${req.params.id}` });
+        res.status(500).json({ error: 'Failed to fetch media details' });
     }
 });
 
