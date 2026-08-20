@@ -17,16 +17,16 @@ const STREAM_SERVERS = [
                 : `https://vidlink.pro/movie/${id}?primaryColor=e50914&secondaryColor=b81d24&iconColor=ffffff&title=true&poster=true&autoplay=true`
     },
     {
-        id: 'nxsha',
-        name: 'Nxsha Cloud',
-        icon: 'fa-rocket',
+        id: '2embed',
+        name: '2Embed Stream',
+        icon: 'fa-play-circle',
         ping: '10ms',
         quality: '1080p Multi-Sub',
-        type: 'High-Speed Edge Node',
+        type: 'Fast Reliable Edge Node',
         getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
-                ? `https://nxshatv.cfd/embed/tv/${id}/${s}/${e}`
-                : `https://nxshatv.cfd/embed/movie/${id}`
+                ? `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`
+                : `https://www.2embed.cc/embed/${id}`
     },
     {
         id: 'videasy',
@@ -37,8 +37,8 @@ const STREAM_SERVERS = [
         type: 'Fast Direct Node',
         getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
-                ? `https://player.videasy.net/tv/${id}/${s}/${e}`
-                : `https://player.videasy.net/movie/${id}`
+                ? `https://player.videasy.to/tv/${id}/${s}/${e}`
+                : `https://player.videasy.to/movie/${id}`
     },
     {
         id: 'vidsrc_sbs',

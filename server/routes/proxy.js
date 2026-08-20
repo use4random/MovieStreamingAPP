@@ -94,12 +94,17 @@ const ALLOWED_HOSTS = [
     'nxsha.com',
     'embed.nxsha.com',
     'player.videasy.net',
+    'player.videasy.to',
+    'videasy.to',
     'vidsrc.sbs',
     'autoembed.co',
     'vidsrc.io',
     'vidsrc.pm',
     'vidsrc.me',
+    'vidsrcme.ru',
     '2embed.cc',
+    '2embed.stream',
+    'vidbinge.dev',
     'vidsrc.pro',
     'vidsrc.xyz',
     'embed.su',
@@ -172,25 +177,24 @@ router.get('/embed', async (req, res) => {
                 'Referer': `${targetUrl.origin}/`,
                 'Origin': targetUrl.origin,
             },
-            redirect: 'manual',
+            redirect: 'follow',
         });
 
-        // Security: Follow redirects manually with a depth limit to prevent infinite loops
-        let finalResponse = response;
-        let redirectCount = 0;
-        const MAX_REDIRECTS = 5;
-        while (finalResponse.status >= 300 && finalResponse.status < 400 && redirectCount < MAX_REDIRECTS) {
-            const location = finalResponse.headers.get('location');
-            if (!location) break;
-            const redirectUrl = new URL(location, targetUrl.toString());
-            if (!isAllowedUrl(redirectUrl)) break;
-            finalResponse = await fetch(redirectUrl.toString(), { headers: SPOOF_HEADERS, redirect: 'manual' });
-            redirectCount++;
+        // SSRF check on final redirected URL
+        let finalUrl;
+        try {
+            finalUrl = new URL(response.url);
+        } catch {
+            finalUrl = targetUrl;
         }
 
-        if (!finalResponse.ok) {
-            return res.status(finalResponse.status).json({
-                error: `Upstream provider returned HTTP ${finalResponse.status}`,
+        if (isPrivateOrLoopbackHost(finalUrl.hostname)) {
+            return res.status(403).json({ error: 'Redirected host is forbidden.' });
+        }
+
+        if (!response.ok) {
+            return res.status(response.status).json({
+                error: `Upstream provider returned HTTP ${response.status}`,
             });
         }
 
