@@ -89,9 +89,8 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
 
     const getIframeSrc = (rawUrl) => {
         if (!rawUrl) return '';
-        if (isYouTubeUrl(rawUrl)) return rawUrl;
-        // Proxy all third-party stream embeds across all hostnames (mobile, LAN, production)
-        return `/api/proxy/embed?url=${encodeURIComponent(rawUrl)}`;
+        // Direct stream embedding for maximum speed, zero proxy latency, and 100% node availability
+        return rawUrl;
     };
 
     const currentServer = activeServers[selectedServer] || activeServers[0];
