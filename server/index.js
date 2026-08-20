@@ -28,17 +28,16 @@ app.set('trust proxy', 1);
 app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
 
 // Security: Environment-based CORS origin filtering
-// Default to restrictive in production if ALLOWED_ORIGINS is not explicitly set
 const allowedOrigins = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
-    : (process.env.NODE_ENV === 'production' ? [] : null);
+    : null;
 
 app.use(cors({
     origin: function (origin, callback) {
         // Allow same-origin / server-to-server / curl requests with no origin header
         if (!origin) return callback(null, true);
         if (!allowedOrigins || allowedOrigins.includes('*')) return callback(null, true);
-        if (allowedOrigins.includes(origin)) {
+        if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
             return callback(null, true);
         }
         return callback(new Error('CORS policy violation: Origin not allowed.'));
