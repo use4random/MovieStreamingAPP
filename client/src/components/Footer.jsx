@@ -49,9 +49,9 @@ export default function Footer() {
                     </div>
 
                     <div className="footer-col">
-                        <h4><i className="fas fa-shield-halved text-brand"></i> Legal & Architecture</h4>
+                        <h4><i className="fas fa-shield-halved text-brand"></i> Legal & Disclaimer</h4>
                         <p style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: '1.6', marginBottom: '12px' }}>
-                            Educational exploration interface. Built with React 18, Vite, and Node.js Express. All media metadata provided via public TMDB API.
+                            CinePulse operates as a high-performance content index and discovery engine. All media metadata, artwork, and details are dynamically retrieved via public API services. CinePulse does not host, store, or upload any media files on its servers.
                         </p>
                     </div>
                 </div>
