@@ -21,9 +21,6 @@ export default function Footer() {
                         <p className="footer-desc">
                             <strong>Disclaimer:</strong> CinePulse is a next-generation streaming discovery engine & catalog index. Experience instant 4K cloud feeds, multi-node redundancy, dynamic season browsers, and futuristic cyber HUD player.
                         </p>
-                        <div className="footer-status-pill">
-                            <span className="pulse-dot"></span> CINEPULSE CLOUD ENGINE ONLINE
-                        </div>
                     </div>
 
                     <div className="footer-col">
@@ -59,9 +56,6 @@ export default function Footer() {
                 <div className="footer-bottom">
                     <div>
                         &copy; 2026 <strong>CinePulse Cyber Edition</strong>. All rights reserved.
-                    </div>
-                    <div className="latency-chip">
-                        <i className="fas fa-bolt"></i> Backend Latency: <strong>4ms</strong>
                     </div>
                 </div>
             </div>
