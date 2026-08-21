@@ -1029,23 +1029,296 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
 .footer-bottom { display: flex; align-items: center; justify-content: space-between; padding-top: 24px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-muted); }
 .latency-chip { display: none !important; }
 
-/* Responsive */
-@media (max-width: 1100px) { .sidebar { display: none; } .footer-grid { grid-template-columns: 1fr 1fr; } }
+/* =============================================================
+   COMPREHENSIVE RESPONSIVE SYSTEM — Per-Device Breakpoints
+   Tier 1  : ≥1920px  — 4K / Large Desktop
+   Tier 2  : ≤1440px  — Standard Desktop / Laptop
+   Tier 3  : ≤1280px  — Small Laptop / Large Tablet Landscape
+   Tier 4  : ≤1024px  — Tablet Landscape / iPad Pro
+   Tier 5  : ≤ 860px  — Tablet Portrait / Large Phablet
+   Tier 6  : ≤ 768px  — Standard Tablet / Large Phone
+   Tier 7  : ≤ 600px  — Small Tablet / Large Phone Portrait
+   Tier 8  : ≤ 480px  — Phone Portrait (most phones)
+   Tier 9  : ≤ 390px  — iPhone SE / Small Phones
+   Tier 10 : ≤ 320px  — Ultra-small / Legacy Phones
+   ============================================================= */
+
+/* ── Tier 1 : 4K / Large Desktop ≥ 1920px ── */
+@media (min-width: 1920px) {
+    .site-container { max-width: 1800px; padding: 40px 48px; gap: 36px; }
+    .content-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 24px; }
+    .content-grid.wide { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+    .footer-inner { max-width: 1800px; }
+    .slide-title { font-size: 48px; }
+    .slide-desc { font-size: 17px; }
+    .section-title { font-size: 24px; }
+    .collections-grid { grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 28px; }
+}
+
+/* ── Tier 2 : Standard Desktop / Laptop ≤ 1440px ── */
+@media (max-width: 1440px) {
+    .site-container { padding: 24px; gap: 24px; }
+    .content-grid { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); }
+    .slide-title { font-size: 34px; }
+    .collections-grid { grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); }
+}
+
+/* ── Tier 3 : Small Laptop / Large Tablet Landscape ≤ 1280px ── */
+@media (max-width: 1280px) {
+    .site-container { padding: 18px; gap: 18px; }
+    .carousel-slide { aspect-ratio: 21/9; }
+    .slide-title { font-size: 28px; }
+    .slide-desc { font-size: 13px; }
+    .slide-overlay { padding: 36px; }
+    .footer-grid { grid-template-columns: 2fr 1fr 1fr 1.5fr; gap: 28px; }
+    .collections-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+}
+
+/* ── Tier 4 : Tablet Landscape / iPad Pro ≤ 1024px ── */
+@media (max-width: 1024px) {
+    .sidebar { display: none; }
+    .site-container { padding: 16px; gap: 16px; }
+    .carousel-slide { aspect-ratio: 16/7; }
+    .slide-title { font-size: 24px; margin: 8px 0; }
+    .slide-overlay { padding: 28px; }
+    .slide-desc { -webkit-line-clamp: 2; }
+    .content-grid { grid-template-columns: repeat(auto-fill, minmax(145px, 1fr)); gap: 14px; }
+    .content-grid.wide { grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); }
+    .footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; }
+    .top-list-grid { grid-template-columns: 1fr; }
+    .servers-grid { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+    .collections-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .section-title { font-size: 18px; }
+}
+
+/* ── Tier 5 : Tablet Portrait / Large Phablet ≤ 860px ── */
 @media (max-width: 860px) {
     .main-nav-wrap { display: none; }
-    .top-list-grid { grid-template-columns: 1fr; }
-    .slide-title { font-size: 22px; }
-    .carousel-slide { aspect-ratio: 16/9; }
-    .detail-header-row { flex-direction: column; }
-    .quick-search-trigger { width: 160px; }
+    .quick-search-trigger { width: 180px; }
     .quick-search-trigger .search-placeholder { display: none; }
+    .carousel-slide { aspect-ratio: 16/9; }
+    .slide-title { font-size: 22px; }
+    .slide-overlay { padding: 24px; }
+    .detail-header-row { flex-direction: column; gap: 12px; }
+    .detail-title { font-size: 22px; }
+    .top-list-grid { grid-template-columns: 1fr; }
+    .episodes-list { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .servers-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
+    .page-title { font-size: 22px; }
+    .content-grid { grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 12px; }
+    .hub-pills-scroll { gap: 6px; }
+    .hub-pill { padding: 6px 14px; font-size: 11px; }
 }
-@media (max-width: 580px) {
-    .content-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
-    .footer-grid { grid-template-columns: 1fr; }
-    .site-container { padding: 14px; }
+
+/* ── Tier 6 : Tablet / Large Phone ≤ 768px ── */
+@media (max-width: 768px) {
+    /* Nav */
+    .mobile-bottom-nav { display: flex; }
+    body.cyber-theme { padding-bottom: 80px; }
+    .header-main { height: 62px; padding: 0 14px; }
+    .header-top-bar { display: none; }
+
+    /* Layout */
+    .site-container { padding: 14px; gap: 0; }
+    .main-content { width: 100%; }
+
+    /* Carousel */
+    .carousel-slide { aspect-ratio: 16/9; }
+    .slide-title { font-size: 20px; line-height: 1.2; }
+    .slide-desc { font-size: 12px; -webkit-line-clamp: 2; }
     .slide-overlay { padding: 20px; }
-    .detail-credits { grid-template-columns: 1fr; }
+    .badge-cyber, .badge-rating { font-size: 9px; padding: 2px 7px; }
+    .carousel-nav-btn { width: 36px; height: 36px; font-size: 18px; }
+    .cyber-btn-primary, .cyber-btn-secondary { padding: 9px 14px; font-size: 12px; gap: 6px; }
+
+    /* Cards */
+    .content-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .content-grid.wide { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+    /* Collections */
+    .collections-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .collection-name { font-size: 14px; }
+
+    /* Player */
+    .player-container { aspect-ratio: 16/9; min-height: 210px; }
+    .player-hud-topbar { flex-direction: column; align-items: flex-start; gap: 8px; padding: 10px 14px; font-size: 11px; }
+    .hud-btn { font-size: 10px; padding: 3px 8px; }
+
+    /* Detail */
+    .detail-info-card { padding: 14px; border-radius: var(--radius-md); }
+    .detail-title { font-size: 20px; }
+    .detail-header-row { flex-direction: column; gap: 10px; }
+    .watchlist-detail-btn { width: 100%; justify-content: center; }
+    .detail-credits { grid-template-columns: 1fr; gap: 8px; }
+    .detail-desc { font-size: 13px; }
+
+    /* Seasons */
+    .episodes-list { grid-template-columns: 1fr; gap: 8px; }
+    .servers-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+
+    /* Footer */
+    .site-footer { padding: 36px 14px 24px; }
+    .footer-grid { grid-template-columns: 1fr 1fr; gap: 20px; }
+    .footer-col h4 { font-size: 13px; margin-bottom: 12px; }
+    .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+
+    /* Page header */
+    .page-header-cyber { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .page-title { font-size: 19px; }
+    .breadcrumb-nav { font-size: 11px; gap: 6px; }
+}
+
+/* ── Tier 7 : Small Tablet / Large Phone Portrait ≤ 600px ── */
+@media (max-width: 600px) {
+    .carousel-slide { aspect-ratio: 4/3; }
+    .slide-title { font-size: 18px; }
+    .slide-desc { display: none; }
+    .slide-overlay { padding: 16px; align-items: flex-end; }
+    .slide-info { max-width: 100%; }
+
+    .content-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .content-grid.wide { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+    .collections-grid { grid-template-columns: 1fr; gap: 12px; }
+
+    .servers-grid { grid-template-columns: 1fr; }
+
+    .hub-pill { padding: 5px 11px; font-size: 11px; }
+    .hub-pills-scroll { gap: 5px; }
+
+    .search-modal-box { max-width: 100%; margin: 0 8px; border-radius: var(--radius-lg); }
+    .search-modal-header input { font-size: 13px; }
+    .search-modal-overlay { padding-top: 60px; }
+
+    .footer-grid { grid-template-columns: 1fr; gap: 16px; }
+    .site-footer { padding: 28px 12px 20px; }
+
+    .back-to-top { bottom: 88px; right: 16px; width: 40px; height: 40px; font-size: 14px; }
+
+    .page-title { font-size: 17px; }
+    .section-title { font-size: 16px; }
+    .section-title:before { top: 2px; bottom: 2px; }
+}
+
+/* ── Tier 8 : Phone Portrait ≤ 480px ── */
+@media (max-width: 480px) {
+    .site-container { padding: 10px; }
+
+    /* Header */
+    .header-main { height: 58px; padding: 0 12px; }
+    .logo-badge { width: 32px; height: 32px; font-size: 13px; }
+
+    /* Carousel */
+    .carousel-slide { aspect-ratio: 1/1; min-height: 260px; }
+    .slide-title { font-size: 16px; margin: 4px 0; }
+    .slide-overlay { padding: 14px; }
+    .cyber-btn-primary, .cyber-btn-secondary { padding: 8px 12px; font-size: 11px; }
+    .carousel-nav-btn { width: 30px; height: 30px; font-size: 14px; }
+    .slide-actions { gap: 8px !important; margin-top: 12px !important; }
+
+    /* Cards */
+    .content-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .content-grid.wide { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .card-title { font-size: 11px; }
+    .card-info { padding: 7px 8px; gap: 4px; }
+    .card-rating-badge { font-size: 9px; padding: 1px 5px; top: 5px; right: 5px; }
+
+    /* Player */
+    .player-hud-topbar { padding: 8px 10px; }
+    .hud-stream-title { font-size: 11px; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Detail */
+    .detail-info-card { padding: 12px; }
+    .detail-title { font-size: 18px; }
+    .detail-desc { font-size: 12px; line-height: 1.6; }
+    .genre-tag-btn { font-size: 11px; padding: 4px 10px; }
+    .seasons-section { padding: 14px; }
+    .season-btn { padding: 6px 12px; font-size: 11px; }
+    .episode-item { padding: 8px 10px; gap: 8px; }
+    .ep-num { width: 26px; height: 26px; font-size: 11px; }
+    .ep-title { font-size: 12px; }
+
+    /* Footer */
+    .site-footer { padding: 24px 10px 16px; }
+    .footer-grid { grid-template-columns: 1fr; gap: 14px; }
+    .footer-col h4 { font-size: 12px; margin-bottom: 10px; }
+    .footer-desc { font-size: 11px; }
+    .footer-bottom { padding-top: 16px; font-size: 11px; }
+
+    /* Search Modal */
+    .search-modal-box { margin: 0 6px; }
+    .search-modal-overlay { padding-top: 48px; }
+
+    /* Back to top */
+    .back-to-top { bottom: 92px; right: 12px; width: 38px; height: 38px; }
+}
+
+/* ── Tier 9 : iPhone SE / Small Phones ≤ 390px ── */
+@media (max-width: 390px) {
+    .header-main { height: 54px; padding: 0 10px; }
+    .site-container { padding: 8px; }
+
+    .carousel-slide { aspect-ratio: 4/3; min-height: 220px; }
+    .slide-title { font-size: 14px; }
+    .slide-overlay { padding: 12px; }
+
+    .content-grid { grid-template-columns: repeat(2, 1fr); gap: 7px; }
+    .card-title { font-size: 10px; }
+    .card-info { padding: 6px 7px; }
+
+    .hub-pill { padding: 5px 9px; font-size: 10px; }
+    .hub-pills-scroll { gap: 4px; }
+
+    .detail-title { font-size: 16px; }
+    .detail-info-card { padding: 10px; }
+
+    .mobile-menu { width: 290px; padding: 18px 14px; }
+
+    .footer-grid { grid-template-columns: 1fr; gap: 12px; }
+    .footer-col h4 { font-size: 11px; }
+
+    .section-title { font-size: 14px; }
+    .page-title { font-size: 15px; }
+
+    .cyber-btn-primary { padding: 7px 12px; font-size: 11px; }
+    .search-modal-overlay { padding-top: 40px; padding-left: 4px; padding-right: 4px; }
+
+    body.cyber-theme { padding-bottom: 76px; }
+    .mobile-bottom-nav { height: 66px; }
+    .mobile-bottom-nav-item { font-size: 10px; padding: 4px 8px; }
+}
+
+/* ── Tier 10 : Ultra-small / Legacy Phones ≤ 320px ── */
+@media (max-width: 320px) {
+    .header-main { height: 50px; padding: 0 8px; }
+    .site-container { padding: 6px; }
+
+    .carousel-slide { aspect-ratio: 4/3; min-height: 190px; }
+    .slide-title { font-size: 13px; letter-spacing: -0.01em; }
+    .slide-overlay { padding: 10px; }
+    .cyber-btn-primary, .cyber-btn-secondary { padding: 6px 10px; font-size: 10px; }
+
+    .content-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+    .card-title { font-size: 10px; }
+    .card-rating-badge { display: none; }
+
+    .hub-pill { padding: 4px 8px; font-size: 10px; }
+
+    .detail-title { font-size: 14px; }
+    .detail-info-card { padding: 8px; border-radius: var(--radius-sm); }
+    .genre-tag-btn { font-size: 10px; padding: 3px 8px; }
+
+    .mobile-menu { width: 260px; max-width: 90vw; padding: 14px 12px; }
+    .mobile-nav li a { padding: 10px 12px; font-size: 13px; }
+
+    .footer-grid { grid-template-columns: 1fr; gap: 10px; }
+
+    .section-title { font-size: 13px; }
+    .page-title { font-size: 13px; }
+
+    body.cyber-theme { padding-bottom: 72px; }
+    .mobile-bottom-nav { height: 60px; }
+    .mobile-bottom-nav-item { font-size: 9px; padding: 3px 6px; }
 }
 
 .fade-in { animation: fadeIn 0.4s ease forwards; }
@@ -1460,55 +1733,7 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
     line-height: 1;
 }
 
-/* Responsive additions & Comprehensive Device Optimization */
-@media (max-width: 1280px) {
-    .site-container { padding: 18px; gap: 18px; }
-    .carousel-slide { aspect-ratio: 16/8; }
-    .slide-title { font-size: 28px; }
-}
-
-@media (max-width: 992px) {
-    .sidebar { display: none; }
-    .footer-grid { grid-template-columns: 1fr 1fr; gap: 24px; }
-    .carousel-slide { aspect-ratio: 16/9; }
-    .slide-overlay { padding: 28px; }
-    .slide-title { font-size: 24px; }
-    .servers-grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
-    .top-list-grid { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 768px) {
-    .mobile-bottom-nav { display: flex; }
-    body.cyber-theme { padding-bottom: 84px; }
-    .header-main { height: 64px; padding: 0 16px; }
-    .header-top-bar { display: none; }
-    .collections-grid { grid-template-columns: 1fr; }
-    .page-header-cyber { flex-direction: column; align-items: flex-start; gap: 10px; }
-    .page-title { font-size: 20px; }
-    .player-container { aspect-ratio: 16/9; min-height: 220px; }
-    .player-hud-topbar { flex-direction: column; align-items: flex-start; gap: 10px; padding: 12px; }
-    .detail-info-card { padding: 16px; }
-    .detail-title { font-size: 22px; }
-    .detail-header-row { flex-direction: column; gap: 12px; }
-    .watchlist-detail-btn { width: 100%; justify-content: center; }
-    .episodes-list { grid-template-columns: 1fr; }
-    .cyber-btn-primary, .cyber-btn-secondary { padding: 8px 16px; font-size: 12px; }
-}
-
-@media (max-width: 480px) {
-    .site-container { padding: 12px; }
-    .content-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .content-grid.wide { grid-template-columns: repeat(2, 1fr); }
-    .slide-overlay { padding: 16px; }
-    .slide-title { font-size: 18px; margin: 6px 0; }
-    .slide-desc { display: none; }
-    .card-title { font-size: 12px; }
-    .card-info { padding: 8px 10px; }
-    .footer-grid { grid-template-columns: 1fr; gap: 20px; }
-    .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
-    .search-modal-box { max-width: 95vw; margin: 0 10px; }
-    .search-modal-header input { font-size: 14px; }
-}
+/* Responsive additions handled in the Comprehensive Responsive System above */
 
 
 /* Streaming Node Health Indicators */
