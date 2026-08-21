@@ -19,7 +19,7 @@ export default function Footer() {
                             </span>
                         </div>
                         <p className="footer-desc">
-                            Next-generation full-stack streaming ecosystem. Experience instant 4K cloud feeds, multi-node redundancy, dynamic season browsers, and futuristic cyber HUD player.
+                            <strong>Disclaimer:</strong> CinePulse is a next-generation streaming discovery engine & catalog index. Experience instant 4K cloud feeds, multi-node redundancy, dynamic season browsers, and futuristic cyber HUD player.
                         </p>
                         <div className="footer-status-pill">
                             <span className="pulse-dot"></span> CINEPULSE CLOUD ENGINE ONLINE
