@@ -64,9 +64,7 @@ export default function Navbar({ onOpenSearch }) {
                     </button>
 
                     <Link to="/" className="logo-link" onClick={playClick} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <span className="material-symbols-outlined" style={{ fontSize: '32px', color: 'var(--brand)', fontVariationSettings: "'FILL' 1" }}>
-                            play_circle
-                        </span>
+                        <i className="fas fa-circle-play text-brand" style={{ fontSize: '28px' }}></i>
                         <div className="logo-text" style={{ fontFamily: "var(--font-heading)", letterSpacing: '-0.03em', fontSize: '22px' }}>
                             <span>MULTI</span>MOVIES
                         </div>
@@ -169,7 +167,7 @@ export default function Navbar({ onOpenSearch }) {
                     <aside className="mobile-menu open">
                         <div className="mobile-menu-header">
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <span className="material-symbols-outlined text-brand" style={{ fontSize: '24px' }}>play_circle</span>
+                                <i className="fas fa-circle-play text-brand" style={{ fontSize: '22px' }}></i>
                                 <span className="logo-text" style={{ fontSize: '18px', fontFamily: 'var(--font-heading)' }}><span>MULTI</span>MOVIES</span>
                             </div>
                             <button className="mobile-close-btn" onClick={toggleMobile} aria-label="Close Side Drawer">

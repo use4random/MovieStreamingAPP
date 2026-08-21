@@ -3,16 +3,16 @@ import { Link } from 'react-router-dom';
 import { useAudio } from '../context/AudioContext';
 
 const HUBS = [
-    { id: 'trending', label: 'All Trending', icon: 'local_fire_department' },
-    { id: 'trending_day', label: 'Trending Today', icon: 'bolt' },
-    { id: 'netflix', label: 'Netflix', pillClass: 'netflix-pill', icon: 'play_circle' },
-    { id: 'prime', label: 'Prime Video', pillClass: 'prime-pill', icon: 'smart_display' },
-    { id: 'disney', label: 'Disney+', pillClass: 'disney-pill', icon: 'auto_awesome' },
-    { id: 'hbo', label: 'HBO Max', icon: 'movie' },
-    { id: 'anime_hub', label: 'Anime Vault', pillClass: 'anime-pill', icon: 'animation' },
-    { id: 'marvel', label: 'Marvel MCU', pillClass: 'marvel-pill', icon: 'shield' },
-    { id: 'kdrama', label: 'K-Drama', icon: 'favorite' },
-    { id: 'bollywood', label: 'Bollywood', icon: 'celebration' }
+    { id: 'trending', label: 'All Trending', icon: 'fa-fire' },
+    { id: 'trending_day', label: 'Trending Today', icon: 'fa-bolt' },
+    { id: 'netflix', label: 'Netflix', pillClass: 'netflix-pill', icon: 'fa-circle-play' },
+    { id: 'prime', label: 'Prime Video', pillClass: 'prime-pill', icon: 'fa-tv' },
+    { id: 'disney', label: 'Disney+', pillClass: 'disney-pill', icon: 'fa-wand-magic-sparkles' },
+    { id: 'hbo', label: 'HBO Max', icon: 'fa-film' },
+    { id: 'anime_hub', label: 'Anime Vault', pillClass: 'anime-pill', icon: 'fa-dragon' },
+    { id: 'marvel', label: 'Marvel MCU', pillClass: 'marvel-pill', icon: 'fa-shield-halved' },
+    { id: 'kdrama', label: 'K-Drama', icon: 'fa-heart' },
+    { id: 'bollywood', label: 'Bollywood', icon: 'fa-masks-theater' }
 ];
 
 export default function MultiHubPills({ activeHub, onSelectHub }) {
@@ -22,12 +22,12 @@ export default function MultiHubPills({ activeHub, onSelectHub }) {
         <div className="hub-filter-section fade-in">
             <div className="hub-filter-header">
                 <div style={{ fontFamily: 'var(--font-heading)', fontSize: '16px', fontWeight: '700', color: '#fff', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span className="material-symbols-outlined" style={{ color: 'var(--brand)', fontSize: '20px', fontVariationSettings: "'FILL' 1" }}>satellite_alt</span>
+                    <i className="fas fa-satellite-dish text-brand" style={{ fontSize: '16px' }}></i>
                     Top Trending This Week
                 </div>
                 <Link to="/collections" style={{ color: 'var(--cyan)', fontSize: '12px', fontWeight: '700', fontFamily: 'var(--font-mono)', display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <span>ALL COLLECTIONS</span>
-                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>arrow_forward</span>
+                    <i className="fas fa-arrow-right" style={{ fontSize: '12px' }}></i>
                 </Link>
             </div>
             <div className="hub-pills-scroll">
@@ -41,9 +41,7 @@ export default function MultiHubPills({ activeHub, onSelectHub }) {
                         }}
                     >
                         {h.icon && (
-                            <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>
-                                {h.icon}
-                            </span>
+                            <i className={`fas ${h.icon}`} style={{ fontSize: '12px', marginRight: '6px' }}></i>
                         )}
                         {h.label}
                     </button>
