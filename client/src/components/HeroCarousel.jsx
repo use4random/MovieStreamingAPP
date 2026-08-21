@@ -80,7 +80,7 @@ export default function HeroCarousel({ items }) {
                                         </span>
                                     </div>
                                     <h1 className="slide-title" style={{ fontFamily: 'var(--font-heading)', letterSpacing: '-0.02em', textShadow: '0 4px 16px rgba(0,0,0,0.8)' }}>{title}</h1>
-                                    <p className="slide-desc" style={{ color: 'var(--text-secondary)', fontSize: '15px', lineHeight: '1.6' }}>{item.overview || 'Explore the ultimate cinematic experience in 4K resolution on MultiMovies.'}</p>
+                                    <p className="slide-desc" style={{ color: 'var(--text-secondary)', fontSize: '15px', lineHeight: '1.6' }}>{item.overview || 'Explore the ultimate cinematic experience in 4K resolution on CinePulse.'}</p>
                                     <div className="slide-actions" style={{ marginTop: '24px', display: 'flex', gap: '14px' }}>
                                         <button
                                             className="glow-button"

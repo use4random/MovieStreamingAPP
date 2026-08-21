@@ -5,7 +5,7 @@ const WatchlistContext = createContext();
 export function WatchlistProvider({ children }) {
     const [watchlist, setWatchlist] = useState(() => {
         try {
-            return JSON.parse(localStorage.getItem('multimovies_cyber_watchlist')) || [];
+            return JSON.parse(localStorage.getItem('cinepulse_cyber_watchlist')) || [];
         } catch {
             return [];
         }
@@ -13,7 +13,7 @@ export function WatchlistProvider({ children }) {
 
     useEffect(() => {
         try {
-            localStorage.setItem('multimovies_cyber_watchlist', JSON.stringify(watchlist));
+            localStorage.setItem('cinepulse_cyber_watchlist', JSON.stringify(watchlist));
         } catch (e) {
             console.error('Failed to save watchlist:', e);
         }
@@ -59,7 +59,7 @@ export function WatchlistProvider({ children }) {
     const clearAll = () => {
         setWatchlist([]);
         try {
-            localStorage.removeItem('multimovies_cyber_watchlist');
+            localStorage.removeItem('cinepulse_cyber_watchlist');
         } catch (e) {
             console.error('Failed to clear watchlist storage:', e);
         }

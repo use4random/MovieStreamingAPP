@@ -63,10 +63,13 @@ export default function Navbar({ onOpenSearch }) {
                         <i className="fas fa-bars" style={{ fontSize: '20px', color: '#fff' }}></i>
                     </button>
 
-                    <Link to="/" className="logo-link" onClick={playClick} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <i className="fas fa-circle-play text-brand" style={{ fontSize: '28px' }}></i>
-                        <div className="logo-text" style={{ fontFamily: "var(--font-heading)", letterSpacing: '-0.03em', fontSize: '22px' }}>
-                            <span>MULTI</span>MOVIES
+                    <Link to="/" className="logo-link" onClick={playClick} style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
+                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '10px', background: 'linear-gradient(135deg, rgba(255,81,104,0.2) 0%, rgba(0,219,233,0.2) 100%)', border: '1px solid rgba(255,81,104,0.4)', boxShadow: '0 0 15px rgba(255,81,104,0.3)' }}>
+                            <i className="fas fa-play" style={{ fontSize: '15px', color: 'var(--brand)', marginLeft: '2px' }}></i>
+                            <span style={{ position: 'absolute', bottom: '-2px', right: '-2px', width: '8px', height: '8px', borderRadius: '50%', background: 'var(--cyan)', boxShadow: '0 0 8px var(--cyan)' }}></span>
+                        </div>
+                        <div className="logo-text" style={{ fontFamily: "var(--font-heading)", letterSpacing: '-0.03em', fontSize: '23px', fontWeight: '800' }}>
+                            <span style={{ color: '#ffffff' }}>CINE</span><span style={{ background: 'linear-gradient(135deg, #ff5168 0%, #00dbe9 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>PULSE</span>
                         </div>
                     </Link>
                 </div>
@@ -166,9 +169,13 @@ export default function Navbar({ onOpenSearch }) {
                     <div className="mobile-overlay open" onClick={toggleMobile}></div>
                     <aside className="mobile-menu open">
                         <div className="mobile-menu-header">
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <i className="fas fa-circle-play text-brand" style={{ fontSize: '22px' }}></i>
-                                <span className="logo-text" style={{ fontSize: '18px', fontFamily: 'var(--font-heading)' }}><span>MULTI</span>MOVIES</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '8px', background: 'linear-gradient(135deg, rgba(255,81,104,0.2) 0%, rgba(0,219,233,0.2) 100%)', border: '1px solid rgba(255,81,104,0.4)' }}>
+                                    <i className="fas fa-play" style={{ fontSize: '12px', color: 'var(--brand)', marginLeft: '1px' }}></i>
+                                </div>
+                                <span className="logo-text" style={{ fontSize: '19px', fontFamily: 'var(--font-heading)', fontWeight: '800' }}>
+                                    <span style={{ color: '#fff' }}>CINE</span><span style={{ background: 'linear-gradient(135deg, #ff5168 0%, #00dbe9 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>PULSE</span>
+                                </span>
                             </div>
                             <button className="mobile-close-btn" onClick={toggleMobile} aria-label="Close Side Drawer">
                                 <i className="fas fa-times"></i>

@@ -87,7 +87,7 @@ app.get('*', (req, res) => {
     if (!req.url.startsWith('/api')) {
         res.sendFile(path.join(clientDist, 'index.html'), (err) => {
             if (err) {
-                res.status(200).send('MultiMovies API Gateway is Active. Run Vite client on port 5173 for development.');
+                res.status(200).send('CinePulse API Gateway is Active. Run Vite client on port 5173 for development.');
             }
         });
     }
@@ -97,7 +97,7 @@ app.get('*', (req, res) => {
 if (!process.env.VERCEL) {
     app.listen(PORT, () => {
         console.log(`\n=================================================`);
-        console.log(`🚀 MULTIMOVIES CYBER BACKEND RUNNING ON PORT ${PORT}`);
+        console.log(`🚀 CINEPULSE CYBER BACKEND RUNNING ON PORT ${PORT}`);
         console.log(`📡 TMDB API Gateway: http://localhost:${PORT}/api/health`);
         console.log(`=================================================\n`);
     });
