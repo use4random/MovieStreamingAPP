@@ -64,12 +64,12 @@ export default function HeroCarousel({ items }) {
                             <div className="slide-overlay">
                                 <div className="slide-info">
                                     <div className="slide-badges" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px', flexWrap: 'wrap' }}>
-                                        <span className="badge-cyber" style={{ background: 'var(--primary-container)', color: '#fff', padding: '4px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: '700', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                                            <span className="material-symbols-outlined" style={{ fontSize: '14px', fontVariationSettings: "'FILL' 1" }}>star</span>
+                                        <span className="badge-cyber" style={{ background: 'var(--primary-container)', color: '#fff', padding: '4px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: '700', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                                            <i className="fas fa-fire" style={{ fontSize: '11px' }}></i>
                                             {isTV ? 'Featured Series' : 'Featured Premiere'}
                                         </span>
-                                        <span className="badge-rating glass-panel" style={{ padding: '4px 10px', borderRadius: '4px', fontSize: '12px', fontWeight: '700', color: '#fff', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                                            <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#fbbf24', fontVariationSettings: "'FILL' 1" }}>star</span>
+                                        <span className="badge-rating glass-panel" style={{ padding: '4px 10px', borderRadius: '4px', fontSize: '12px', fontWeight: '700', color: '#fff', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                                            <i className="fas fa-star" style={{ fontSize: '11px', color: '#fbbf24' }}></i>
                                             {itemRating}
                                         </span>
                                         <span className="glass-panel" style={{ padding: '4px 10px', borderRadius: '4px', fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)' }}>
@@ -102,7 +102,7 @@ export default function HeroCarousel({ items }) {
                                                 navigate(`/detail/${type}/${item.id}`);
                                             }}
                                         >
-                                            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>play_arrow</span>
+                                            <i className="fas fa-play" style={{ fontSize: '13px' }}></i>
                                             Stream Now
                                         </button>
                                         <button
@@ -125,9 +125,7 @@ export default function HeroCarousel({ items }) {
                                                 toggle(item);
                                             }}
                                         >
-                                            <span className="material-symbols-outlined">
-                                                {has(item.id) ? 'check' : 'add'}
-                                            </span>
+                                            <i className={`fas ${has(item.id) ? 'fa-check' : 'fa-plus'}`} style={{ fontSize: '13px' }}></i>
                                             {has(item.id) ? 'In Watchlist' : 'Watchlist'}
                                         </button>
                                     </div>
@@ -138,11 +136,12 @@ export default function HeroCarousel({ items }) {
                 })}
             </div>
 
-            <button className="carousel-nav-btn prev glass-panel" onClick={() => moveSlide(-1)} aria-label="Previous Slide">
-                <span className="material-symbols-outlined">chevron_left</span>
+            {/* Navigation Arrows */}
+            <button className="carousel-arrow carousel-arrow-left" onClick={() => handleNav('prev')} aria-label="Previous Slide">
+                <i className="fas fa-chevron-left" style={{ fontSize: '14px' }}></i>
             </button>
-            <button className="carousel-nav-btn next glass-panel" onClick={() => moveSlide(1)} aria-label="Next Slide">
-                <span className="material-symbols-outlined">chevron_right</span>
+            <button className="carousel-arrow carousel-arrow-right" onClick={() => handleNav('next')} aria-label="Next Slide">
+                <i className="fas fa-chevron-right" style={{ fontSize: '14px' }}></i>
             </button>
 
             <div className="carousel-timeline">

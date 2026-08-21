@@ -16,9 +16,7 @@ export default function MobileBottomNav({ onOpenSearch }) {
                 className={`mobile-bottom-nav-item ${location.pathname === '/' ? 'active' : ''}`}
                 onClick={playClick}
             >
-                <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname === '/' ? "'FILL' 1" : "'FILL' 0" }}>
-                    home
-                </span>
+                <i className="fas fa-home" style={{ fontSize: '18px' }}></i>
                 <span>Home</span>
             </Link>
 
@@ -28,9 +26,7 @@ export default function MobileBottomNav({ onOpenSearch }) {
                 className={`mobile-bottom-nav-item ${location.pathname === '/collections' ? 'active' : ''}`}
                 onClick={playClick}
             >
-                <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname === '/collections' ? "'FILL' 1" : "'FILL' 0" }}>
-                    explore
-                </span>
+                <i className="fas fa-compass" style={{ fontSize: '18px' }}></i>
                 <span>Discover</span>
             </Link>
 
@@ -41,9 +37,7 @@ export default function MobileBottomNav({ onOpenSearch }) {
                 onClick={playClick}
             >
                 <div style={{ position: 'relative' }}>
-                    <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname === '/watchlist' ? "'FILL' 1" : "'FILL' 0" }}>
-                        bookmark
-                    </span>
+                    <i className="fas fa-bookmark" style={{ fontSize: '18px' }}></i>
                     {count > 0 && (
                         <span className="mobile-nav-count-badge">{count}</span>
                     )}
@@ -59,9 +53,7 @@ export default function MobileBottomNav({ onOpenSearch }) {
                     onOpenSearch();
                 }}
             >
-                <span className="material-symbols-outlined">
-                    search
-                </span>
+                <i className="fas fa-search" style={{ fontSize: '18px' }}></i>
                 <span>Search</span>
             </button>
         </nav>

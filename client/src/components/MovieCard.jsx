@@ -43,24 +43,18 @@ export default function MovieCard({ item, showType = true }) {
                     title={inWatchlist ? 'Remove from Watchlist' : 'Add to Watchlist'}
                     aria-label="Toggle Watchlist"
                 >
-                    <span className="material-symbols-outlined" style={{ fontSize: '18px', fontVariationSettings: inWatchlist ? "'FILL' 1" : "'FILL' 0" }}>
-                        favorite
-                    </span>
+                    <i className={`fas fa-heart ${inWatchlist ? 'text-brand' : ''}`} style={{ fontSize: '14px' }}></i>
                 </button>
 
                 <div className="card-rating-badge">
-                    <span className="material-symbols-outlined" style={{ fontSize: '14px', color: '#fbbf24', fontVariationSettings: "'FILL' 1" }}>
-                        star
-                    </span>
+                    <i className="fas fa-star" style={{ fontSize: '11px', color: '#fbbf24', marginRight: '4px' }}></i>
                     <span>{itemRating}</span>
                 </div>
                 
                 {/* Centered Play Hover Overlay */}
                 <div className="card-play-overlay">
                     <button className="play-ring glow-button" aria-label="Play Stream">
-                        <span className="material-symbols-outlined" style={{ fontSize: '28px', fontVariationSettings: "'FILL' 1" }}>
-                            play_arrow
-                        </span>
+                        <i className="fas fa-play" style={{ fontSize: '20px', color: '#fff' }}></i>
                     </button>
                     <span style={{ fontFamily: 'var(--font-heading)', fontSize: '12px', fontWeight: '700', color: '#fff', letterSpacing: '0.8px', textShadow: '0 2px 8px rgba(0,0,0,0.8)' }}>
                         STREAM NOW
@@ -90,7 +84,7 @@ export default function MovieCard({ item, showType = true }) {
                 <div className="card-meta">
                     <span>{itemYear}</span>
                     <span className="card-meta-stream">
-                        <span className="material-symbols-outlined" style={{ fontSize: '13px' }}>bolt</span> FAST STREAM
+                        <i className="fas fa-bolt" style={{ fontSize: '11px', color: 'var(--cyan)', marginRight: '4px' }}></i> FAST STREAM
                     </span>
                 </div>
             </div>
