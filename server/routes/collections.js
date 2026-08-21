@@ -11,7 +11,7 @@ const COLLECTIONS = [
         category: 'universes',
         universe: 'Marvel',
         desc: 'Official canon timeline from Iron Man to Secret Wars across Phase 1 through Phase 6.',
-        backdrop: 'https://image.tmdb.org/t/p/w780/yF1eOAnYvKdsqRERdpUmFCeCvrR.jpg',
+        backdrop: 'https://image.tmdb.org/t/p/w780/by8z9Fe8y7p4jo2YlW2SZDnptyT.jpg',
         endpoint: 'marvel'
     },
     {
@@ -21,7 +21,7 @@ const COLLECTIONS = [
         category: 'universes',
         universe: 'DC',
         desc: 'The Dark Knight Trilogy, Zack Snyder Justice League, The Batman, and DCU Chapter 1.',
-        backdrop: 'https://image.tmdb.org/t/p/w780/7RyHsO4yDXtBv1zUU3mTpHeQ0d5.jpg',
+        backdrop: 'https://image.tmdb.org/t/p/w780/IYUD7rAIXzBM91TT3Z5fILUS7n.jpg',
         endpoint: 'dc'
     },
     {
@@ -31,7 +31,7 @@ const COLLECTIONS = [
         category: 'universes',
         universe: 'Star Wars',
         desc: 'Complete Skywalker Saga (Episodes I–IX), Rogue One, The Mandalorian, and Ahsoka.',
-        backdrop: 'https://image.tmdb.org/t/p/w780/5Ih9mK3R4Wj7v5vFpZ9u6sR3S0P.jpg',
+        backdrop: 'https://image.tmdb.org/t/p/w780/9zcbqSxdsRMZWHYtyCd1nXPr2xq.jpg',
         endpoint: 'starwars'
     },
     {
@@ -41,7 +41,7 @@ const COLLECTIONS = [
         category: 'universes',
         universe: 'Wizarding World',
         desc: 'The entire 8 Harry Potter films plus Fantastic Beasts prequel adventures.',
-        backdrop: 'https://image.tmdb.org/t/p/w780/8f9dnOtpQZzp731kS8vJ9u6eW7P.jpg',
+        backdrop: 'https://image.tmdb.org/t/p/w780/1XAC6RPT01UX9EQGy2JVn5c8pgy.jpg',
         endpoint: 'wizarding_world'
     },
     {
@@ -51,7 +51,7 @@ const COLLECTIONS = [
         category: 'universes',
         universe: 'MonsterVerse',
         desc: 'Godzilla, Kong: Skull Island, King of the Monsters, Godzilla vs. Kong, and Hollow Earth.',
-        backdrop: 'https://image.tmdb.org/t/p/w780/qrGtVF3YZvJqIauC19qZz8s9d6t.jpg',
+        backdrop: 'https://image.tmdb.org/t/p/w780/gvLG3Fnznkxl4SmYfcK8gUuqxM8.jpg',
         endpoint: 'monsterverse'
     },
     {
@@ -61,7 +61,7 @@ const COLLECTIONS = [
         category: 'universes',
         universe: 'Middle-earth',
         desc: 'The Lord of the Rings trilogy, The Hobbit adventures, and War of the Rohirrim.',
-        backdrop: 'https://image.tmdb.org/t/p/w780/zW0v2YT74C69cuiefl8vxR7Rtuv.jpg',
+        backdrop: 'https://image.tmdb.org/t/p/w780/mWDdRXTivGE7aaY2vo1Ie0PfCX5.jpg',
         endpoint: 'middle_earth'
     },
     {
@@ -71,7 +71,7 @@ const COLLECTIONS = [
         category: 'universes',
         universe: 'Spider-Verse & SSU',
         desc: 'Into the Spider-Verse, Across the Spider-Verse, Venom trilogy, Morbius, and Kraven.',
-        backdrop: 'https://image.tmdb.org/t/p/w780/e50914.jpg',
+        backdrop: 'https://image.tmdb.org/t/p/w780/kVd3a9YeLGkoeR50jGEXM6EqseS.jpg',
         endpoint: 'spider_verse'
     },
     {
@@ -81,7 +81,7 @@ const COLLECTIONS = [
         category: 'universes',
         universe: 'X-Men',
         desc: 'Original X-Men Trilogy, First Class, Days of Future Past, Deadpool, and Logan.',
-        backdrop: 'https://image.tmdb.org/t/p/w780/2u0pG8L4o4mZz5L0s4W.jpg',
+        backdrop: 'https://image.tmdb.org/t/p/w780/qTdCfGyDisY9e8BLycszlyTsPWx.jpg',
         endpoint: 'xmen'
     },
     {
@@ -101,7 +101,7 @@ const COLLECTIONS = [
         category: 'universes',
         universe: 'John Wick',
         desc: 'Baba Yaga action masterworks from Chapter 1 to Chapter 4, The Continental, and Ballerina.',
-        backdrop: 'https://image.tmdb.org/t/p/w780/7I6VUdPj6tQECNHdviJkUHD2f89.jpg',
+        backdrop: 'https://image.tmdb.org/t/p/w780/7I6VUdPj6tQECNHdviJkUHD2u89.jpg',
         endpoint: 'john_wick'
     },
 
@@ -112,7 +112,7 @@ const COLLECTIONS = [
         tag: 'OTT NETWORK',
         category: 'platforms',
         desc: 'Award-winning Netflix originals, trending thriller series, and exclusive world cinema.',
-        backdrop: 'https://image.tmdb.org/t/p/w780/9faGSFi5jam6pDWGNd0P8Jez3v5.jpg',
+        backdrop: 'https://image.tmdb.org/t/p/w780/56v2KjBlU4XaOv9rVYEQypROD7P.jpg',
         endpoint: 'netflix'
     },
     {
@@ -121,7 +121,7 @@ const COLLECTIONS = [
         tag: 'OTT NETWORK',
         category: 'platforms',
         desc: 'Prime exclusives, The Boys, Rings of Power, Fallout, and blockbuster movie premieres.',
-        backdrop: 'https://image.tmdb.org/t/p/w780/muth4A1y2r82D6qC3v8Gg2Z3cE6.jpg',
+        backdrop: 'https://image.tmdb.org/t/p/w780/n6vVs6z8obNbExdD3QHTr4Utu1Z.jpg',
         endpoint: 'prime'
     },
     {
@@ -130,7 +130,7 @@ const COLLECTIONS = [
         tag: 'OTT NETWORK',
         category: 'platforms',
         desc: 'Disney classics, Pixar animation masterpieces, and National Geographic.',
-        backdrop: 'https://image.tmdb.org/t/p/w780/t5zCBSGu5xO5R4v8pMRYvuvIShl.jpg',
+        backdrop: 'https://image.tmdb.org/t/p/w780/q3jHCb4dMfYF6ojikKuHd6LscxC.jpg',
         endpoint: 'disney'
     },
     {
@@ -139,7 +139,7 @@ const COLLECTIONS = [
         tag: 'PREMIUM NETWORK',
         category: 'platforms',
         desc: 'Game of Thrones, House of the Dragon, The Last of Us, DC Universe, and Dune.',
-        backdrop: 'https://image.tmdb.org/t/p/w780/zW0v2YT74C69cuiefl8vxR7Rtuv.jpg',
+        backdrop: 'https://image.tmdb.org/t/p/w780/577eXC8wFQT0eUrJcgznSiFPRmk.jpg',
         endpoint: 'hbo'
     },
     {
@@ -148,7 +148,7 @@ const COLLECTIONS = [
         tag: 'PREMIUM STREAM',
         category: 'platforms',
         desc: 'Severance, Ted Lasso, Foundation, Silo, and high-budget sci-fi masterworks.',
-        backdrop: 'https://image.tmdb.org/t/p/w780/vIjyK7jXG6k9B87F7hL2hT73cI4.jpg',
+        backdrop: 'https://image.tmdb.org/t/p/w780/ixgFmf1X59PUZam2qbAfskx2gQr.jpg',
         endpoint: 'appletv'
     },
     {
@@ -157,7 +157,7 @@ const COLLECTIONS = [
         tag: 'ANIME & MANGA',
         category: 'world',
         desc: 'Demon Slayer, Jujutsu Kaisen, Attack on Titan, Solo Leveling, One Piece, Studio Ghibli.',
-        backdrop: 'https://image.tmdb.org/t/p/w780/mDfG3Y5Qn71e549y8xW9RjKkY1b.jpg',
+        backdrop: 'https://image.tmdb.org/t/p/w780/3GQKYh6Trm8pxd2AypovoYQf4Ay.jpg',
         endpoint: 'anime_hub'
     },
     {
@@ -166,7 +166,7 @@ const COLLECTIONS = [
         tag: 'WORLD CINEMA',
         category: 'world',
         desc: 'Squid Game, Parasite, All of Us Are Dead, Train to Busan, and iconic K-Romance.',
-        backdrop: 'https://image.tmdb.org/t/p/w780/dKQAO5uH0uB7p7T7g0J8R9sP7G.jpg',
+        backdrop: 'https://image.tmdb.org/t/p/w780/2meX1nMdScFOoV4370rqHWKmXhY.jpg',
         endpoint: 'kdrama'
     },
     {
@@ -175,7 +175,7 @@ const COLLECTIONS = [
         tag: 'PAN-INDIA HITS',
         category: 'world',
         desc: 'RRR, KGF, Bahubali, Jawan, Kalki 2898 AD, Salaar, and Indian action spectacles.',
-        backdrop: 'https://image.tmdb.org/t/p/w780/8YFL5QQVPy3AgrEQxNYvsUmGI5P.jpg',
+        backdrop: 'https://image.tmdb.org/t/p/w780/i0Y0wP8H6SRgjr6QmuwbtQbS24D.jpg',
         endpoint: 'bollywood'
     }
 ];
