@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import compression from 'compression';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -22,6 +23,9 @@ const PORT = process.env.PORT || 5000;
 
 // Security: Trust first proxy hop (Vercel/Cloudflare) for accurate client IP in rate limiting
 app.set('trust proxy', 1);
+
+// Performance: Gzip compress all API responses (60-80% size reduction)
+app.use(compression({ level: 6, threshold: 1024 }));
 
 // Security: Standard response headers (X-Content-Type-Options, HSTS, Referrer-Policy, etc.)
 // CSP disabled because it conflicts with proxied iframe embeds
@@ -69,6 +73,15 @@ app.use('/api/collections', collectionsRoutes);
 app.use('/api/servers', serverRoutes);
 app.use('/api/proxy', proxyRoutes);
 app.use('/api/user', userRoutes);
+
+// Web Vitals collection endpoint
+app.post('/api/vitals', (req, res) => {
+    const { name, value, rating, id } = req.body || {};
+    if (name) {
+        console.log(`[web-vitals] ${name}: ${Math.round(value ?? 0)}ms (${rating ?? 'unknown'}) id=${id ?? '-'}`);
+    }
+    res.json({ ok: true });
+});
 
 // Health check endpoint (stripped version info in production)
 app.get('/api/health', (req, res) => {

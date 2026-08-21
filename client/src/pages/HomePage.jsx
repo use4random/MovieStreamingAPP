@@ -1,49 +1,59 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import HeroCarousel from '../components/HeroCarousel';
 import MultiHubPills from '../components/MultiHubPills';
 import MovieCard from '../components/MovieCard';
 import { api, getPoster, getRating, getYear } from '../services/api';
 import { useAudio } from '../context/AudioContext';
+import { useCinePulseStore } from '../store/useCinePulseStore';
 
 export default function HomePage() {
-    const [trending, setTrending] = useState([]);
-    const [nowPlaying, setNowPlaying] = useState([]);
-    const [popularMovies, setPopularMovies] = useState([]);
-    const [popularTV, setPopularTV] = useState([]);
-    const [topMovies, setTopMovies] = useState([]);
-    const [topTV, setTopTV] = useState([]);
-    
-    // Hub dynamic feed
-    const [activeHub, setActiveHub] = useState('trending');
+    const { activeHub, setActiveHub } = useCinePulseStore();
     const [hubData, setHubData] = useState({ title: 'Top Trending This Week', items: [] });
     const [hubLoading, setHubLoading] = useState(false);
-    const [loading, setLoading] = useState(true);
-    
     const { playClick } = useAudio();
 
-    useEffect(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        
-        Promise.all([
-            api.getTrending('all', 'week'),
-            api.getNowPlaying(),
-            api.getPopular('movie'),
-            api.getPopular('tv'),
-            api.getTopRated('movie'),
-            api.getTopRated('tv')
-        ]).then(([trendRes, nowRes, popMRes, popTRes, topMRes, topTRes]) => {
-            if (trendRes && trendRes.results) setTrending(trendRes.results);
-            if (nowRes && nowRes.results) setNowPlaying(nowRes.results.slice(0, 6));
-            if (popMRes && popMRes.results) setPopularMovies(popMRes.results.slice(0, 12));
-            if (popTRes && popTRes.results) setPopularTV(popTRes.results.slice(0, 12));
-            if (topMRes && topMRes.results) setTopMovies(topMRes.results.slice(0, 5));
-            if (topTRes && topTRes.results) setTopTV(topTRes.results.slice(0, 5));
-            
-            setHubData({ title: 'Top Trending This Week', items: (trendRes?.results || []).slice(0, 18) });
-            setLoading(false);
-        });
-    }, []);
+    // ── React Query cached fetches (5-min stale time from QueryClient defaults) ──
+    const { data: trendRes, isLoading: loadingTrend } = useQuery({
+        queryKey: ['trending', 'all', 'week'],
+        queryFn: () => api.getTrending('all', 'week'),
+    });
+    const { data: nowRes, isLoading: loadingNow } = useQuery({
+        queryKey: ['now-playing'],
+        queryFn: () => api.getNowPlaying(),
+    });
+    const { data: popMRes } = useQuery({
+        queryKey: ['popular', 'movie'],
+        queryFn: () => api.getPopular('movie'),
+    });
+    const { data: popTRes } = useQuery({
+        queryKey: ['popular', 'tv'],
+        queryFn: () => api.getPopular('tv'),
+    });
+    const { data: topMRes } = useQuery({
+        queryKey: ['top-rated', 'movie'],
+        queryFn: () => api.getTopRated('movie'),
+    });
+    const { data: topTRes } = useQuery({
+        queryKey: ['top-rated', 'tv'],
+        queryFn: () => api.getTopRated('tv'),
+    });
+
+    const trending = trendRes?.results || [];
+    const nowPlaying = nowRes?.results?.slice(0, 6) || [];
+    const popularMovies = popMRes?.results?.slice(0, 12) || [];
+    const popularTV = popTRes?.results?.slice(0, 12) || [];
+    const topMovies = topMRes?.results?.slice(0, 5) || [];
+    const topTV = topTRes?.results?.slice(0, 5) || [];
+
+    // Set hub data from trending once loaded
+    const currentHubItems = activeHub === 'trending' && trending.length > 0
+        ? { title: 'Top Trending This Week', items: trending.slice(0, 18) }
+        : hubData;
+
+    const loading = loadingTrend || loadingNow;
+
 
     const handleSelectHub = async (hubId) => {
         setActiveHub(hubId);

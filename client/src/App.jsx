@@ -1,19 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
 import SearchModal from './components/SearchModal';
 import MobileBottomNav from './components/MobileBottomNav';
-import HomePage from './pages/HomePage';
-import DetailPage from './pages/DetailPage';
-import SearchPage from './pages/SearchPage';
-import GenrePage from './pages/GenrePage';
-import CollectionsPage from './pages/CollectionsPage';
-import WatchlistPage from './pages/WatchlistPage';
+import { useCinePulseStore } from './store/useCinePulseStore';
+
+// ── Code-split page imports (each becomes its own JS chunk) ──────────
+const HomePage = lazy(() => import('./pages/HomePage'));
+const DetailPage = lazy(() => import('./pages/DetailPage'));
+const SearchPage = lazy(() => import('./pages/SearchPage'));
+const GenrePage = lazy(() => import('./pages/GenrePage'));
+const CollectionsPage = lazy(() => import('./pages/CollectionsPage'));
+const WatchlistPage = lazy(() => import('./pages/WatchlistPage'));
+
+// ── Page transition animation variants ───────────────────────────────
+const pageVariants = {
+    initial: { opacity: 0, y: 12 },
+    animate: { opacity: 1, y: 0, transition: { duration: 0.22, ease: 'easeOut' } },
+    exit: { opacity: 0, y: -8, transition: { duration: 0.15, ease: 'easeIn' } },
+};
+
+// ── Suspense fallback ─────────────────────────────────────────────────
+function CyberLoader() {
+    return (
+        <div className="cyber-loader-wrap">
+            <div className="cyber-spinner">
+                <div className="spinner-ring"></div>
+                <div className="spinner-core"><i className="fas fa-film"></i></div>
+            </div>
+            <div className="loader-text">LOADING MODULE...</div>
+        </div>
+    );
+}
 
 export default function App() {
-    const [searchOpen, setSearchOpen] = useState(false);
+    const { searchOpen, openSearch, closeSearch } = useCinePulseStore();
     const location = useLocation();
 
     // Global Anti-Popunder & Strict Mobile Ad Interceptor
@@ -103,7 +127,7 @@ export default function App() {
         const handleKeyDown = (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                 e.preventDefault();
-                setSearchOpen(true);
+                openSearch();
             }
         };
         window.addEventListener('keydown', handleKeyDown);
@@ -113,32 +137,44 @@ export default function App() {
 
     // Close search on route change
     useEffect(() => {
-        setSearchOpen(false);
+        closeSearch();
     }, [location.pathname]);
 
     return (
         <>
-            <Navbar onOpenSearch={() => setSearchOpen(true)} />
+            <Navbar onOpenSearch={openSearch} />
 
-            <SearchModal isOpen={searchOpen} onClose={() => setSearchOpen(false)} />
+            <SearchModal isOpen={searchOpen} onClose={closeSearch} />
 
             <div className="site-container">
                 <main className="main-content" id="mainContent">
-                    <Routes>
-                        <Route path="/" element={<HomePage />} />
-                        <Route path="/detail/:type/:id" element={<DetailPage />} />
-                        <Route path="/search/:query" element={<SearchPage />} />
-                        <Route path="/genre/:genreId/:name" element={<GenrePage />} />
-                        <Route path="/collections" element={<CollectionsPage />} />
-                        <Route path="/watchlist" element={<WatchlistPage />} />
-                    </Routes>
+                    <Suspense fallback={<CyberLoader />}>
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={location.pathname}
+                                variants={pageVariants}
+                                initial="initial"
+                                animate="animate"
+                                exit="exit"
+                            >
+                                <Routes location={location}>
+                                    <Route path="/" element={<HomePage />} />
+                                    <Route path="/detail/:type/:id" element={<DetailPage />} />
+                                    <Route path="/search/:query" element={<SearchPage />} />
+                                    <Route path="/genre/:genreId/:name" element={<GenrePage />} />
+                                    <Route path="/collections" element={<CollectionsPage />} />
+                                    <Route path="/watchlist" element={<WatchlistPage />} />
+                                </Routes>
+                            </motion.div>
+                        </AnimatePresence>
+                    </Suspense>
                 </main>
                 <Sidebar />
             </div>
 
             <Footer />
 
-            <MobileBottomNav onOpenSearch={() => setSearchOpen(true)} />
+            <MobileBottomNav onOpenSearch={openSearch} />
 
             <BackToTop />
         </>

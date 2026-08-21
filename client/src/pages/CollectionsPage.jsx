@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import MovieCard from '../components/MovieCard';
 import { api, getBackdrop } from '../services/api';
 import { useAudio } from '../context/AudioContext';
@@ -13,23 +14,21 @@ const GENRE_CARDS = [
 ];
 
 export default function CollectionsPage() {
-    const [collections, setCollections] = useState([]);
     const [activeCollection, setActiveCollection] = useState(null);
     const [activeTab, setActiveTab] = useState('all');
     const [feedItems, setFeedItems] = useState([]);
-    const [loading, setLoading] = useState(true);
     const [feedLoading, setFeedLoading] = useState(false);
     const [quickQuery, setQuickQuery] = useState('');
     const navigate = useNavigate();
     const { playClick, playWhoosh } = useAudio();
 
-    useEffect(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        api.getCollections().then(data => {
-            setLoading(false);
-            if (data) setCollections(data);
-        });
-    }, []);
+    // ── Cached collections fetch ──
+    const { data: collections = [], isLoading: loading } = useQuery({
+        queryKey: ['collections'],
+        queryFn: () => api.getCollections(),
+        select: (data) => data || [],
+    });
+
 
     const handleQuickSearch = (e) => {
         e.preventDefault();

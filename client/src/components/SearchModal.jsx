@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Fuse from 'fuse.js';
+import { useQueryClient } from '@tanstack/react-query';
 import { api, getPoster, getRating, getYear } from '../services/api';
 import { useAudio } from '../context/AudioContext';
 
@@ -10,6 +12,19 @@ export default function SearchModal({ isOpen, onClose }) {
     const inputRef = useRef(null);
     const navigate = useNavigate();
     const { playClick, playWhoosh } = useAudio();
+    const queryClient = useQueryClient();
+
+    // ── Build Fuse.js index from React Query cache (trending data) ──
+    const fuseIndex = useMemo(() => {
+        const cached = queryClient.getQueryData(['trending', 'all', 'week']);
+        const items = cached?.results || [];
+        if (!items.length) return null;
+        return new Fuse(items, {
+            keys: ['title', 'name', 'original_title'],
+            threshold: 0.3,
+            includeScore: true,
+        });
+    }, [queryClient, isOpen]); // refresh when modal opens
 
     useEffect(() => {
         if (isOpen) {
@@ -26,6 +41,15 @@ export default function SearchModal({ isOpen, onClose }) {
             return;
         }
 
+        // ── Instant: Fuse.js local results (synchronous, 0ms) ──
+        if (fuseIndex) {
+            const localHits = fuseIndex.search(query.trim(), { limit: 6 });
+            if (localHits.length > 0) {
+                setResults(localHits.map(r => r.item));
+            }
+        }
+
+        // ── Delayed: TMDB API results after 400ms debounce ──
         const timer = setTimeout(async () => {
             setLoading(true);
             const data = await api.search(query.trim(), 1);
@@ -33,10 +57,11 @@ export default function SearchModal({ isOpen, onClose }) {
             if (data && data.results) {
                 setResults(data.results.slice(0, 6));
             }
-        }, 280);
+        }, 400);
 
         return () => clearTimeout(timer);
     }, [query]);
+
 
     if (!isOpen) return null;
 

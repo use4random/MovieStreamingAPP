@@ -9,11 +9,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.101.4",
+    "framer-motion": "^13.1.1",
+    "fuse.js": "^7.5.0",
     "lucide-react": "^0.436.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^6.26.1",
-    "vercel": "^59.1.4"
+    "react-window": "^2.3.0",
+    "vercel": "^59.1.4",
+    "web-vitals": "^6.1.1",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",

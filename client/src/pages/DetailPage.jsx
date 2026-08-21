@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import VideoPlayerHUD from '../components/VideoPlayerHUD';
 import SeasonNavigator from '../components/SeasonNavigator';
 import MovieCard from '../components/MovieCard';
@@ -9,38 +10,38 @@ import { useAudio } from '../context/AudioContext';
 
 export default function DetailPage() {
     const { type = 'movie', id } = useParams();
-    const [data, setData] = useState(null);
-    const [servers, setServers] = useState([]);
     const [season, setSeason] = useState(1);
     const [episode, setEpisode] = useState(1);
-    const [loading, setLoading] = useState(true);
-    
+    const [manualServers, setManualServers] = useState(null);
+
     const { has, toggle } = useWatchlist();
     const { playClick } = useAudio();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        setLoading(true);
-        setSeason(1);
-        setEpisode(1);
+    // ── Cached media details (won't refetch if already in cache) ──
+    const { data, isLoading } = useQuery({
+        queryKey: ['media-detail', type, id],
+        queryFn: () => api.getMediaDetails(type, id),
+        enabled: !!id,
+    });
 
-        Promise.all([
-            api.getMediaDetails(type, id),
-            api.getServers(type, id, 1, 1)
-        ]).then(([detailRes, serverRes]) => {
-            setLoading(false);
-            if (detailRes) setData(detailRes);
-            if (serverRes) setServers(serverRes);
-        });
-    }, [type, id]);
+    // ── Cached initial servers ──
+    const { data: initialServers } = useQuery({
+        queryKey: ['servers', type, id, 1, 1],
+        queryFn: () => api.getServers(type, id, 1, 1),
+        enabled: !!id,
+    });
+
+    const servers = manualServers ?? initialServers ?? [];
+    const loading = isLoading;
+
 
     const handleSelectEpisode = (s, e) => {
         setSeason(s);
         setEpisode(e);
         // Refresh server URLs for this specific episode
         api.getServers(type, id, s, e).then(res => {
-            if (res) setServers(res);
+            if (res) setManualServers(res);
         });
     };
 
