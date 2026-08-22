@@ -105,22 +105,21 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// Serve React static build assets if present (only when running as standalone Node process)
-if (!process.env.VERCEL) {
-    const clientDist = path.join(__dirname, '../client/dist');
-    app.use(express.static(clientDist));
+// Serve React static build assets from client/dist
+const clientDist = path.join(process.cwd(), 'client/dist');
+app.use(express.static(clientDist));
 
-    app.get('*', (req, res) => {
-        if (!req.url.startsWith('/api')) {
-            const indexPath = path.join(clientDist, 'index.html');
-            if (fs.existsSync(indexPath)) {
-                res.sendFile(indexPath);
-            } else {
-                res.status(200).send('CinePulse API Gateway is Active.');
-            }
+app.get('*', (req, res) => {
+    if (!req.url.startsWith('/api')) {
+        const indexPath = path.join(clientDist, 'index.html');
+        if (fs.existsSync(indexPath)) {
+            return res.sendFile(indexPath);
+        } else {
+            return res.status(200).send('CinePulse Cyber API Gateway is Active.');
         }
-    });
-}
+    }
+});
+
 
 
 // Start Server (Listen only when running directly outside Vercel Serverless environment)
