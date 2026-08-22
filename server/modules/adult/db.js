@@ -3,7 +3,6 @@
  * Operates on an independent 'adult_catalog' table.
  */
 
-import Database from 'better-sqlite3';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import 'dotenv/config';
@@ -13,40 +12,50 @@ const __dirname = path.dirname(__filename);
 
 const isVercel = Boolean(process.env.VERCEL);
 const dbPath = process.env.DATABASE_PATH || (isVercel ? '/tmp/cinepulse.db' : path.join(__dirname, '../../data/cinepulse.db'));
+
 let db;
 
 try {
-    if (isVercel) {
-        db = new Database(':memory:');
-    } else {
-        db = new Database(dbPath);
-        db.pragma('journal_mode = WAL');
+    const { default: Database } = await import('better-sqlite3');
+    db = new Database(isVercel ? ':memory:' : dbPath);
+    if (!isVercel) {
+        try { db.pragma('journal_mode = WAL'); } catch {}
     }
-} catch {
-    db = new Database(':memory:');
+} catch (err) {
+    console.warn('[Adult Module] Using DB fallback mock:', err.message);
+    db = {
+        exec: () => {},
+        prepare: () => ({
+            run: () => ({ changes: 1 }),
+            get: () => ({ count: 0 }),
+            all: () => []
+        })
+    };
 }
 
 // Create isolated adult catalog table
-db.exec(`
-    CREATE TABLE IF NOT EXISTS adult_catalog (
-        id                INTEGER PRIMARY KEY AUTOINCREMENT,
-        tmdb_id           INTEGER NOT NULL,
-        media_type        TEXT NOT NULL DEFAULT 'movie',
-        title             TEXT NOT NULL,
-        poster_path       TEXT,
-        backdrop_path     TEXT,
-        overview          TEXT,
-        vote_average      REAL DEFAULT 0,
-        release_date      TEXT,
-        rating_label      TEXT DEFAULT '18+',
-        category          TEXT DEFAULT 'mature',
-        synced_at         DATETIME DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE(tmdb_id, media_type)
-    );
+try {
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS adult_catalog (
+            id                INTEGER PRIMARY KEY AUTOINCREMENT,
+            tmdb_id           INTEGER NOT NULL,
+            media_type        TEXT NOT NULL DEFAULT 'movie',
+            title             TEXT NOT NULL,
+            poster_path       TEXT,
+            backdrop_path     TEXT,
+            overview          TEXT,
+            vote_average      REAL DEFAULT 0,
+            release_date      TEXT,
+            rating_label      TEXT DEFAULT '18+',
+            category          TEXT DEFAULT 'mature',
+            synced_at         DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(tmdb_id, media_type)
+        );
 
-    CREATE INDEX IF NOT EXISTS idx_adult_cat ON adult_catalog(category);
-    CREATE INDEX IF NOT EXISTS idx_adult_rating ON adult_catalog(rating_label);
-`);
+        CREATE INDEX IF NOT EXISTS idx_adult_cat ON adult_catalog(category);
+        CREATE INDEX IF NOT EXISTS idx_adult_rating ON adult_catalog(rating_label);
+    `);
+} catch {}
 
 export const upsertAdultItemStmt = db.prepare(`
     INSERT INTO adult_catalog (
