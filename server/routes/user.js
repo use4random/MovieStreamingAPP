@@ -1,146 +1,154 @@
 import express from 'express';
-import { cache } from '../utils/cache.js';
+import { 
+    getWatchlistByUserIdStmt, 
+    upsertWatchlistItemStmt, 
+    deleteWatchlistItemStmt,
+    getHistoryByUserIdStmt,
+    upsertHistoryItemStmt
+} from '../data/db.js';
+import { optionalAuth } from '../middleware/requireAuth.js';
+import { recordCoWatch } from '../utils/cowatch.js';
 
 const router = express.Router();
 
-// Security: Sanitize userId to prevent cache pollution, path traversal, and enumeration
-function sanitizeUserId(raw) {
-    if (!raw || typeof raw !== 'string') return 'guest';
-    const clean = raw.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 64);
-    return clean || 'guest';
-}
-
-// Helper key generators for user store
-const getWatchlistKey = (userId = 'guest') => `user:${sanitizeUserId(userId)}:watchlist`;
-const getHistoryKey = (userId = 'guest') => `user:${sanitizeUserId(userId)}:history`;
+// Apply optionalAuth to all user routes to derive req.userId from verified JWT session server-side
+router.use(optionalAuth);
 
 /**
- * GET /api/user/watchlist?userId=guest
- * Retrieve saved watchlist items
+ * GET /api/user/watchlist
+ * Retrieve saved watchlist items for the authenticated user (or guest)
  */
 router.get('/watchlist', async (req, res) => {
     try {
-        const userId = req.query.userId || 'guest';
-        const watchlist = await cache.get(getWatchlistKey(userId)) || [];
-        res.json({ userId, watchlist });
+        const userId = req.userId; // Server-derived, trusted ID
+        const rows = getWatchlistByUserIdStmt.all(userId);
+        const watchlist = rows.map(r => {
+            try { return JSON.parse(r.item_json); } catch { return null; }
+        }).filter(Boolean);
+
+        res.json({ watchlist });
     } catch (err) {
+        console.error('[User API] Watchlist fetch error:', err.message);
         res.status(500).json({ error: 'Failed to retrieve watchlist' });
     }
 });
 
 /**
  * POST /api/user/watchlist
- * Add item to watchlist
+ * Save item to watchlist for the server-derived req.userId
  */
 router.post('/watchlist', async (req, res) => {
     try {
-        const { userId = 'guest', item } = req.body;
+        const userId = req.userId; // Server-derived, trusted ID
+        const { item } = req.body || {};
+        
         if (!item || !item.id) {
             return res.status(400).json({ error: 'Invalid media item payload' });
         }
 
-        const key = getWatchlistKey(userId);
-        let list = await cache.get(key) || [];
+        const mediaId = String(item.id);
+        const mediaType = item.media_type || 'movie';
+        const itemJson = JSON.stringify({ ...item, addedAt: new Date().toISOString() });
 
-        // Avoid duplicate entries
-        const existingIdx = list.findIndex(i => String(i.id) === String(item.id) && i.media_type === item.media_type);
-        if (existingIdx >= 0) {
-            list[existingIdx] = { ...list[existingIdx], ...item, addedAt: new Date().toISOString() };
-        } else {
-            list.unshift({ ...item, addedAt: new Date().toISOString() });
-        }
+        upsertWatchlistItemStmt.run(userId, mediaId, mediaType, itemJson);
 
-        // Store persistent list (TTL 30 days = 2592000s)
-        await cache.set(key, list, 2592000);
-        res.json({ success: true, watchlist: list });
+        const rows = getWatchlistByUserIdStmt.all(userId);
+        const watchlist = rows.map(r => {
+            try { return JSON.parse(r.item_json); } catch { return null; }
+        }).filter(Boolean);
+
+        res.json({ success: true, watchlist });
     } catch (err) {
+        console.error('[User API] Watchlist save error:', err.message);
         res.status(500).json({ error: 'Failed to save watchlist item' });
     }
 });
 
 /**
  * DELETE /api/user/watchlist
- * Remove item from watchlist
+ * Remove item from watchlist for the server-derived req.userId
  */
 router.delete('/watchlist', async (req, res) => {
     try {
-        const { userId = 'guest', id, mediaType } = req.body;
-        if (!id) return res.status(400).json({ error: 'Missing item id' });
+        const userId = req.userId; // Server-derived, trusted ID
+        const { id, mediaType } = req.body || {};
 
-        const key = getWatchlistKey(userId);
-        let list = await cache.get(key) || [];
-        list = list.filter(i => !(String(i.id) === String(id) && (!mediaType || i.media_type === mediaType)));
+        if (!id) {
+            return res.status(400).json({ error: 'Missing item id' });
+        }
 
-        await cache.set(key, list, 2592000);
-        res.json({ success: true, watchlist: list });
+        deleteWatchlistItemStmt.run(userId, String(id), mediaType || 'movie');
+
+        const rows = getWatchlistByUserIdStmt.all(userId);
+        const watchlist = rows.map(r => {
+            try { return JSON.parse(r.item_json); } catch { return null; }
+        }).filter(Boolean);
+
+        res.json({ success: true, watchlist });
     } catch (err) {
+        console.error('[User API] Watchlist delete error:', err.message);
         res.status(500).json({ error: 'Failed to remove watchlist item' });
     }
 });
 
 /**
- * GET /api/user/history?userId=guest
- * Retrieve "Continue Watching" playback history
+ * GET /api/user/history
+ * Retrieve playback history ("Continue Watching") for the server-derived req.userId
  */
 router.get('/history', async (req, res) => {
     try {
-        const userId = req.query.userId || 'guest';
-        const history = await cache.get(getHistoryKey(userId)) || [];
-        res.json({ userId, history });
+        const userId = req.userId; // Server-derived, trusted ID
+        const history = getHistoryByUserIdStmt.all(userId);
+        res.json({ history });
     } catch (err) {
+        console.error('[User API] History fetch error:', err.message);
         res.status(500).json({ error: 'Failed to retrieve playback history' });
     }
 });
 
 /**
  * POST /api/user/history
- * Save or update playback progress (Continue Watching)
+ * Save or update playback progress for the server-derived req.userId
  */
 router.post('/history', async (req, res) => {
     try {
+        const userId = req.userId; // Server-derived, trusted ID
         const {
-            userId = 'guest',
             id,
             mediaType = 'movie',
-            title,
-            posterPath,
-            backdropPath,
+            title = '',
+            posterPath = '',
+            backdropPath = '',
             season = 1,
             episode = 1,
             progressSeconds = 0,
             durationSeconds = 0
-        } = req.body;
+        } = req.body || {};
 
         if (!id) {
-            return res.status(400).json({ error: 'Missing id' });
+            return res.status(400).json({ error: 'Missing media id' });
         }
 
-        const key = getHistoryKey(userId);
-        let history = await cache.get(key) || [];
-
-        const record = {
-            id,
-            media_type: mediaType,
+        upsertHistoryItemStmt.run(
+            userId,
+            String(id),
+            mediaType,
             title,
-            poster_path: posterPath,
-            backdrop_path: backdropPath,
-            season: Number(season),
-            episode: Number(episode),
-            progressSeconds: Number(progressSeconds),
-            durationSeconds: Number(durationSeconds),
-            updatedAt: new Date().toISOString()
-        };
+            posterPath,
+            backdropPath,
+            Number(season),
+            Number(episode),
+            Number(progressSeconds),
+            Number(durationSeconds)
+        );
 
-        // Filter out old entry for same media item
-        history = history.filter(h => !(String(h.id) === String(id) && h.media_type === mediaType));
-        history.unshift(record);
+        // Asynchronously update co-watch collaborative matrix
+        recordCoWatch(userId, id, mediaType).catch(e => console.warn('[CoWatch async err]:', e.message));
 
-        // Keep last 50 items per user
-        history = history.slice(0, 50);
-
-        await cache.set(key, history, 2592000);
+        const history = getHistoryByUserIdStmt.all(userId);
         res.json({ success: true, history });
     } catch (err) {
+        console.error('[User API] History update error:', err.message);
         res.status(500).json({ error: 'Failed to update playback history' });
     }
 });

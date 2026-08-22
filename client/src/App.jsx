@@ -5,6 +5,7 @@ import Navbar from './components/Navbar';
 import Sidebar from './components/Sidebar';
 import Footer from './components/Footer';
 import SearchModal from './components/SearchModal';
+import AuthModal from './components/AuthModal';
 import MobileBottomNav from './components/MobileBottomNav';
 import { useCinePulseStore } from './store/useCinePulseStore';
 
@@ -15,6 +16,7 @@ const SearchPage = lazy(() => import('./pages/SearchPage'));
 const GenrePage = lazy(() => import('./pages/GenrePage'));
 const CollectionsPage = lazy(() => import('./pages/CollectionsPage'));
 const WatchlistPage = lazy(() => import('./pages/WatchlistPage'));
+const AdultSection = lazy(() => import('./modules/adult/AdultSection'));
 
 // ── Page transition animation variants ───────────────────────────────
 const pageVariants = {
@@ -77,8 +79,9 @@ export default function App() {
         };
 
         // 2. Override HTMLAnchorElement.prototype.click to catch dynamic hidden anchor insertions
+        let nativeAnchorClick = null;
         if (typeof HTMLAnchorElement !== 'undefined' && HTMLAnchorElement.prototype) {
-            const nativeAnchorClick = HTMLAnchorElement.prototype.click;
+            nativeAnchorClick = HTMLAnchorElement.prototype.click;
             HTMLAnchorElement.prototype.click = function () {
                 try {
                     const href = this.getAttribute('href') || this.href;
@@ -116,7 +119,9 @@ export default function App() {
 
         return () => {
             window.open = nativeOpen;
-            HTMLAnchorElement.prototype.click = nativeAnchorClick;
+            if (nativeAnchorClick && typeof HTMLAnchorElement !== 'undefined' && HTMLAnchorElement.prototype) {
+                HTMLAnchorElement.prototype.click = nativeAnchorClick;
+            }
             eventTypes.forEach(type => window.removeEventListener(type, handleGlobalEvent, true));
         };
     }, []);
@@ -145,6 +150,8 @@ export default function App() {
             <Navbar onOpenSearch={openSearch} />
 
             <SearchModal isOpen={searchOpen} onClose={closeSearch} />
+            <AuthModal />
+
 
             <div className="site-container">
                 <main className="main-content" id="mainContent">
@@ -164,6 +171,7 @@ export default function App() {
                                     <Route path="/genre/:genreId/:name" element={<GenrePage />} />
                                     <Route path="/collections" element={<CollectionsPage />} />
                                     <Route path="/watchlist" element={<WatchlistPage />} />
+                                    <Route path="/adult" element={<AdultSection />} />
                                 </Routes>
                             </motion.div>
                         </AnimatePresence>

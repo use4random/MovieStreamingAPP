@@ -45,6 +45,17 @@ export default function MobileBottomNav({ onOpenSearch }) {
                 <span>Watchlist</span>
             </Link>
 
+            {/* 18+ Zone */}
+            <Link
+                to="/adult"
+                className={`mobile-bottom-nav-item ${location.pathname === '/adult' ? 'active' : ''}`}
+                onClick={playClick}
+                style={{ color: '#ff2a6d' }}
+            >
+                <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>explicit</span>
+                <span>18+ Zone</span>
+            </Link>
+
             {/* Search */}
             <button
                 className="mobile-bottom-nav-item"

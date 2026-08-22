@@ -45,3 +45,15 @@ export function createRateLimiter(options = {}) {
         next();
     };
 }
+
+/**
+ * Strict Rate Limiter for Authentication Endpoints (register / login)
+ * Protects against brute-force attacks and credential stuffing.
+ */
+export const authLimiter = createRateLimiter({
+    name: 'api_auth',
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 15, // Max 15 attempts per 15 minutes
+    message: { error: 'Too many authentication attempts. Please wait 15 minutes before trying again.' }
+});
+

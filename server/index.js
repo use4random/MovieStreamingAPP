@@ -1,8 +1,11 @@
+// IMPORTANT: Must be the very first import so process.env is populated
+// before any other module reads it (ESM hoists all imports before code runs)
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
-import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -11,9 +14,11 @@ import collectionsRoutes from './routes/collections.js';
 import serverRoutes from './routes/servers.js';
 import proxyRoutes from './routes/proxy.js';
 import userRoutes from './routes/user.js';
+import authRoutes from './routes/auth.js';
+import catalogRoutes from './routes/catalog.js';
+import recommendRoutes from './routes/recommend.js';
 import { createRateLimiter } from './middleware/rateLimiter.js';
-
-dotenv.config();
+import { startAutoSync } from './sync/contentSync.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,6 +36,9 @@ app.use(compression({ level: 6, threshold: 1024 }));
 // CSP disabled because it conflicts with proxied iframe embeds
 app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
 
+// Cookie Parser Middleware
+app.use(cookieParser());
+
 // Security: Environment-based CORS origin filtering
 const allowedOrigins = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
@@ -40,12 +48,20 @@ app.use(cors({
     origin: function (origin, callback) {
         // Allow same-origin / server-to-server / curl requests with no origin header
         if (!origin) return callback(null, true);
-        if (!allowedOrigins || allowedOrigins.includes('*')) return callback(null, true);
+        // In development without ALLOWED_ORIGINS set, allow all
+        if (!allowedOrigins) {
+            if (process.env.NODE_ENV === 'production') {
+                return callback(new Error('CORS policy violation: ALLOWED_ORIGINS is not configured for production.'));
+            }
+            return callback(null, true);
+        }
+        if (allowedOrigins.includes('*')) return callback(null, true);
         if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
             return callback(null, true);
         }
         return callback(new Error('CORS policy violation: Origin not allowed.'));
     },
+    credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -59,20 +75,30 @@ const strictProxyLimiter = createRateLimiter({ name: 'api_proxy', windowMs: 6000
 app.use('/api', globalApiLimiter);
 app.use('/api/proxy', strictProxyLimiter);
 
-// Edge CDN Caching: Attach stale-while-revalidate headers for API catalog GET requests
-app.use('/api', (req, res, next) => {
-    if (req.method === 'GET' && !req.path.startsWith('/proxy') && !req.path.startsWith('/user')) {
-        res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=600, stale-while-revalidate=1200');
-    }
-    next();
-});
-
 // API Routes
+app.use('/api/auth', authRoutes);
 app.use('/api', tmdbRoutes);
 app.use('/api/collections', collectionsRoutes);
 app.use('/api/servers', serverRoutes);
 app.use('/api/proxy', proxyRoutes);
 app.use('/api/user', userRoutes);
+app.use('/api/catalog', catalogRoutes);
+app.use('/api/recommend', recommendRoutes);
+
+// Isolated 18+ Module (Dynamic Loader & Killswitch)
+if (process.env.ENABLE_ADULT_CONTENT === 'true') {
+    try {
+        const { default: adultRoutes } = await import('./modules/adult/index.js');
+        const { syncAdultContent } = await import('./modules/adult/scraper.js');
+        app.use('/api/adult', adultRoutes);
+        console.log('[Module Loader] 🔞 18+ Module Enabled & Mounted at /api/adult');
+        // Initial background sync for adult content
+        syncAdultContent().catch(() => {});
+    } catch (err) {
+        console.warn('[Module Loader] ⚠ 18+ Module not loaded or missing:', err.message);
+    }
+}
+
 
 // Web Vitals collection endpoint
 app.post('/api/vitals', (req, res) => {
@@ -113,6 +139,12 @@ if (!process.env.VERCEL) {
         console.log(`🚀 CINEPULSE CYBER BACKEND RUNNING ON PORT ${PORT}`);
         console.log(`📡 TMDB API Gateway: http://localhost:${PORT}/api/health`);
         console.log(`=================================================\n`);
+
+        // Start automated content sync engine (runs every 6 hours)
+        // Disable by setting DISABLE_AUTO_SYNC=true in .env
+        if (process.env.DISABLE_AUTO_SYNC !== 'true') {
+            startAutoSync();
+        }
     });
 }
 

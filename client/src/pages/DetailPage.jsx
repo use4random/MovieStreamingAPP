@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import VideoPlayerHUD from '../components/VideoPlayerHUD';
 import SeasonNavigator from '../components/SeasonNavigator';
 import MovieCard from '../components/MovieCard';
+import RecommendationRail from '../components/RecommendationRail';
 import { api, getRating, getYear } from '../services/api';
 import { useWatchlist } from '../context/WatchlistContext';
 import { useAudio } from '../context/AudioContext';
@@ -82,7 +83,16 @@ export default function DetailPage() {
     const trailerKey = trailerVideo?.key || null;
 
     const inWatchlist = has(data.id);
-    const related = data.recommendations?.results?.slice(0, 8) || data.similar?.results?.slice(0, 8) || [];
+
+    // ── Smart Hybrid Recommendations Query ──
+    const { data: recData, isLoading: recLoading } = useQuery({
+        queryKey: ['smart-recommendations', type, id],
+        queryFn: () => api.getRecommendations(type, id),
+        enabled: !!id,
+    });
+
+    const recItems = recData?.results || data.recommendations?.results?.slice(0, 12) || data.similar?.results?.slice(0, 12) || [];
+    const recReason = recData?.reason || (title ? `Because you watched ${title}` : 'Recommended For You');
 
     return (
         <div className="fade-in">
@@ -314,22 +324,14 @@ export default function DetailPage() {
                 />
             )}
 
-            {/* Recommended Titles */}
-            {related.length > 0 && (
-                <section style={{ marginBottom: '38px' }}>
-                    <div className="section-header">
-                        <h2 className="section-title">
-                            <span className="material-symbols-outlined" style={{ color: 'var(--brand)', verticalAlign: 'middle', marginRight: '6px' }}>recommend</span>
-                            More Like This
-                        </h2>
-                    </div>
-                    <div className="content-grid wide">
-                        {related.map(item => (
-                            <MovieCard key={item.id} item={{ ...item, media_type: type }} />
-                        ))}
-                    </div>
-                </section>
-            )}
+            {/* Hybrid Recommendation Rail */}
+            <RecommendationRail
+                title="Neural Match Recommendations"
+                reason={recReason}
+                items={recItems}
+                isLoading={recLoading}
+                defaultMediaType={type}
+            />
         </div>
     );
 }

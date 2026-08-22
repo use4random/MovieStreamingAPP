@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useWatchlist } from '../context/WatchlistContext';
 import { useAudio } from '../context/AudioContext';
+import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 
 export default function Navbar({ onOpenSearch }) {
     const location = useLocation();
     const { count } = useWatchlist();
     const { enabled, toggleAudio, playClick } = useAudio();
+    const { user, isAuthenticated, logout, openAuthModal } = useAuth();
     const [genres, setGenres] = useState([]);
     const [mobileOpen, setMobileOpen] = useState(false);
     const [openSub, setOpenSub] = useState(null);
@@ -93,6 +95,29 @@ export default function Navbar({ onOpenSearch }) {
                                 {count > 0 && <span className="watchlist-nav-pill">{count}</span>}
                             </Link>
                         </li>
+                        <li>
+                            <Link 
+                                to="/adult" 
+                                className={`nav-link ${location.pathname === '/adult' ? 'active' : ''}`} 
+                                onClick={playClick}
+                                style={{
+                                    background: 'rgba(255, 42, 109, 0.12)',
+                                    color: '#ff2a6d',
+                                    border: '1px solid rgba(255, 42, 109, 0.3)',
+                                    borderRadius: '8px',
+                                    padding: '4px 10px',
+                                    fontWeight: '800',
+                                    fontFamily: 'var(--font-mono)',
+                                    fontSize: '12px',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '4px'
+                                }}
+                            >
+                                <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>explicit</span>
+                                18+ Zone
+                            </Link>
+                        </li>
 
                         {/* Genre Dropdown */}
                         <li className="has-dropdown">
@@ -153,13 +178,37 @@ export default function Navbar({ onOpenSearch }) {
                     </ul>
                 </nav>
 
-                {/* Quick Search Trigger */}
+                {/* Quick Search & Auth Triggers */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <button className="quick-search-trigger" onClick={onOpenSearch} title="Search (Ctrl + K)">
                         <i className="fas fa-search" style={{ color: 'var(--brand)' }}></i>
                         <span className="search-placeholder">Quick Search...</span>
                         <kbd className="cyber-kbd">Ctrl K</kbd>
                     </button>
+
+                    {isAuthenticated && user ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px', borderRadius: '8px', background: 'rgba(0, 219, 233, 0.1)', border: '1px solid rgba(0, 219, 233, 0.3)', color: '#fff', fontSize: '13px', fontWeight: '600' }}>
+                                <i className="fas fa-user-astronaut text-cyan"></i>
+                                <span>{user.username}</span>
+                            </div>
+                            <button
+                                onClick={logout}
+                                title="Sign Out"
+                                style={{ padding: '8px 12px', borderRadius: '8px', background: 'rgba(255, 81, 104, 0.1)', border: '1px solid rgba(255, 81, 104, 0.3)', color: 'var(--brand)', cursor: 'pointer', fontSize: '13px' }}
+                            >
+                                <i className="fas fa-right-from-bracket"></i>
+                            </button>
+                        </div>
+                    ) : (
+                        <button
+                            onClick={() => openAuthModal('login')}
+                            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', background: 'linear-gradient(135deg, var(--brand) 0%, #b81d24 100%)', border: 'none', color: '#fff', fontSize: '13px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 2px 10px rgba(255,81,104,0.3)' }}
+                        >
+                            <i className="fas fa-shield-halved"></i>
+                            <span>Sign In</span>
+                        </button>
+                    )}
                 </div>
             </div>
 

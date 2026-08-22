@@ -1,33 +1,54 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { api } from '../services/api';
+import { useAuth } from './AuthContext';
 
 const WatchlistContext = createContext();
 
 export function WatchlistProvider({ children }) {
-    const [watchlist, setWatchlist] = useState(() => {
-        try {
-            return JSON.parse(localStorage.getItem('cinepulse_cyber_watchlist')) || [];
-        } catch {
-            return [];
-        }
-    });
+    const { user } = useAuth();
+    const [watchlist, setWatchlist] = useState([]);
+    const [loading, setLoading] = useState(true);
 
+    // Sync watchlist on auth user change or mount
+    useEffect(() => {
+        let isMounted = true;
+
+        async function fetchWatchlist() {
+            try {
+                const res = await api.getWatchlist();
+                if (isMounted && res && Array.isArray(res.watchlist)) {
+                    setWatchlist(res.watchlist);
+                } else if (isMounted) {
+                    // Fallback to local storage for guests
+                    const local = JSON.parse(localStorage.getItem('cinepulse_cyber_watchlist')) || [];
+                    setWatchlist(local);
+                }
+            } catch {
+                if (isMounted) {
+                    const local = JSON.parse(localStorage.getItem('cinepulse_cyber_watchlist')) || [];
+                    setWatchlist(local);
+                }
+            } finally {
+                if (isMounted) setLoading(false);
+            }
+        }
+
+        fetchWatchlist();
+        return () => { isMounted = false; };
+    }, [user]);
+
+    // Keep localStorage in sync as offline / guest backup
     useEffect(() => {
         try {
             localStorage.setItem('cinepulse_cyber_watchlist', JSON.stringify(watchlist));
         } catch (e) {
-            console.error('Failed to save watchlist:', e);
+            console.error('Failed to sync local watchlist:', e);
         }
     }, [watchlist]);
 
     const has = (id) => watchlist.some(item => String(item.id) === String(id));
 
-    const MAX_WATCHLIST_SIZE = 500;
-
-    const add = (item) => {
-        if (watchlist.length >= MAX_WATCHLIST_SIZE) {
-            console.warn('[Watchlist] Maximum size reached (' + MAX_WATCHLIST_SIZE + ')');
-            return;
-        }
+    const add = async (item) => {
         if (!has(item.id)) {
             const newItem = {
                 id: item.id,
@@ -36,19 +57,40 @@ export function WatchlistProvider({ children }) {
                 media_type: item.media_type || (item.first_air_date ? 'tv' : 'movie'),
                 vote_average: item.vote_average || 0,
                 release_date: item.release_date || item.first_air_date || '',
-                addedAt: Date.now()
+                addedAt: new Date().toISOString()
             };
+            
+            // Optimistic state update
             setWatchlist(prev => [newItem, ...prev]);
+
+            try {
+                const res = await api.saveWatchlist(newItem);
+                if (res && res.watchlist) {
+                    setWatchlist(res.watchlist);
+                }
+            } catch (err) {
+                console.warn('Backend watchlist save sync error:', err.message);
+            }
         }
     };
 
-    const remove = (id) => {
+    const remove = async (id, mediaType = 'movie') => {
+        // Optimistic state update
         setWatchlist(prev => prev.filter(item => String(item.id) !== String(id)));
+
+        try {
+            const res = await api.removeWatchlist(id, mediaType);
+            if (res && res.watchlist) {
+                setWatchlist(res.watchlist);
+            }
+        } catch (err) {
+            console.warn('Backend watchlist delete sync error:', err.message);
+        }
     };
 
     const toggle = (item) => {
         if (has(item.id)) {
-            remove(item.id);
+            remove(item.id, item.media_type || (item.first_air_date ? 'tv' : 'movie'));
             return false;
         } else {
             add(item);
@@ -66,7 +108,7 @@ export function WatchlistProvider({ children }) {
     };
 
     return (
-        <WatchlistContext.Provider value={{ watchlist, has, add, remove, toggle, clearAll, count: watchlist.length }}>
+        <WatchlistContext.Provider value={{ watchlist, loading, has, add, remove, toggle, clearAll, count: watchlist.length }}>
             {children}
         </WatchlistContext.Provider>
     );

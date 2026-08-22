@@ -32,6 +32,8 @@ export default function Sidebar() {
         <aside className="sidebar">
             {/* Quick Finder Widget */}
             <div className="widget search-widget">
+
+
                 <div className="widget-title"><i className="fas fa-search"></i> Quick Finder</div>
                 <form className="widget-content" onSubmit={handleSearch}>
                     <input

@@ -3,12 +3,14 @@ import { useAudio } from '../context/AudioContext';
 import { api } from '../services/api';
 
 export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1, title, trailerKey, servers = [] }) {
+
     const [selectedServer, setSelectedServer] = useState(0);
     const [loading, setLoading] = useState(true);
     const [cinemaMode, setCinemaMode] = useState(false);
     const [healthData, setHealthData] = useState(null);
     const [iframeError, setIframeError] = useState(false);
     const { playClick } = useAudio();
+
 
     // Combine cloud embed servers with official trailer if available
     const activeServers = [...servers];
@@ -161,6 +163,8 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
 
             {/* Video Cloud Nodes */}
             <div className="sources-section">
+
+
                 <h3 className="sources-title"><i className="fas fa-server text-brand"></i> Fast Streaming Cloud Nodes (Auto-Select Enabled)</h3>
                 <div className="servers-grid">
                     {activeServers.map((server, idx) => {

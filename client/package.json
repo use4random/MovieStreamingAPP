@@ -15,9 +15,8 @@
     "lucide-react": "^0.436.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.1",
+    "react-router-dom": "^7.18.2",
     "react-window": "^2.3.0",
-    "vercel": "^59.1.4",
     "web-vitals": "^6.1.1",
     "zustand": "^5.0.15"
   },
@@ -25,6 +24,6 @@
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@vitejs/plugin-react": "^4.3.1",
-    "vite": "^5.4.2"
+    "vite": "^8.2.2"
   }
 }

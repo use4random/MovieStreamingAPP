@@ -1,7 +1,5 @@
 const API_BASE = (import.meta.env.VITE_API_BASE || '/api').replace(/\/$/, '');
 
-
-
 export const IMG_W500 = 'https://image.tmdb.org/t/p/w500';
 export const IMG_W780 = 'https://image.tmdb.org/t/p/w780';
 export const IMG_ORIGINAL = 'https://image.tmdb.org/t/p/original';
@@ -29,6 +27,40 @@ export function getRating(vote) {
     return vote ? Number(vote).toFixed(1) : '8.0';
 }
 
+// Get stored token from client storage
+export function getAuthToken() {
+    return localStorage.getItem('cinepulse_token') || '';
+}
+
+// Set or remove stored token
+export function setAuthToken(token) {
+    if (token) {
+        localStorage.setItem('cinepulse_token', token);
+    } else {
+        localStorage.removeItem('cinepulse_token');
+    }
+}
+
+// Get guest fallback ID
+export function getGuestId() {
+    let guestId = localStorage.getItem('cinepulse_guest_id');
+    if (!guestId) {
+        guestId = `guest_${Math.random().toString(36).substring(2, 9)}`;
+        localStorage.setItem('cinepulse_guest_id', guestId);
+    }
+    return guestId;
+}
+
+function getHeaders() {
+    const headers = { 'Content-Type': 'application/json' };
+    const token = getAuthToken();
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    headers['X-Guest-ID'] = getGuestId();
+    return headers;
+}
+
 async function request(endpoint, params = {}) {
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
     const url = new URL(`${API_BASE}${cleanEndpoint}`, window.location.origin);
@@ -38,11 +70,17 @@ async function request(endpoint, params = {}) {
     });
 
     try {
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const res = await fetch(url, {
+            headers: getHeaders(),
+            credentials: 'include'
+        });
+        if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.error || `HTTP ${res.status}`);
+        }
         return await res.json();
     } catch (err) {
-        console.warn(`API error for ${endpoint}:`, err);
+        console.warn(`API error for ${endpoint}:`, err.message);
         return null;
     }
 }
@@ -54,14 +92,18 @@ async function requestMutate(endpoint, method = 'POST', body = {}) {
     try {
         const res = await fetch(url, {
             method,
-            headers: { 'Content-Type': 'application/json' },
+            headers: getHeaders(),
+            credentials: 'include',
             body: JSON.stringify(body)
         });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        return await res.json();
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+            throw new Error(data.error || `HTTP ${res.status}`);
+        }
+        return data;
     } catch (err) {
-        console.warn(`API mutation error for ${endpoint}:`, err);
-        return null;
+        console.warn(`API mutation error for ${endpoint}:`, err.message);
+        throw err;
     }
 }
 
@@ -81,10 +123,20 @@ export const api = {
     getServers: (type, id, season, episode) => request('/servers', { type, id, season, episode }),
     getServerHealth: () => request('/servers/health'),
 
-    // User Persistence & History APIs
-    getWatchlist: (userId = 'guest') => request('/user/watchlist', { userId }),
-    saveWatchlist: (item, userId = 'guest') => requestMutate('/user/watchlist', 'POST', { userId, item }),
-    removeWatchlist: (id, mediaType, userId = 'guest') => requestMutate('/user/watchlist', 'DELETE', { userId, id, mediaType }),
-    getPlaybackHistory: (userId = 'guest') => request('/user/history', { userId }),
-    updatePlaybackProgress: (payload, userId = 'guest') => requestMutate('/user/history', 'POST', { userId, ...payload }),
+    // Authentication APIs
+    register: (username, email, password) => requestMutate('/auth/register', 'POST', { username, email, password }),
+    login: (identifier, password) => requestMutate('/auth/login', 'POST', { identifier, password }),
+    logout: () => requestMutate('/auth/logout', 'POST'),
+    getCurrentUser: () => request('/auth/me'),
+
+    // User Persistence & History APIs (server derives userId from verified JWT token)
+    getWatchlist: () => request('/user/watchlist'),
+    saveWatchlist: (item) => requestMutate('/user/watchlist', 'POST', { item }),
+    removeWatchlist: (id, mediaType) => requestMutate('/user/watchlist', 'DELETE', { id, mediaType }),
+    getPlaybackHistory: () => request('/user/history'),
+    updatePlaybackProgress: (payload) => requestMutate('/user/history', 'POST', payload),
+
+    // Advanced Recommendation Engine APIs
+    getRecommendations: (type, id) => request(`/recommend/${type}/${id}`),
+    getPersonalFeed: () => request('/recommend/personal/feed'),
 };
