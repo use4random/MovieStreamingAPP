@@ -1,14 +1,16 @@
 const memoryStore = new Map();
 
-// Periodically prune expired rate limit records every 2 minutes
-setInterval(() => {
-    const now = Date.now();
-    for (const [key, record] of memoryStore.entries()) {
-        if (now > record.resetTime) {
-            memoryStore.delete(key);
+function pruneExpiredRecords(now) {
+    if (memoryStore.size > 200) {
+        for (const [key, record] of memoryStore.entries()) {
+            if (now > record.resetTime) {
+                memoryStore.delete(key);
+            }
         }
     }
-}, 120000);
+}
+
+
 
 /**
  * Creates an in-memory sliding-window rate limiter for Express routes.
