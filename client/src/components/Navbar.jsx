@@ -65,13 +65,23 @@ export default function Navbar({ onOpenSearch }) {
                         <i className="fas fa-bars" style={{ fontSize: '20px', color: '#fff' }}></i>
                     </button>
 
-                    <Link to="/" className="logo-link" onClick={playClick} style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-                        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', width: '36px', height: '36px', borderRadius: '10px', background: 'linear-gradient(135deg, rgba(255,81,104,0.2) 0%, rgba(0,219,233,0.2) 100%)', border: '1px solid rgba(255,81,104,0.4)', boxShadow: '0 0 15px rgba(255,81,104,0.3)' }}>
-                            <i className="fas fa-play" style={{ fontSize: '15px', color: 'var(--brand)', marginLeft: '2px' }}></i>
-                            <span style={{ position: 'absolute', bottom: '-2px', right: '-2px', width: '8px', height: '8px', borderRadius: '50%', background: 'var(--cyan)', boxShadow: '0 0 8px var(--cyan)' }}></span>
+                    <Link to="/" className="cyber-logo-wrap" onClick={playClick}>
+                        <div className="logo-top-badge">
+                            <span className="logo-top-sparkle">✦</span>
+                            <span className="logo-top-text">CYBERSTREAM 4K</span>
+                            <span className="logo-top-sparkle">✦</span>
+                            <div className="logo-top-laser"></div>
                         </div>
-                        <div className="logo-text" style={{ fontFamily: "var(--font-heading)", letterSpacing: '-0.03em', fontSize: '23px', fontWeight: '800' }}>
-                            <span style={{ color: '#ffffff' }}>CINE</span><span style={{ background: 'linear-gradient(135deg, #ff5168 0%, #00dbe9 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>PULSE</span>
+                        <div className="logo-main-group">
+                            <div className="logo-icon-box">
+                                <div className="logo-orbit-ring"></div>
+                                <i className="fas fa-play logo-play-icon"></i>
+                                <span className="logo-pulse-dot"></span>
+                            </div>
+                            <div className="logo-text">
+                                <span className="logo-cine">CINE</span>
+                                <span className="logo-pulse">PULSE</span>
+                            </div>
                         </div>
                     </Link>
                 </div>
@@ -195,14 +205,25 @@ export default function Navbar({ onOpenSearch }) {
                     <div className="mobile-overlay open" onClick={toggleMobile}></div>
                     <aside className="mobile-menu open">
                         <div className="mobile-menu-header">
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '8px', background: 'linear-gradient(135deg, rgba(255,81,104,0.2) 0%, rgba(0,219,233,0.2) 100%)', border: '1px solid rgba(255,81,104,0.4)' }}>
-                                    <i className="fas fa-play" style={{ fontSize: '12px', color: 'var(--brand)', marginLeft: '1px' }}></i>
+                            <Link to="/" className="cyber-logo-wrap" onClick={toggleMobile}>
+                                <div className="logo-top-badge">
+                                    <span className="logo-top-sparkle">✦</span>
+                                    <span className="logo-top-text">CYBERSTREAM 4K</span>
+                                    <span className="logo-top-sparkle">✦</span>
+                                    <div className="logo-top-laser"></div>
                                 </div>
-                                <span className="logo-text" style={{ fontSize: '19px', fontFamily: 'var(--font-heading)', fontWeight: '800' }}>
-                                    <span style={{ color: '#fff' }}>CINE</span><span style={{ background: 'linear-gradient(135deg, #ff5168 0%, #00dbe9 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>PULSE</span>
-                                </span>
-                            </div>
+                                <div className="logo-main-group">
+                                    <div className="logo-icon-box">
+                                        <div className="logo-orbit-ring"></div>
+                                        <i className="fas fa-play logo-play-icon"></i>
+                                        <span className="logo-pulse-dot"></span>
+                                    </div>
+                                    <div className="logo-text">
+                                        <span className="logo-cine">CINE</span>
+                                        <span className="logo-pulse">PULSE</span>
+                                    </div>
+                                </div>
+                            </Link>
                             <button className="mobile-close-btn" onClick={toggleMobile} aria-label="Close Side Drawer">
                                 <i className="fas fa-times"></i>
                             </button>

@@ -1877,4 +1877,189 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
     box-shadow: 0 0 8px var(--brand);
 }
 
+/* =========================================================
+   AMAZING CYBER LOGO TOP ANIMATION SYSTEM
+   ========================================================= */
+
+.cyber-logo-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position: relative;
+    padding: 2px 0;
+    text-decoration: none;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Glowing Floating Holographic Pill/Badge directly above logo */
+.logo-top-badge {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    background: linear-gradient(90deg, rgba(255, 81, 104, 0.25) 0%, rgba(0, 219, 233, 0.25) 50%, rgba(155, 0, 232, 0.25) 100%);
+    border: 1px solid rgba(0, 219, 233, 0.5);
+    box-shadow: 0 0 12px rgba(0, 219, 233, 0.4), inset 0 0 6px rgba(255, 81, 104, 0.3);
+    margin-bottom: 2px;
+    overflow: hidden;
+    animation: topBadgePulse 3s infinite alternate ease-in-out;
+}
+
+/* Moving Laser Scan Line inside Top Badge */
+.logo-top-laser {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.8) 50%, transparent 100%);
+    transform: skewX(-20deg);
+    animation: topLaserScan 2.5s infinite cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.logo-top-text {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
+    font-size: 8.5px;
+    font-weight: 900;
+    letter-spacing: 1.2px;
+    color: #ffffff;
+    text-transform: uppercase;
+    text-shadow: 0 0 6px rgba(0, 219, 233, 0.8);
+}
+
+.logo-top-sparkle {
+    font-size: 8px;
+    color: var(--cyan);
+    animation: sparkleSpin 2s infinite linear;
+}
+
+/* Main Logo Group (Icon + CINEPULSE) */
+.logo-main-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Rotating Electric Orbit Ring around Play Icon */
+.logo-icon-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(255, 81, 104, 0.25) 0%, rgba(0, 219, 233, 0.25) 100%);
+    border: 1px solid rgba(255, 81, 104, 0.5);
+    box-shadow: 0 0 18px rgba(255, 81, 104, 0.4);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.logo-orbit-ring {
+    position: absolute;
+    inset: -3px;
+    border-radius: 12px;
+    background: conic-gradient(from 0deg, transparent 0deg, var(--cyan) 120deg, var(--brand) 240deg, transparent 360deg);
+    opacity: 0.85;
+    animation: orbitRotate 4s infinite linear;
+    mask: radial-gradient(circle, transparent 60%, black 61%);
+    -webkit-mask: radial-gradient(circle, transparent 60%, black 61%);
+}
+
+.logo-play-icon {
+    font-size: 15px;
+    color: var(--brand);
+    margin-left: 2px;
+    filter: drop-shadow(0 0 8px var(--brand));
+    animation: iconPulse 2s infinite alternate ease-in-out;
+}
+
+.logo-pulse-dot {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--cyan);
+    box-shadow: 0 0 10px var(--cyan), 0 0 20px var(--cyan);
+    animation: dotBeacon 1.5s infinite alternate;
+}
+
+/* Animated Shimmer Gradient for CINEPULSE text */
+.logo-text {
+    font-family: var(--font-heading);
+    letter-spacing: -0.03em;
+    font-size: 23px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.logo-cine {
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+.logo-pulse {
+    background: linear-gradient(135deg, #ff5168 0%, #00dbe9 50%, #ff5168 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: textShimmer 3s linear infinite;
+    filter: drop-shadow(0 0 12px rgba(255, 81, 104, 0.4));
+}
+
+/* Cyber Logo Hover FX */
+.cyber-logo-wrap:hover .logo-icon-box {
+    transform: scale(1.1) rotate(-4deg);
+    box-shadow: 0 0 25px rgba(0, 219, 233, 0.6), 0 0 40px rgba(255, 81, 104, 0.5);
+    border-color: var(--cyan);
+}
+
+.cyber-logo-wrap:hover .logo-top-badge {
+    box-shadow: 0 0 20px rgba(255, 81, 104, 0.7);
+    border-color: var(--brand);
+}
+
+/* Keyframes */
+@keyframes topBadgePulse {
+    0% { transform: translateY(0); box-shadow: 0 0 10px rgba(0, 219, 233, 0.4); }
+    100% { transform: translateY(-2px); box-shadow: 0 0 18px rgba(255, 81, 104, 0.6); }
+}
+
+@keyframes topLaserScan {
+    0% { left: -100%; }
+    50%, 100% { left: 200%; }
+}
+
+@keyframes orbitRotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes sparkleSpin {
+    0% { transform: rotate(0deg) scale(0.9); opacity: 0.6; }
+    50% { transform: rotate(180deg) scale(1.2); opacity: 1; }
+    100% { transform: rotate(360deg) scale(0.9); opacity: 0.6; }
+}
+
+@keyframes textShimmer {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+@keyframes iconPulse {
+    0% { transform: scale(1); filter: drop-shadow(0 0 6px var(--brand)); }
+    100% { transform: scale(1.15); filter: drop-shadow(0 0 14px var(--cyan)); }
+}
+
+@keyframes dotBeacon {
+    0% { transform: scale(0.9); opacity: 0.6; box-shadow: 0 0 6px var(--cyan); }
+    100% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 16px var(--cyan), 0 0 25px var(--cyan); }
+}
+
+
 

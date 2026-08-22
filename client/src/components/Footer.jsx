@@ -10,14 +10,25 @@ export default function Footer() {
             <div className="footer-inner">
                 <div className="footer-grid">
                     <div className="footer-col">
-                        <div className="footer-logo" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '8px', background: 'linear-gradient(135deg, rgba(255,81,104,0.2) 0%, rgba(0,219,233,0.2) 100%)', border: '1px solid rgba(255,81,104,0.4)' }}>
-                                <i className="fas fa-play" style={{ fontSize: '12px', color: 'var(--brand)', marginLeft: '1px' }}></i>
+                        <Link to="/" className="cyber-logo-wrap" onClick={playClick}>
+                            <div className="logo-top-badge">
+                                <span className="logo-top-sparkle">✦</span>
+                                <span className="logo-top-text">CYBERSTREAM 4K</span>
+                                <span className="logo-top-sparkle">✦</span>
+                                <div className="logo-top-laser"></div>
                             </div>
-                            <span style={{ fontSize: '20px', fontFamily: 'var(--font-heading)', fontWeight: '800', letterSpacing: '-0.02em' }}>
-                                <span style={{ color: '#fff' }}>CINE</span><span style={{ background: 'linear-gradient(135deg, #ff5168 0%, #00dbe9 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>PULSE</span>
-                            </span>
-                        </div>
+                            <div className="logo-main-group">
+                                <div className="logo-icon-box">
+                                    <div className="logo-orbit-ring"></div>
+                                    <i className="fas fa-play logo-play-icon"></i>
+                                    <span className="logo-pulse-dot"></span>
+                                </div>
+                                <div className="logo-text">
+                                    <span className="logo-cine">CINE</span>
+                                    <span className="logo-pulse">PULSE</span>
+                                </div>
+                            </div>
+                        </Link>
                         <p className="footer-desc">
                             <strong>Disclaimer:</strong> CinePulse is a next-generation streaming discovery engine & catalog index. Experience instant 4K cloud feeds, multi-node redundancy, dynamic season browsers, and futuristic cyber HUD player.
                         </p>
