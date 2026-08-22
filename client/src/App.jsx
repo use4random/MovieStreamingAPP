@@ -16,7 +16,7 @@ const SearchPage = lazy(() => import('./pages/SearchPage'));
 const GenrePage = lazy(() => import('./pages/GenrePage'));
 const CollectionsPage = lazy(() => import('./pages/CollectionsPage'));
 const WatchlistPage = lazy(() => import('./pages/WatchlistPage'));
-const AdultSection = lazy(() => import('./modules/adult/AdultSection'));
+
 
 // ── Page transition animation variants ───────────────────────────────
 const pageVariants = {
@@ -171,7 +171,6 @@ export default function App() {
                                     <Route path="/genre/:genreId/:name" element={<GenrePage />} />
                                     <Route path="/collections" element={<CollectionsPage />} />
                                     <Route path="/watchlist" element={<WatchlistPage />} />
-                                    <Route path="/adult" element={<AdultSection />} />
                                 </Routes>
                             </motion.div>
                         </AnimatePresence>

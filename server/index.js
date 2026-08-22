@@ -85,19 +85,6 @@ app.use('/api/user', userRoutes);
 app.use('/api/catalog', catalogRoutes);
 app.use('/api/recommend', recommendRoutes);
 
-// Isolated 18+ Module (Dynamic Loader & Killswitch)
-if (process.env.ENABLE_ADULT_CONTENT === 'true') {
-    try {
-        const { default: adultRoutes } = await import('./modules/adult/index.js');
-        const { syncAdultContent } = await import('./modules/adult/scraper.js');
-        app.use('/api/adult', adultRoutes);
-        console.log('[Module Loader] 🔞 18+ Module Enabled & Mounted at /api/adult');
-        // Initial background sync for adult content
-        syncAdultContent().catch(() => {});
-    } catch (err) {
-        console.warn('[Module Loader] ⚠ 18+ Module not loaded or missing:', err.message);
-    }
-}
 
 
 // Web Vitals collection endpoint

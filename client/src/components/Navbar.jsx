@@ -95,29 +95,6 @@ export default function Navbar({ onOpenSearch }) {
                                 {count > 0 && <span className="watchlist-nav-pill">{count}</span>}
                             </Link>
                         </li>
-                        <li>
-                            <Link 
-                                to="/adult" 
-                                className={`nav-link ${location.pathname === '/adult' ? 'active' : ''}`} 
-                                onClick={playClick}
-                                style={{
-                                    background: 'rgba(255, 42, 109, 0.12)',
-                                    color: '#ff2a6d',
-                                    border: '1px solid rgba(255, 42, 109, 0.3)',
-                                    borderRadius: '8px',
-                                    padding: '4px 10px',
-                                    fontWeight: '800',
-                                    fontFamily: 'var(--font-mono)',
-                                    fontSize: '12px',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '4px'
-                                }}
-                            >
-                                <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>explicit</span>
-                                18+ Zone
-                            </Link>
-                        </li>
 
                         {/* Genre Dropdown */}
                         <li className="has-dropdown">
