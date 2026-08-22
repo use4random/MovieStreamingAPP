@@ -2,11 +2,11 @@
   "name": "cinepulse-server",
   "version": "2.0.0",
   "description": "CinePulse High-Performance Cyber Streaming API Gateway",
-  "main": "index.js",
+  "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node index.js",
-    "dev": "node --watch index.js"
+    "start": "node server.js",
+    "dev": "node --watch server.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
