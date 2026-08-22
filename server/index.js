@@ -117,20 +117,21 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// Production: Serve React static build if present
-const clientDist = path.join(__dirname, '../client/dist');
-app.use(express.static(clientDist));
+// Production local fallback: Serve React static build if present outside Vercel
+if (!process.env.VERCEL) {
+    const clientDist = path.join(__dirname, '../client/dist');
+    app.use(express.static(clientDist));
 
-app.get('*', (req, res) => {
-    // If request does not start with /api, send index.html
-    if (!req.url.startsWith('/api')) {
-        res.sendFile(path.join(clientDist, 'index.html'), (err) => {
-            if (err) {
-                res.status(200).send('CinePulse API Gateway is Active. Run Vite client on port 5173 for development.');
-            }
-        });
-    }
-});
+    app.get('*', (req, res) => {
+        if (!req.url.startsWith('/api')) {
+            res.sendFile(path.join(clientDist, 'index.html'), (err) => {
+                if (err) {
+                    res.status(200).send('CinePulse API Gateway is Active.');
+                }
+            });
+        }
+    });
+}
 
 // Start Server (Listen only when running directly outside Vercel Serverless environment)
 if (!process.env.VERCEL) {
