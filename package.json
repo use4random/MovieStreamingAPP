@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "npm install --prefix server && npm install --prefix client --legacy-peer-deps && npm run build --prefix client",
+    "build": "npm install --prefix server && npm install --prefix client --legacy-peer-deps && npm run build --prefix client && node -e \"import('fs').then(fs => fs.cpSync('client/dist', '.', {recursive: true}))\"",
     "dev": "concurrently \"cd server && npm run dev\" \"cd client && npm run dev\""
   },
   "dependencies": {
