@@ -37,10 +37,7 @@ const SYNC_DELAY_MS = 260;                   // ms pause between TMDB API calls 
 const SYNC_INTERVAL_MS = 6 * 60 * 60 * 1000; // Auto-sync every 6 hours
 // ────────────────────────────────────────────────────────────────────────────
 
-// ── Database Setup ───────────────────────────────────────────────────────────
-const dbPath = process.env.DATABASE_PATH || path.join(__dirname, '../data/cinepulse.db');
-const db = new Database(dbPath);
-db.pragma('journal_mode = WAL');
+import db from '../data/db.js';
 
 db.exec(`
     CREATE TABLE IF NOT EXISTS media_catalog (

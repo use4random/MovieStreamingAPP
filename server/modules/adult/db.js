@@ -11,9 +11,20 @@ import 'dotenv/config';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const dbPath = process.env.DATABASE_PATH || path.join(__dirname, '../../data/cinepulse.db');
-const db = new Database(dbPath);
-db.pragma('journal_mode = WAL');
+const isVercel = Boolean(process.env.VERCEL);
+const dbPath = process.env.DATABASE_PATH || (isVercel ? '/tmp/cinepulse.db' : path.join(__dirname, '../../data/cinepulse.db'));
+let db;
+
+try {
+    if (isVercel) {
+        db = new Database(':memory:');
+    } else {
+        db = new Database(dbPath);
+        db.pragma('journal_mode = WAL');
+    }
+} catch {
+    db = new Database(':memory:');
+}
 
 // Create isolated adult catalog table
 db.exec(`

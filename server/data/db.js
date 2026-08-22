@@ -12,16 +12,21 @@ if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
 }
 
-const dbPath = process.env.DATABASE_PATH || path.join(dataDir, 'cinepulse.db');
+const isVercel = Boolean(process.env.VERCEL);
+const dbPath = process.env.DATABASE_PATH || (isVercel ? '/tmp/cinepulse.db' : path.join(dataDir, 'cinepulse.db'));
 let db;
 
 try {
-    db = new Database(dbPath);
-    db.pragma('journal_mode = WAL');
+    if (isVercel) {
+        db = new Database(':memory:');
+    } else {
+        db = new Database(dbPath);
+        db.pragma('journal_mode = WAL');
+    }
     db.pragma('foreign_keys = ON');
-    console.log(`[Database] SQLite connected successfully at ${dbPath}`);
+    console.log(`[Database] SQLite connected successfully (${isVercel ? 'in-memory' : dbPath})`);
 } catch (err) {
-    console.warn(`[Database Warning] Unable to open disk SQLite file at ${dbPath}, falling back to in-memory database:`, err.message);
+    console.warn(`[Database Warning] Falling back to in-memory database:`, err.message);
     db = new Database(':memory:');
     db.pragma('foreign_keys = ON');
 }

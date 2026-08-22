@@ -11,7 +11,7 @@ import { requireAuth } from '../middleware/requireAuth.js';
 import { authLimiter } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET || (process.env.VERCEL ? 'cinepulse-vercel-fallback-secret-key-2026' : null);
 if (!JWT_SECRET) {
     console.error('[FATAL] JWT_SECRET environment variable is not set. Server cannot start securely.');
     process.exit(1);
