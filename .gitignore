@@ -1,9 +1,19 @@
 node_modules/
 client/node_modules/
-client/.vercel/
 server/node_modules/
+
+# Compiled Build Artifacts (Must never be committed to git)
+dist/
+client/dist/
+assets/*.js
+assets/*.css
+assets/*.map
+client/dist/assets/
+.output/
+.vercel/
+client/.vercel/
 server/.vercel/
 
-.vercel
+# Environment Variables
 .env*
-
+!.env.example

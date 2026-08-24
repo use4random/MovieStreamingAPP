@@ -5,6 +5,7 @@ import VideoPlayerHUD from '../components/VideoPlayerHUD';
 import SeasonNavigator from '../components/SeasonNavigator';
 import MovieCard from '../components/MovieCard';
 import RecommendationRail from '../components/RecommendationRail';
+import ComponentErrorBoundary from '../components/ComponentErrorBoundary';
 import { api, getRating, getYear } from '../services/api';
 import { useWatchlist } from '../context/WatchlistContext';
 import { useAudio } from '../context/AudioContext';
@@ -108,15 +109,17 @@ export default function DetailPage() {
             </nav>
 
             {/* Video Player HUD */}
-            <VideoPlayerHUD
-                mediaType={type}
-                id={id}
-                season={season}
-                episode={episode}
-                title={title}
-                trailerKey={trailerKey}
-                servers={servers}
-            />
+            <ComponentErrorBoundary name="Cyber Stream Player">
+                <VideoPlayerHUD
+                    mediaType={type}
+                    id={id}
+                    season={season}
+                    episode={episode}
+                    title={title}
+                    trailerKey={trailerKey}
+                    servers={servers}
+                />
+            </ComponentErrorBoundary>
 
             {/* Main Detail Header Row */}
             <div className="glass-panel" style={{ padding: '24px 28px', borderRadius: '16px', marginBottom: '24px' }}>
@@ -315,23 +318,27 @@ export default function DetailPage() {
 
             {/* TV Seasons & Episode Navigator */}
             {isTV && data.seasons && (
-                <SeasonNavigator
-                    showId={id}
-                    seasons={data.seasons}
-                    activeSeason={season}
-                    activeEpisode={episode}
-                    onSelectEpisode={handleSelectEpisode}
-                />
+                <ComponentErrorBoundary name="Season & Episode Navigator">
+                    <SeasonNavigator
+                        showId={id}
+                        seasons={data.seasons}
+                        activeSeason={season}
+                        activeEpisode={episode}
+                        onSelectEpisode={handleSelectEpisode}
+                    />
+                </ComponentErrorBoundary>
             )}
 
             {/* Hybrid Recommendation Rail */}
-            <RecommendationRail
-                title="Neural Match Recommendations"
-                reason={recReason}
-                items={recItems}
-                isLoading={recLoading}
-                defaultMediaType={type}
-            />
+            <ComponentErrorBoundary name="Neural Recommendations Rail">
+                <RecommendationRail
+                    title="Neural Match Recommendations"
+                    reason={recReason}
+                    items={recItems}
+                    isLoading={recLoading}
+                    defaultMediaType={type}
+                />
+            </ComponentErrorBoundary>
         </div>
     );
 }
