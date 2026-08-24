@@ -11,6 +11,7 @@ import crypto from 'crypto';
 const CSRF_EXEMPT_ROUTES = [
     '/api/auth/login',
     '/api/auth/register',
+    '/api/auth/logout',
     '/api/vitals'
 ];
 
