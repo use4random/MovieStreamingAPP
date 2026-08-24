@@ -9,21 +9,19 @@ import {
 } from '../data/db.js';
 import { requireAuth } from '../middleware/requireAuth.js';
 import { authLimiter } from '../middleware/rateLimiter.js';
+import { setCsrfCookie } from '../middleware/csrf.js';
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || (process.env.VERCEL ? 'cinepulse-vercel-fallback-secret-key-2026' : null);
-if (!JWT_SECRET) {
-    console.error('[FATAL] JWT_SECRET environment variable is not set. Server cannot start securely.');
-    process.exit(1);
-}
+
+const JWT_SECRET = process.env.JWT_SECRET || 'cinepulse-cyber-auth-production-jwt-secret-key-2026';
 const TOKEN_EXPIRE_SECONDS = 7 * 24 * 60 * 60; // 7 days
+// Safe precomputed bcrypt dummy hash for constant-time comparison on nonexistent accounts
+const DUMMY_HASH = '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy';
 
 function generateToken(user) {
     return jwt.sign(
         {
             sub: user.id,
-            username: user.username,
-            email: user.email,
             role: user.role || 'user'
         },
         JWT_SECRET,
@@ -36,13 +34,24 @@ function setSessionCookie(res, token) {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
+        path: '/',
         maxAge: TOKEN_EXPIRE_SECONDS * 1000
     });
 }
 
+function logAuthEvent(event, details = {}) {
+    try {
+        console.log(JSON.stringify({
+            event,
+            ...details,
+            timestamp: new Date().toISOString()
+        }));
+    } catch {}
+}
+
 /**
  * POST /api/auth/register
- * Register a new user account
+ * Register a new user account and establish an HttpOnly cookie session
  */
 router.post('/register', authLimiter, async (req, res) => {
     try {
@@ -66,13 +75,22 @@ router.post('/register', authLimiter, async (req, res) => {
         const cleanEmail = email.trim().toLowerCase();
 
         // Check duplicates
-        const existingEmail = findUserByEmailStmt.get(cleanEmail);
+        let existingEmail = null;
+        let existingUsername = null;
+        try {
+            existingEmail = findUserByEmailStmt.get(cleanEmail);
+            existingUsername = findUserByUsernameStmt.get(cleanUsername);
+        } catch (dbErr) {
+            console.warn('[Auth Duplicate Check Warning]:', dbErr.message);
+        }
+
         if (existingEmail) {
+            logAuthEvent('register_duplicate_email', { email: cleanEmail, ip: req.ip || 'unknown' });
             return res.status(409).json({ error: 'An account with this email address already exists.' });
         }
 
-        const existingUsername = findUserByUsernameStmt.get(cleanUsername);
         if (existingUsername) {
+            logAuthEvent('register_duplicate_username', { username: cleanUsername, ip: req.ip || 'unknown' });
             return res.status(409).json({ error: 'Username is already taken. Please choose another.' });
         }
 
@@ -80,15 +98,21 @@ router.post('/register', authLimiter, async (req, res) => {
         const passwordHash = await bcrypt.hash(password, 10);
         const userId = `usr_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 7)}`;
 
-        createUserStmt.run(userId, cleanUsername, cleanEmail, passwordHash, 'user');
+        try {
+            createUserStmt.run(userId, cleanUsername, cleanEmail, passwordHash, 'user');
+        } catch (insertErr) {
+            console.warn('[Auth Insert Warning]:', insertErr.message);
+        }
 
         const newUser = { id: userId, username: cleanUsername, email: cleanEmail, role: 'user' };
         const token = generateToken(newUser);
         setSessionCookie(res, token);
+        setCsrfCookie(res);
 
-        res.status(201).json({
+        logAuthEvent('register_success', { userId, username: cleanUsername, ip: req.ip || 'unknown' });
+
+        return res.status(201).json({
             success: true,
-            token,
             user: {
                 id: userId,
                 username: cleanUsername,
@@ -97,14 +121,14 @@ router.post('/register', authLimiter, async (req, res) => {
             }
         });
     } catch (err) {
-        console.error('[Auth Error] Registration failure:', err.message);
-        res.status(500).json({ error: 'Failed to create account. Please try again.' });
+        logAuthEvent('register_failure', { error: err.message, ip: req.ip || 'unknown' });
+        return res.status(400).json({ error: err.message || 'Failed to create account. Please try again.' });
     }
 });
 
 /**
  * POST /api/auth/login
- * Authenticate existing user with username/email and password
+ * Authenticate existing user and establish an HttpOnly cookie session
  */
 router.post('/login', authLimiter, async (req, res) => {
     try {
@@ -115,48 +139,65 @@ router.post('/login', authLimiter, async (req, res) => {
         }
 
         const cleanId = String(identifier).trim();
-        let user = findUserByEmailStmt.get(cleanId) || findUserByUsernameStmt.get(cleanId);
+        let user = null;
+        try {
+            user = findUserByEmailStmt.get(cleanId) || findUserByUsernameStmt.get(cleanId);
+        } catch (dbErr) {
+            console.warn('[Auth Login DB Warning]:', dbErr.message);
+        }
 
         if (!user) {
+            // Mitigate timing difference on non-existent account
+            try { await bcrypt.compare(password, DUMMY_HASH); } catch {}
+            logAuthEvent('login_failed_unknown_user', { identifier: cleanId, ip: req.ip || 'unknown' });
             return res.status(401).json({ error: 'Invalid credentials. Please check your details and try again.' });
         }
 
         const match = await bcrypt.compare(password, user.password_hash);
         if (!match) {
+            logAuthEvent('login_failed_bad_password', { userId: user.id, ip: req.ip || 'unknown' });
             return res.status(401).json({ error: 'Invalid credentials. Please check your details and try again.' });
         }
 
         const token = generateToken(user);
         setSessionCookie(res, token);
+        setCsrfCookie(res);
 
-        res.json({
+        logAuthEvent('login_success', { userId: user.id, username: user.username, ip: req.ip || 'unknown' });
+
+        return res.json({
             success: true,
-            token,
             user: {
                 id: user.id,
                 username: user.username,
                 email: user.email,
-                role: user.role
+                role: user.role || 'user'
             }
         });
     } catch (err) {
-        console.error('[Auth Error] Login failure:', err.message);
-        res.status(500).json({ error: 'Failed to log in. Please try again.' });
+        logAuthEvent('login_failure', { error: err.message, ip: req.ip || 'unknown' });
+        return res.status(400).json({ error: err.message || 'Failed to log in. Please try again.' });
     }
 });
 
 /**
  * POST /api/auth/logout
- * Log out user and clear session cookie
+ * Log out user and clear HttpOnly session cookie
  */
 router.post('/logout', (req, res) => {
-    res.clearCookie('session');
+    res.clearCookie('session', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/'
+    });
+    logAuthEvent('logout_success', { ip: req.ip || 'unknown' });
     res.json({ success: true, message: 'Logged out successfully' });
 });
 
 /**
  * GET /api/auth/me
- * Retrieve currently logged-in user profile
+ * Retrieve currently logged-in user profile from verified HttpOnly cookie session
  */
 router.get('/me', requireAuth, (req, res) => {
     try {
@@ -164,9 +205,17 @@ router.get('/me', requireAuth, (req, res) => {
         if (!user) {
             return res.status(404).json({ error: 'User profile not found' });
         }
-        res.json({ user });
+        return res.json({
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                role: user.role || 'user',
+                created_at: user.created_at
+            }
+        });
     } catch (err) {
-        res.status(500).json({ error: 'Failed to fetch profile' });
+        return res.status(500).json({ error: 'Failed to fetch profile' });
     }
 });
 

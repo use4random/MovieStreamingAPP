@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { api, getAuthToken, setAuthToken } from '../services/api';
+import { api } from '../services/api';
 
 const AuthContext = createContext();
 
@@ -12,24 +12,20 @@ export function AuthProvider({ children }) {
     useEffect(() => {
         let mounted = true;
         async function checkAuth() {
-            const token = getAuthToken();
-            if (token) {
-                try {
-                    const res = await api.getCurrentUser();
-                    if (mounted && res && res.user) {
-                        setUser(res.user);
-                    } else if (mounted) {
-                        setAuthToken(null);
-                        setUser(null);
-                    }
-                } catch {
-                    if (mounted) {
-                        setAuthToken(null);
-                        setUser(null);
-                    }
+            try {
+                const res = await api.getCurrentUser();
+                if (mounted && res && res.user) {
+                    setUser(res.user);
+                } else if (mounted) {
+                    setUser(null);
                 }
+            } catch {
+                if (mounted) {
+                    setUser(null);
+                }
+            } finally {
+                if (mounted) setLoading(false);
             }
-            if (mounted) setLoading(false);
         }
 
         checkAuth();
@@ -38,8 +34,7 @@ export function AuthProvider({ children }) {
 
     const login = async (identifier, password) => {
         const res = await api.login(identifier, password);
-        if (res && res.token && res.user) {
-            setAuthToken(res.token);
+        if (res && res.user) {
             setUser(res.user);
             setAuthModalOpen(false);
             return res.user;
@@ -49,8 +44,7 @@ export function AuthProvider({ children }) {
 
     const register = async (username, email, password) => {
         const res = await api.register(username, email, password);
-        if (res && res.token && res.user) {
-            setAuthToken(res.token);
+        if (res && res.user) {
             setUser(res.user);
             setAuthModalOpen(false);
             return res.user;
@@ -64,7 +58,6 @@ export function AuthProvider({ children }) {
         } catch (e) {
             console.warn('Logout server request failed:', e.message);
         }
-        setAuthToken(null);
         setUser(null);
     };
 

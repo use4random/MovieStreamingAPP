@@ -230,6 +230,29 @@ export default function Navbar({ onOpenSearch }) {
                         </div>
 
                         <div className="mobile-drawer-body">
+                            {isAuthenticated && user ? (
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderRadius: '10px', background: 'rgba(0, 219, 233, 0.08)', border: '1px solid rgba(0, 219, 233, 0.25)', marginBottom: '16px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#fff', fontSize: '14px', fontWeight: '600' }}>
+                                        <i className="fas fa-user-astronaut text-cyan" style={{ fontSize: '16px' }}></i>
+                                        <span>{user.username}</span>
+                                    </div>
+                                    <button
+                                        onClick={() => { toggleMobile(); logout(); }}
+                                        style={{ padding: '6px 10px', borderRadius: '6px', background: 'rgba(255, 81, 104, 0.15)', border: '1px solid rgba(255, 81, 104, 0.4)', color: 'var(--brand)', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}
+                                    >
+                                        Sign Out
+                                    </button>
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={() => { toggleMobile(); openAuthModal('login'); }}
+                                    style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px', borderRadius: '10px', background: 'linear-gradient(135deg, var(--brand) 0%, #b81d24 100%)', border: 'none', color: '#fff', fontSize: '14px', fontWeight: '700', cursor: 'pointer', marginBottom: '16px', boxShadow: '0 4px 15px rgba(255,81,104,0.3)' }}
+                                >
+                                    <i className="fas fa-shield-halved"></i>
+                                    <span>Sign In / Register</span>
+                                </button>
+                            )}
+
                             <div className="mobile-nav-group-title">MAIN NAVIGATION</div>
                             <ul className="mobile-nav">
                                 <li><Link to="/" onClick={toggleMobile}><i className="fas fa-home text-brand"></i> Home Hub</Link></li>

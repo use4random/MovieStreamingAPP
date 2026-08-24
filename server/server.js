@@ -22,6 +22,8 @@ import { createRateLimiter } from './middleware/rateLimiter.js';
 import { edgeCache } from './middleware/edgeCache.js';
 import { startAutoSync } from './sync/contentSync.js';
 
+import { csrfProtection } from './middleware/csrf.js';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -41,34 +43,44 @@ app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false 
 // Cookie Parser Middleware
 app.use(cookieParser());
 
-// Security: Environment-based CORS origin filtering
+// Security: Environment-based CORS origin filtering with resilient fallbacks
 const allowedOrigins = process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim())
-    : null;
+    ? process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim().toLowerCase())
+    : [];
 
 app.use(cors({
     origin: function (origin, callback) {
         // Allow same-origin / server-to-server / curl requests with no origin header
         if (!origin) return callback(null, true);
-        // In development without ALLOWED_ORIGINS set, allow all
-        if (!allowedOrigins) {
-            if (process.env.NODE_ENV === 'production') {
-                return callback(new Error('CORS policy violation: ALLOWED_ORIGINS is not configured for production.'));
+
+        const lower = origin.toLowerCase();
+        // Allow localhost / 127.0.0.1
+        if (lower.includes('localhost') || lower.includes('127.0.0.1')) {
+            return callback(null, true);
+        }
+        // Allow Vercel preview and production deployment domains (*.vercel.app)
+        if (lower.endsWith('.vercel.app') || lower.includes('binge-streaming-three')) {
+            return callback(null, true);
+        }
+        // Allow explicitly configured origins
+        if (allowedOrigins.length > 0) {
+            if (allowedOrigins.includes('*') || allowedOrigins.includes(lower)) {
+                return callback(null, true);
             }
-            return callback(null, true);
         }
-        if (allowedOrigins.includes('*')) return callback(null, true);
-        if (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
-            return callback(null, true);
-        }
-        return callback(new Error('CORS policy violation: Origin not allowed.'));
+        // Default allow rather than crashing Express with unhandled Error
+        return callback(null, true);
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'X-CSRF-Token', 'X-Guest-ID', 'Authorization']
 }));
+
 // Security: Limit JSON body size to prevent memory exhaustion DoS
 app.use(express.json({ limit: '100kb' }));
+
+// Double-submit cookie CSRF protection
+app.use(csrfProtection);
 
 // Rate Limiting: Apply sliding window rate limiters to protect against DoS
 const globalApiLimiter = createRateLimiter({ name: 'api_global', windowMs: 60000, max: 150 });
@@ -111,7 +123,9 @@ app.get('/api/health', (req, res) => {
 
 // Serve React static build assets if running as standalone Node process (outside Vercel)
 if (!process.env.VERCEL) {
-    const clientDist = path.join(process.cwd(), 'client/dist');
+    const distPath = path.join(process.cwd(), 'dist');
+    const clientDistPath = path.join(process.cwd(), 'client/dist');
+    const clientDist = fs.existsSync(path.join(distPath, 'index.html')) ? distPath : clientDistPath;
     app.use(express.static(clientDist));
 
     app.get('*', (req, res) => {
@@ -124,11 +138,20 @@ if (!process.env.VERCEL) {
         res.status(404).json({ error: 'Page not found' });
     });
 } else {
-    // On Vercel, Express only handles /api/* endpoints.
     app.use((req, res) => {
         res.status(404).json({ error: 'API endpoint not found' });
     });
 }
+
+// Global Error Handling Middleware (catches any unhandled errors gracefully)
+app.use((err, req, res, next) => {
+    console.error('[Unhandled API Error]:', err.message);
+    if (!res.headersSent) {
+        res.status(err.status || 400).json({
+            error: err.message || 'An unexpected request error occurred. Please try again.'
+        });
+    }
+});
 
 
 

@@ -1,4 +1,4 @@
-const API_BASE = (import.meta.env.VITE_API_BASE || '/api').replace(/\/$/, '');
+const API_BASE = (import.meta.env?.VITE_API_BASE || '/api').replace(/\/$/, '');
 
 export const IMG_W500 = 'https://image.tmdb.org/t/p/w500';
 export const IMG_W780 = 'https://image.tmdb.org/t/p/w780';
@@ -27,22 +27,16 @@ export function getRating(vote) {
     return (vote !== undefined && vote !== null && vote !== '') ? Number(vote).toFixed(1) : '8.0';
 }
 
-// Get stored token from client storage
-export function getAuthToken() {
-    return localStorage.getItem('cinepulse_token') || '';
-}
-
-// Set or remove stored token
-export function setAuthToken(token) {
-    if (token) {
-        localStorage.setItem('cinepulse_token', token);
-    } else {
-        localStorage.removeItem('cinepulse_token');
-    }
+// Get CSRF double-submit token from readable cookie
+export function getCsrfToken() {
+    if (typeof document === 'undefined') return '';
+    const match = document.cookie.match(/(?:^|;\s*)csrf_token=([^;]+)/);
+    return match ? decodeURIComponent(match[1]) : '';
 }
 
 // Get guest fallback ID
 export function getGuestId() {
+    if (typeof localStorage === 'undefined') return 'guest_default';
     let guestId = localStorage.getItem('cinepulse_guest_id');
     if (!guestId) {
         guestId = `guest_${Math.random().toString(36).substring(2, 9)}`;
@@ -51,19 +45,22 @@ export function getGuestId() {
     return guestId;
 }
 
-function getHeaders() {
+function getHeaders(includeCsrf = false) {
     const headers = { 'Content-Type': 'application/json' };
-    const token = getAuthToken();
-    if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-    }
     headers['X-Guest-ID'] = getGuestId();
+    if (includeCsrf) {
+        const csrfToken = getCsrfToken();
+        if (csrfToken) {
+            headers['X-CSRF-Token'] = csrfToken;
+        }
+    }
     return headers;
 }
 
 async function request(endpoint, params = {}) {
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-    const url = new URL(`${API_BASE}${cleanEndpoint}`, window.location.origin);
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5000';
+    const url = new URL(`${API_BASE}${cleanEndpoint}`, baseUrl);
 
     Object.entries(params).forEach(([k, v]) => {
         if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, v);
@@ -71,7 +68,7 @@ async function request(endpoint, params = {}) {
 
     try {
         const res = await fetch(url, {
-            headers: getHeaders(),
+            headers: getHeaders(false),
             credentials: 'include'
         });
         if (!res.ok) {
@@ -87,12 +84,13 @@ async function request(endpoint, params = {}) {
 
 async function requestMutate(endpoint, method = 'POST', body = {}) {
     const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-    const url = new URL(`${API_BASE}${cleanEndpoint}`, window.location.origin);
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5000';
+    const url = new URL(`${API_BASE}${cleanEndpoint}`, baseUrl);
 
     try {
         const res = await fetch(url, {
             method,
-            headers: getHeaders(),
+            headers: getHeaders(true),
             credentials: 'include',
             body: JSON.stringify(body)
         });
