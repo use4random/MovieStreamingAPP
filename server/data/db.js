@@ -13,7 +13,7 @@ if (!fs.existsSync(dataDir)) {
 
 const dbPath = process.env.DATABASE_PATH || (isVercel ? '/tmp/cinepulse.db' : path.join(dataDir, 'cinepulse.db'));
 
-// High-Performance In-Memory Store Fallback for Serverless / Vercel
+// Stateful memory fallback store
 const memUsers = new Map();
 const memWatchlists = new Map();
 const memHistory = new Map();
@@ -22,14 +22,12 @@ let realDb = null;
 
 try {
     const { default: Database } = await import('better-sqlite3');
-    realDb = new Database(isVercel ? ':memory:' : dbPath);
-    if (!isVercel) {
-        try { realDb.pragma('journal_mode = WAL'); } catch {}
-    }
+    realDb = new Database(dbPath);
+    try { realDb.pragma('journal_mode = WAL'); } catch {}
     try { realDb.pragma('foreign_keys = ON'); } catch {}
-    console.log(`[Database] SQLite connected (${isVercel ? 'in-memory' : dbPath})`);
+    console.log(`[Database] SQLite connected (${dbPath})`);
 } catch (err) {
-    console.warn('[Database Warning] Native better-sqlite3 unavailable, using stateful in-memory fallback engine:', err.message);
+    console.warn('[Database Warning] Native better-sqlite3 unavailable, using stateful fallback engine:', err.message);
 }
 
 if (realDb) {
@@ -101,35 +99,45 @@ if (realDb) {
     }
 }
 
-// Universal Prepared Statement Handler
+// Universal Statement Handler with Sync to Memory
 function createStmt(realSql, memHandler) {
     let preparedReal = null;
     if (realDb) {
         try {
             preparedReal = realDb.prepare(realSql);
         } catch (err) {
-            console.warn('[Database Statement Warn] Sqlite prepare error, falling back to memory handler:', err.message);
+            console.warn('[Database Statement Warn] Sqlite prepare error:', err.message);
         }
     }
 
     return {
         run: (...args) => {
+            let res = null;
             if (preparedReal) {
-                try { return preparedReal.run(...args); } catch (e) { console.warn('[DB Run Warn]', e.message); }
+                try { res = preparedReal.run(...args); } catch (e) { console.warn('[DB Run Warn]', e.message); }
             }
-            return memHandler.run ? memHandler.run(...args) : { changes: 1 };
+            if (memHandler && memHandler.run) {
+                try { memHandler.run(...args); } catch {}
+            }
+            return res || { changes: 1 };
         },
         get: (...args) => {
             if (preparedReal) {
-                try { return preparedReal.get(...args); } catch (e) { console.warn('[DB Get Warn]', e.message); }
+                try {
+                    const result = preparedReal.get(...args);
+                    if (result !== undefined && result !== null) return result;
+                } catch (e) { console.warn('[DB Get Warn]', e.message); }
             }
-            return memHandler.get ? memHandler.get(...args) : null;
+            return memHandler && memHandler.get ? memHandler.get(...args) : null;
         },
         all: (...args) => {
             if (preparedReal) {
-                try { return preparedReal.all(...args); } catch (e) { console.warn('[DB All Warn]', e.message); }
+                try {
+                    const result = preparedReal.all(...args);
+                    if (Array.isArray(result) && result.length > 0) return result;
+                } catch (e) { console.warn('[DB All Warn]', e.message); }
             }
-            return memHandler.all ? memHandler.all(...args) : [];
+            return memHandler && memHandler.all ? memHandler.all(...args) : [];
         }
     };
 }
