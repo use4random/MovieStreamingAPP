@@ -31,6 +31,8 @@ export function createRateLimiter(options = {}) {
         const key = `${options.name || 'global'}:${ip}`;
         const now = Date.now();
 
+        pruneExpiredRecords(now);
+
         let record = memoryStore.get(key);
         if (!record || now > record.resetTime) {
             record = { count: 1, resetTime: now + windowMs };

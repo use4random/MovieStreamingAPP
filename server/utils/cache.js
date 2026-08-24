@@ -71,7 +71,7 @@ export const cache = {
                         Authorization: `Bearer ${redisToken}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(serialized)
+                    body: serialized
                 });
                 return res.ok;
             } catch (err) {

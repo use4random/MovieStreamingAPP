@@ -20,11 +20,11 @@ export function getBackdropLarge(path) {
 }
 
 export function getYear(date) {
-    return date ? date.substring(0, 4) : '2026';
+    return date ? String(date).substring(0, 4) : '2026';
 }
 
 export function getRating(vote) {
-    return vote ? Number(vote).toFixed(1) : '8.0';
+    return (vote !== undefined && vote !== null && vote !== '') ? Number(vote).toFixed(1) : '8.0';
 }
 
 // Get stored token from client storage

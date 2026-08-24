@@ -46,7 +46,7 @@ export function WatchlistProvider({ children }) {
         }
     }, [watchlist]);
 
-    const has = (id) => watchlist.some(item => String(item.id) === String(id));
+    const has = (id) => Boolean(id) && watchlist.some(item => Boolean(item?.id) && String(item.id) === String(id));
 
     const add = async (item) => {
         if (!has(item.id)) {

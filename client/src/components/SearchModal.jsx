@@ -122,7 +122,7 @@ export default function SearchModal({ isOpen, onClose }) {
                             const type = item.media_type || (item.first_air_date ? 'tv' : 'movie');
                             const title = item.title || item.name || 'Untitled';
                             return (
-                                <div key={item.id} className="modal-result-item" onClick={() => handleSelect(item)}>
+                                <div key={`${type}-${item.id}`} className="modal-result-item" onClick={() => handleSelect(item)}>
                                     <img src={getPoster(item.poster_path)} className="modal-result-thumb" alt={title} />
                                     <div style={{ flex: 1, minWidth: 0 }}>
                                         <div className="modal-result-title">{title}</div>
