@@ -19,6 +19,7 @@ import authRoutes from './routes/auth.js';
 import catalogRoutes from './routes/catalog.js';
 import recommendRoutes from './routes/recommend.js';
 import { createRateLimiter } from './middleware/rateLimiter.js';
+import { edgeCache } from './middleware/edgeCache.js';
 import { startAutoSync } from './sync/contentSync.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -75,6 +76,9 @@ const strictProxyLimiter = createRateLimiter({ name: 'api_proxy', windowMs: 6000
 
 app.use('/api', globalApiLimiter);
 app.use('/api/proxy', strictProxyLimiter);
+
+// Edge CDN Caching: Enable stale-while-revalidate caching for all read GET API routes
+app.use('/api', edgeCache(300, 600));
 
 // API Routes
 app.use('/api/auth', authRoutes);
