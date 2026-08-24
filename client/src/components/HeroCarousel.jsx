@@ -137,10 +137,10 @@ export default function HeroCarousel({ items }) {
             </div>
 
             {/* Navigation Arrows */}
-            <button className="carousel-arrow carousel-arrow-left" onClick={() => handleNav('prev')} aria-label="Previous Slide">
+            <button className="carousel-arrow carousel-arrow-left" onClick={() => moveSlide(-1)} aria-label="Previous Slide">
                 <i className="fas fa-chevron-left" style={{ fontSize: '14px' }}></i>
             </button>
-            <button className="carousel-arrow carousel-arrow-right" onClick={() => handleNav('next')} aria-label="Next Slide">
+            <button className="carousel-arrow carousel-arrow-right" onClick={() => moveSlide(1)} aria-label="Next Slide">
                 <i className="fas fa-chevron-right" style={{ fontSize: '14px' }}></i>
             </button>
 

@@ -33,6 +33,13 @@ export default function DetailPage() {
         enabled: !!id,
     });
 
+    // ── Smart Hybrid Recommendations Query ──
+    const { data: recData, isLoading: recLoading } = useQuery({
+        queryKey: ['smart-recommendations', type, id],
+        queryFn: () => api.getRecommendations(type, id),
+        enabled: !!id,
+    });
+
     const servers = manualServers ?? initialServers ?? [];
     const loading = isLoading;
 
@@ -83,13 +90,6 @@ export default function DetailPage() {
     const trailerKey = trailerVideo?.key || null;
 
     const inWatchlist = has(data.id);
-
-    // ── Smart Hybrid Recommendations Query ──
-    const { data: recData, isLoading: recLoading } = useQuery({
-        queryKey: ['smart-recommendations', type, id],
-        queryFn: () => api.getRecommendations(type, id),
-        enabled: !!id,
-    });
 
     const recItems = recData?.results || data.recommendations?.results?.slice(0, 12) || data.similar?.results?.slice(0, 12) || [];
     const recReason = recData?.reason || (title ? `Because you watched ${title}` : 'Recommended For You');
@@ -159,7 +159,7 @@ export default function DetailPage() {
                                     title="View Full Cinematic Universe Timeline"
                                 >
                                     <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>hub</span>
-                                    {data.universe_details.badge || `UNIVERSE: ${data.universe.toUpperCase()}`}
+                                    {data.universe_details.badge || `UNIVERSE: ${(data.universe || data.universe_details.name || 'UNIVERSE').toUpperCase()}`}
                                     {data.universe_details.phase && ` (${data.universe_details.phase})`}
                                 </Link>
                             )}

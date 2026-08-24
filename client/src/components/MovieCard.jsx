@@ -71,7 +71,7 @@ export default function MovieCard({ item, showType = true }) {
                             style={{ backgroundColor: item.universe_details.color || 'var(--brand)' }}
                             title={`${item.universe_details.franchise}${item.universe_details.phase ? ` • ${item.universe_details.phase}` : ''}`}
                         >
-                            {item.universe_details.badge || `UNIVERSE: ${item.universe.toUpperCase()}`}
+                            {item.universe_details.badge || `UNIVERSE: ${(item.universe || item.universe_details.name || 'UNIVERSE').toUpperCase()}`}
                         </span>
                     ) : (
                         <span className="card-quality-badge">4K ULTRA</span>

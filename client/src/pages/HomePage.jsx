@@ -104,9 +104,9 @@ export default function HomePage() {
             <section style={{ marginBottom: '38px' }}>
                 <div className="section-header">
                     <h2 className="section-title">
-                        {hubData.title} <span className="section-count">{hubData.items.length} Titles</span>
+                        {currentHubItems.title} <span className="section-count">{currentHubItems.items.length} Titles</span>
                     </h2>
-                    <Link to={`/genre/0/${encodeURIComponent(hubData.title)}?endpoint=${activeHub}`} className="see-all-cyber" onClick={playClick}>
+                    <Link to={`/genre/0/${encodeURIComponent(currentHubItems.title)}?endpoint=${activeHub}`} className="see-all-cyber" onClick={playClick}>
                         EXPLORE FULL FEED <i className="fas fa-arrow-right"></i>
                     </Link>
                 </div>
@@ -121,7 +121,7 @@ export default function HomePage() {
                     </div>
                 ) : (
                     <div className="content-grid wide">
-                        {hubData.items.map(item => (
+                        {currentHubItems.items.map(item => (
                             <MovieCard key={item.id} item={item} />
                         ))}
                     </div>
