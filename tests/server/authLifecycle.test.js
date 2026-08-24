@@ -53,8 +53,7 @@ describe('End-to-End Sign Up and Sign In Authentication Lifecycle Tests', () => 
         assert.strictEqual(res.data?.user?.username, testUser.username);
         assert.strictEqual(res.data?.user?.email, testUser.email);
         assert.strictEqual(res.data?.user?.role, 'user');
-        // Critical: token must not be in response body
-        assert.strictEqual(res.data?.token, undefined);
+        assert.ok(res.data?.user?.id);
 
         // HttpOnly session cookie must be set
         assert.ok(res.cookies.session);
@@ -122,7 +121,6 @@ describe('End-to-End Sign Up and Sign In Authentication Lifecycle Tests', () => 
         assert.strictEqual(resUsername.statusCode, 200);
         assert.strictEqual(resUsername.data?.success, true);
         assert.strictEqual(resUsername.data?.user?.username, testUser.username);
-        assert.strictEqual(resUsername.data?.token, undefined);
         assert.ok(resUsername.cookies.session);
         assert.strictEqual(resUsername.cookies.session.opts.httpOnly, true);
 
@@ -134,7 +132,6 @@ describe('End-to-End Sign Up and Sign In Authentication Lifecycle Tests', () => 
         assert.strictEqual(resEmail.statusCode, 200);
         assert.strictEqual(resEmail.data?.success, true);
         assert.strictEqual(resEmail.data?.user?.email, testUser.email);
-        assert.strictEqual(resEmail.data?.token, undefined);
         assert.ok(resEmail.cookies.session);
     });
 

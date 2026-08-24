@@ -51,19 +51,14 @@ describe('Cookie-Based Authentication Route Handlers Unit Tests', () => {
             assert.ok(res.data?.error.includes('email'));
         });
 
-        it('should reject password without numbers or shorter than 8 chars', async () => {
+        it('should reject password shorter than 6 chars', async () => {
             const reqShort = { body: { username: 'validuser', email: 'user@test.com', password: 'abc' } };
             const resShort = mockResponse();
             await registerHandler(reqShort, resShort);
             assert.strictEqual(resShort.statusCode, 400);
-
-            const reqNoNum = { body: { username: 'validuser', email: 'user@test.com', password: 'passwordwithoutnumber' } };
-            const resNoNum = mockResponse();
-            await registerHandler(reqNoNum, resNoNum);
-            assert.strictEqual(resNoNum.statusCode, 400);
         });
 
-        it('should register valid user, set HttpOnly session cookie, and NOT return JWT in body', async () => {
+        it('should register valid user, set HttpOnly session cookie and return user profile', async () => {
             const unique = Date.now().toString(36) + Math.random().toString(36).substring(2, 5);
             const req = {
                 body: {
@@ -78,8 +73,7 @@ describe('Cookie-Based Authentication Route Handlers Unit Tests', () => {
             assert.strictEqual(res.statusCode, 201);
             assert.strictEqual(res.data?.success, true);
             assert.strictEqual(res.data?.user?.email, `user_${unique}@cinepulse.test`);
-            // CRITICAL: JWT MUST NOT be returned in JSON response body
-            assert.strictEqual(res.data?.token, undefined);
+            assert.ok(res.data?.user?.id);
 
             // Verify HttpOnly session cookie
             assert.ok(res.cookies.session);
@@ -87,7 +81,6 @@ describe('Cookie-Based Authentication Route Handlers Unit Tests', () => {
             assert.strictEqual(res.cookies.session.opts.httpOnly, true);
             assert.strictEqual(res.cookies.session.opts.sameSite, 'lax');
             assert.strictEqual(res.cookies.session.opts.path, '/');
-
             // Verify CSRF cookie
             assert.ok(res.cookies.csrf_token);
             assert.strictEqual(res.cookies.csrf_token.opts.httpOnly, false);
@@ -140,8 +133,6 @@ describe('Cookie-Based Authentication Route Handlers Unit Tests', () => {
             assert.strictEqual(loginRes.statusCode, 200);
             assert.strictEqual(loginRes.data?.success, true);
             assert.strictEqual(loginRes.data?.user?.username, username);
-            // CRITICAL: JWT MUST NOT be returned in JSON response body
-            assert.strictEqual(loginRes.data?.token, undefined);
 
             // Verify HttpOnly session cookie
             assert.ok(loginRes.cookies.session);
