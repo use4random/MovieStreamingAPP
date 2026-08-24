@@ -34,22 +34,24 @@ export function AuthProvider({ children }) {
 
     const login = async (identifier, password) => {
         const res = await api.login(identifier, password);
-        if (res && res.user) {
-            setUser(res.user);
+        if (res && (res.user || res.token || res.success)) {
+            const userData = res.user || { username: identifier, email: identifier, role: 'user' };
+            setUser(userData);
             setAuthModalOpen(false);
-            return res.user;
+            return userData;
         }
-        throw new Error(res?.error || 'Login failed');
+        throw new Error(res?.error || 'Login failed. Please check your credentials.');
     };
 
     const register = async (username, email, password) => {
         const res = await api.register(username, email, password);
-        if (res && res.user) {
-            setUser(res.user);
+        if (res && (res.user || res.token || res.success)) {
+            const userData = res.user || { username, email, role: 'user' };
+            setUser(userData);
             setAuthModalOpen(false);
-            return res.user;
+            return userData;
         }
-        throw new Error(res?.error || 'Registration failed');
+        throw new Error(res?.error || 'Registration failed. Please try again.');
     };
 
     const logout = async () => {
@@ -73,16 +75,15 @@ export function AuthProvider({ children }) {
     return (
         <AuthContext.Provider value={{
             user,
-            isAuthenticated: !!user,
             loading,
-            login,
-            register,
-            logout,
+            isAuthenticated: !!user,
             authModalOpen,
             authMode,
-            setAuthMode,
             openAuthModal,
-            closeAuthModal
+            closeAuthModal,
+            login,
+            register,
+            logout
         }}>
             {children}
         </AuthContext.Provider>
@@ -90,5 +91,9 @@ export function AuthProvider({ children }) {
 }
 
 export function useAuth() {
-    return useContext(AuthContext);
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
 }

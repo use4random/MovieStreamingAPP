@@ -22,6 +22,8 @@ function generateToken(user) {
     return jwt.sign(
         {
             sub: user.id,
+            username: user.username,
+            email: user.email,
             role: user.role || 'user'
         },
         JWT_SECRET,
@@ -64,11 +66,8 @@ router.post('/register', authLimiter, async (req, res) => {
         if (!email || typeof email !== 'string' || !EMAIL_REGEX.test(email.trim())) {
             return res.status(400).json({ error: 'Please provide a valid email address.' });
         }
-        if (!password || typeof password !== 'string' || password.length < 8) {
-            return res.status(400).json({ error: 'Password must be at least 8 characters long.' });
-        }
-        if (!/[0-9]/.test(password)) {
-            return res.status(400).json({ error: 'Password must contain at least one number.' });
+        if (!password || typeof password !== 'string' || password.length < 6) {
+            return res.status(400).json({ error: 'Password must be at least 6 characters long.' });
         }
 
         const cleanUsername = username.trim();
@@ -113,6 +112,7 @@ router.post('/register', authLimiter, async (req, res) => {
 
         return res.status(201).json({
             success: true,
+            token, // Backward compatibility for legacy cached client bundles
             user: {
                 id: userId,
                 username: cleanUsername,
@@ -167,6 +167,7 @@ router.post('/login', authLimiter, async (req, res) => {
 
         return res.json({
             success: true,
+            token, // Backward compatibility for legacy cached client bundles
             user: {
                 id: user.id,
                 username: user.username,

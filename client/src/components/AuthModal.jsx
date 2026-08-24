@@ -109,7 +109,7 @@ export default function AuthModal() {
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
                             <label style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)' }}>Password</label>
                             {authMode === 'register' && (
-                                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Min. 8 chars & 1 number</span>
+                                <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Min. 6 characters</span>
                             )}
                         </div>
                         <input
@@ -118,7 +118,7 @@ export default function AuthModal() {
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="••••••••••••"
                             required
-                            minLength={8}
+                            minLength={6}
                             style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '14px', outline: 'none' }}
                         />
                     </div>
