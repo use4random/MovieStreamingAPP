@@ -6,7 +6,7 @@ import App from './App';
 import { AuthProvider } from './context/AuthContext';
 import { WatchlistProvider } from './context/WatchlistContext';
 import { AudioProvider } from './context/AudioContext';
-import './styles/pulse.css';
+import './styles/theme.css';
 
 // ── React Query client with 5-min stale time ──────────────────────────
 const queryClient = new QueryClient({
