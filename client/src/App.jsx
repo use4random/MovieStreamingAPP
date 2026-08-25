@@ -26,7 +26,7 @@ const pageVariants = {
 };
 
 // ── Suspense fallback ─────────────────────────────────────────────────
-function CyberLoader() {
+function PageLoader() {
     return (
         <div className="cyber-loader-wrap">
             <div className="cyber-spinner">
@@ -155,7 +155,7 @@ export default function App() {
 
             <div className="site-container">
                 <main className="main-content" id="mainContent">
-                    <Suspense fallback={<CyberLoader />}>
+                    <Suspense fallback={<PageLoader />}>
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={location.pathname}

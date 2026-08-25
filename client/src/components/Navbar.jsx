@@ -50,7 +50,7 @@ export default function Navbar({ onOpenSearch }) {
             <div className="header-top-bar">
                 <div className="top-bar-content" style={{ justifyContent: 'flex-end' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <button className="sound-toggle-btn" onClick={toggleAudio} title="Toggle Cyber Audio FX">
+                        <button className="sound-toggle-btn" onClick={toggleAudio} title="Toggle Audio FX">
                             <i className={`fas fa-volume-${enabled ? 'up' : 'mute'}`}></i>
                             <span>AUDIO: {enabled ? 'ON' : 'OFF'}</span>
                         </button>
@@ -68,7 +68,7 @@ export default function Navbar({ onOpenSearch }) {
                     <Link to="/" className="cyber-logo-wrap" onClick={playClick}>
                         <div className="logo-top-badge">
                             <span className="logo-top-sparkle">✦</span>
-                            <span className="logo-top-text">CYBERSTREAM 4K</span>
+                            <span className="logo-top-text">CINESTREAM 4K</span>
                             <span className="logo-top-sparkle">✦</span>
                             <div className="logo-top-laser"></div>
                         </div>
@@ -199,7 +199,7 @@ export default function Navbar({ onOpenSearch }) {
                 </div>
             </div>
 
-            {/* Cyber Side Navigation Drawer */}
+            {/* Side Navigation Drawer */}
             {mobileOpen && (
                 <>
                     <div className="mobile-overlay open" onClick={toggleMobile}></div>
@@ -208,7 +208,7 @@ export default function Navbar({ onOpenSearch }) {
                             <Link to="/" className="cyber-logo-wrap" onClick={toggleMobile}>
                                 <div className="logo-top-badge">
                                     <span className="logo-top-sparkle">✦</span>
-                                    <span className="logo-top-text">CYBERSTREAM 4K</span>
+                                    <span className="logo-top-text">CINESTREAM 4K</span>
                                     <span className="logo-top-sparkle">✦</span>
                                     <div className="logo-top-laser"></div>
                                 </div>

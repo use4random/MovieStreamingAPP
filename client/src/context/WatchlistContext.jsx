@@ -20,12 +20,12 @@ export function WatchlistProvider({ children }) {
                     setWatchlist(res.watchlist);
                 } else if (isMounted) {
                     // Fallback to local storage for guests
-                    const local = JSON.parse(localStorage.getItem('cinepulse_cyber_watchlist')) || [];
+                    const local = JSON.parse(localStorage.getItem('cinepulse_watchlist') || localStorage.getItem('cinepulse_cyber_watchlist')) || [];
                     setWatchlist(local);
                 }
             } catch {
                 if (isMounted) {
-                    const local = JSON.parse(localStorage.getItem('cinepulse_cyber_watchlist')) || [];
+                    const local = JSON.parse(localStorage.getItem('cinepulse_watchlist') || localStorage.getItem('cinepulse_cyber_watchlist')) || [];
                     setWatchlist(local);
                 }
             } finally {
@@ -40,7 +40,7 @@ export function WatchlistProvider({ children }) {
     // Keep localStorage in sync as offline / guest backup
     useEffect(() => {
         try {
-            localStorage.setItem('cinepulse_cyber_watchlist', JSON.stringify(watchlist));
+            localStorage.setItem('cinepulse_watchlist', JSON.stringify(watchlist));
         } catch (e) {
             console.error('Failed to sync local watchlist:', e);
         }
@@ -63,34 +63,32 @@ export function WatchlistProvider({ children }) {
             // Optimistic state update
             setWatchlist(prev => [newItem, ...prev]);
 
-            try {
-                const res = await api.saveWatchlist(newItem);
-                if (res && res.watchlist) {
-                    setWatchlist(res.watchlist);
+            if (user) {
+                try {
+                    await api.addToWatchlist(item.id, newItem.media_type, newItem.title, newItem.poster_path, newItem.vote_average, newItem.release_date);
+                } catch (e) {
+                    console.error('Failed to sync add to server:', e);
                 }
-            } catch (err) {
-                console.warn('Backend watchlist save sync error:', err.message);
             }
         }
     };
 
-    const remove = async (id, mediaType = 'movie') => {
+    const remove = async (id) => {
         // Optimistic state update
-        setWatchlist(prev => prev.filter(item => String(item.id) !== String(id)));
+        setWatchlist(prev => prev.filter(i => String(i.id) !== String(id)));
 
-        try {
-            const res = await api.removeWatchlist(id, mediaType);
-            if (res && res.watchlist) {
-                setWatchlist(res.watchlist);
+        if (user) {
+            try {
+                await api.removeFromWatchlist(id);
+            } catch (e) {
+                console.error('Failed to sync remove to server:', e);
             }
-        } catch (err) {
-            console.warn('Backend watchlist delete sync error:', err.message);
         }
     };
 
     const toggle = (item) => {
         if (has(item.id)) {
-            remove(item.id, item.media_type || (item.first_air_date ? 'tv' : 'movie'));
+            remove(item.id);
             return false;
         } else {
             add(item);
@@ -101,6 +99,7 @@ export function WatchlistProvider({ children }) {
     const clearAll = () => {
         setWatchlist([]);
         try {
+            localStorage.removeItem('cinepulse_watchlist');
             localStorage.removeItem('cinepulse_cyber_watchlist');
         } catch (e) {
             console.error('Failed to clear watchlist storage:', e);

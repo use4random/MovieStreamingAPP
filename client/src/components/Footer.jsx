@@ -13,7 +13,7 @@ export default function Footer() {
                         <Link to="/" className="cyber-logo-wrap" onClick={playClick}>
                             <div className="logo-top-badge">
                                 <span className="logo-top-sparkle">✦</span>
-                                <span className="logo-top-text">CYBERSTREAM 4K</span>
+                                <span className="logo-top-text">CINESTREAM 4K</span>
                                 <span className="logo-top-sparkle">✦</span>
                                 <div className="logo-top-laser"></div>
                             </div>
@@ -30,7 +30,7 @@ export default function Footer() {
                             </div>
                         </Link>
                         <p className="footer-desc">
-                            <strong>Disclaimer:</strong> CinePulse is a next-generation streaming discovery engine & catalog index. Experience instant 4K cloud feeds, multi-node redundancy, dynamic season browsers, and futuristic cyber HUD player.
+                            <strong>Disclaimer:</strong> CinePulse is a next-generation streaming discovery engine & catalog index. Experience instant 4K cloud feeds, multi-node redundancy, dynamic season browsers, and futuristic HUD player.
                         </p>
                     </div>
 
@@ -66,7 +66,7 @@ export default function Footer() {
 
                 <div className="footer-bottom">
                     <div>
-                        &copy; 2026 <strong>CinePulse Cyber Edition</strong>. All rights reserved.
+                        &copy; 2026 <strong>CinePulse</strong>. All rights reserved.
                     </div>
                 </div>
             </div>

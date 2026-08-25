@@ -1,20 +1,25 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Fuse from 'fuse.js';
 import { useQueryClient } from '@tanstack/react-query';
 import { api, getPoster, getRating, getYear } from '../services/api';
 import { useAudio } from '../context/AudioContext';
 
+const TRENDING_TAGS = ['Marvel', 'Avatar', 'Spider-Man', 'Anime', 'Batman', 'Dune'];
+
 export default function SearchModal({ isOpen, onClose }) {
     const [query, setQuery] = useState('');
     const [results, setResults] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [selectedIndex, setSelectedIndex] = useState(-1);
+
     const inputRef = useRef(null);
+    const resultsContainerRef = useRef(null);
     const navigate = useNavigate();
     const { playClick, playWhoosh } = useAudio();
     const queryClient = useQueryClient();
 
-    // ── Build Fuse.js index from React Query cache (trending data) ──
+    // ── Build Fuse.js index from cached trending data for 0ms instant preview ──
     const fuseIndex = useMemo(() => {
         const cached = queryClient.getQueryData(['trending', 'all', 'week']);
         const items = cached?.results || [];
@@ -24,72 +29,113 @@ export default function SearchModal({ isOpen, onClose }) {
             threshold: 0.3,
             includeScore: true,
         });
-    }, [queryClient, isOpen]); // refresh when modal opens
+    }, [queryClient, isOpen]);
 
+    // Reset and autofocus on open
     useEffect(() => {
         if (isOpen) {
             setQuery('');
             setResults([]);
-            setTimeout(() => inputRef.current?.focus(), 50);
+            setSelectedIndex(-1);
+            setLoading(false);
+            const focusTimer = setTimeout(() => inputRef.current?.focus(), 50);
             playWhoosh();
+            return () => clearTimeout(focusTimer);
         }
     }, [isOpen]);
 
+    // ── Debounced Search with Race Condition Protection ──
     useEffect(() => {
-        if (!query.trim() || query.trim().length < 2) {
+        const trimmed = query.trim();
+        if (!trimmed || trimmed.length < 2) {
             setResults([]);
+            setSelectedIndex(-1);
+            setLoading(false);
             return;
         }
 
-        // ── Instant: Fuse.js local results (synchronous, 0ms) ──
+        let isCurrent = true;
+
+        // Instant local cache hit
         if (fuseIndex) {
-            const localHits = fuseIndex.search(query.trim(), { limit: 6 });
-            if (localHits.length > 0) {
+            const localHits = fuseIndex.search(trimmed, { limit: 6 });
+            if (localHits.length > 0 && isCurrent) {
                 setResults(localHits.map(r => r.item));
             }
         }
 
-        // ── Delayed: TMDB API results after 400ms debounce ──
+        // Live API Search
+        setLoading(true);
         const timer = setTimeout(async () => {
-            setLoading(true);
-            const data = await api.search(query.trim(), 1);
-            setLoading(false);
-            if (data && data.results) {
-                setResults(data.results.slice(0, 6));
+            try {
+                const data = await api.search(trimmed, 1);
+                if (isCurrent && data?.results) {
+                    setResults(data.results.slice(0, 6));
+                    setSelectedIndex(-1);
+                }
+            } catch (err) {
+                console.error('[SearchModal] API Search failed:', err);
+            } finally {
+                if (isCurrent) setLoading(false);
             }
-        }, 400);
+        }, 300);
 
-        return () => clearTimeout(timer);
-    }, [query]);
+        return () => {
+            isCurrent = false;
+            clearTimeout(timer);
+        };
+    }, [query, fuseIndex]);
 
-
-    if (!isOpen) return null;
-
-    const handleSelect = (item) => {
+    const handleSelect = useCallback((item) => {
+        if (!item) return;
         const type = item.media_type || (item.first_air_date ? 'tv' : 'movie');
         playClick();
         onClose();
         navigate(`/detail/${type}/${item.id}`);
-    };
+    }, [navigate, onClose, playClick]);
 
-    const handleFullSearch = () => {
-        if (query.trim()) {
+    const handleFullSearch = useCallback(() => {
+        const trimmed = query.trim();
+        if (trimmed) {
             playClick();
             onClose();
-            navigate(`/search/${encodeURIComponent(query.trim())}`);
+            navigate(`/search/${encodeURIComponent(trimmed)}`);
+        }
+    }, [query, navigate, onClose, playClick]);
+
+    // ── Keyboard Navigation across results ──
+    const handleKeyDown = (e) => {
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            setSelectedIndex(prev => (results.length > 0 ? (prev + 1) % results.length : -1));
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            setSelectedIndex(prev => (results.length > 0 ? (prev - 1 + results.length) % results.length : -1));
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (selectedIndex >= 0 && results[selectedIndex]) {
+                handleSelect(results[selectedIndex]);
+            } else {
+                handleFullSearch();
+            }
+        } else if (e.key === 'Escape') {
+            onClose();
         }
     };
 
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter') handleFullSearch();
-        if (e.key === 'Escape') onClose();
-    };
+    if (!isOpen) return null;
 
     return (
-        <div className="search-modal-overlay open" onClick={(e) => e.target.classList.contains('search-modal-overlay') && onClose()}>
+        <div
+            className="search-modal-overlay open"
+            onClick={(e) => e.target.classList.contains('search-modal-overlay') && onClose()}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Search Catalog"
+        >
             <div className="search-modal-box">
                 <div className="search-modal-header">
-                    <i className="fas fa-search" style={{ color: 'var(--brand)', fontSize: '18px' }}></i>
+                    <i className="fas fa-search" style={{ color: 'var(--brand)', fontSize: '18px' }} aria-hidden="true"></i>
                     <input
                         ref={inputRef}
                         type="text"
@@ -97,33 +143,53 @@ export default function SearchModal({ isOpen, onClose }) {
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         onKeyDown={handleKeyDown}
+                        aria-label="Search query"
+                        autoComplete="off"
+                        spellCheck="false"
                     />
-                    <button onClick={onClose} style={{ color: 'var(--text-muted)', fontSize: '16px' }}><i className="fas fa-times"></i></button>
+                    <button onClick={onClose} aria-label="Close search" style={{ color: 'var(--text-muted)', fontSize: '16px', background: 'none', border: 'none', cursor: 'pointer' }}>
+                        <i className="fas fa-times"></i>
+                    </button>
                 </div>
 
                 <div className="search-quick-tags">
                     <span style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
                         <i className="fas fa-bolt"></i> Trending:
                     </span>
-                    {['Marvel', 'Avatar', 'Spider-Man', 'Anime', 'Batman', 'Dune'].map(tag => (
-                        <button key={tag} className="quick-tag" onClick={() => { setQuery(tag); }}>
+                    {TRENDING_TAGS.map(tag => (
+                        <button
+                            key={tag}
+                            className="quick-tag"
+                            onClick={() => {
+                                setQuery(tag);
+                                inputRef.current?.focus();
+                            }}
+                        >
                             {tag}
                         </button>
                     ))}
                 </div>
 
-                <div className="modal-results-container">
-                    {loading ? (
+                <div className="modal-results-container" ref={resultsContainerRef} role="listbox">
+                    {loading && results.length === 0 ? (
                         <div style={{ textAlign: 'center', padding: '30px', color: 'var(--cyan)', fontFamily: "'Space Grotesk', monospace" }}>
-                            <i className="fas fa-spinner fa-spin"></i> QUERYING QUANTUM INDEX...
+                            <i className="fas fa-spinner fa-spin"></i> SEARCHING LIVE INDEX...
                         </div>
                     ) : results.length > 0 ? (
-                        results.map(item => {
+                        results.map((item, idx) => {
                             const type = item.media_type || (item.first_air_date ? 'tv' : 'movie');
                             const title = item.title || item.name || 'Untitled';
+                            const isSelected = idx === selectedIndex;
                             return (
-                                <div key={`${type}-${item.id}`} className="modal-result-item" onClick={() => handleSelect(item)}>
-                                    <img src={getPoster(item.poster_path)} className="modal-result-thumb" alt={title} />
+                                <div
+                                    key={`${type}-${item.id}`}
+                                    className={`modal-result-item ${isSelected ? 'selected' : ''}`}
+                                    onClick={() => handleSelect(item)}
+                                    role="option"
+                                    aria-selected={isSelected}
+                                    style={isSelected ? { background: 'rgba(255, 81, 104, 0.15)', borderColor: 'var(--brand)' } : {}}
+                                >
+                                    <img src={getPoster(item.poster_path)} className="modal-result-thumb" alt={title} loading="lazy" />
                                     <div style={{ flex: 1, minWidth: 0 }}>
                                         <div className="modal-result-title">{title}</div>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px' }}>
@@ -135,7 +201,7 @@ export default function SearchModal({ isOpen, onClose }) {
                                             <span>{getYear(item.release_date || item.first_air_date)}</span>
                                         </div>
                                     </div>
-                                    <i className="fas fa-arrow-right" style={{ color: 'var(--text-muted)', fontSize: '12px' }}></i>
+                                    <i className="fas fa-arrow-right" style={{ color: isSelected ? 'var(--brand)' : 'var(--text-muted)', fontSize: '12px' }}></i>
                                 </div>
                             );
                         })

@@ -97,7 +97,7 @@ export default function DetailPage() {
 
     return (
         <div className="fade-in">
-            {/* Cyber Breadcrumbs */}
+            {/* Breadcrumbs */}
             <nav className="breadcrumb-nav">
                 <Link to="/" onClick={playClick}><i className="fas fa-home"></i> Home</Link>
                 <i className="fas fa-chevron-right" style={{ fontSize: '9px' }}></i>
@@ -109,7 +109,7 @@ export default function DetailPage() {
             </nav>
 
             {/* Video Player HUD */}
-            <ComponentErrorBoundary name="Cyber Stream Player">
+            <ComponentErrorBoundary name="Stream Player">
                 <VideoPlayerHUD
                     mediaType={type}
                     id={id}

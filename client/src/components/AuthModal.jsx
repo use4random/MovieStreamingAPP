@@ -46,7 +46,7 @@ export default function AuthModal() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <i className="fas fa-shield-halved text-brand" style={{ fontSize: '20px' }}></i>
                         <h2 style={{ fontSize: '20px', fontWeight: '700', letterSpacing: '0.5px', margin: 0 }}>
-                            {authMode === 'login' ? 'CYBER PASS LOGIN' : 'CREATE CYBER ACCOUNT'}
+                            {authMode === 'login' ? 'ACCOUNT LOGIN' : 'CREATE ACCOUNT'}
                         </h2>
                     </div>
                     <button 
@@ -72,7 +72,7 @@ export default function AuthModal() {
                                 type="text"
                                 value={identifier}
                                 onChange={(e) => setIdentifier(e.target.value)}
-                                placeholder="cyber_pilot or user@cinepulse.io"
+                                placeholder="username or user@cinepulse.io"
                                 required
                                 style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '14px', outline: 'none' }}
                             />
@@ -85,7 +85,7 @@ export default function AuthModal() {
                                     type="text"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
-                                    placeholder="cyber_pilot"
+                                    placeholder="username"
                                     required
                                     minLength={3}
                                     style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '14px', outline: 'none' }}
@@ -163,7 +163,7 @@ export default function AuthModal() {
                                 onClick={() => { setError(''); setAuthMode('register'); }}
                                 style={{ background: 'none', border: 'none', color: 'var(--cyan)', cursor: 'pointer', fontWeight: '600', textDecoration: 'underline' }}
                             >
-                                Register Cyber Account
+                                Register Account
                             </button>
                         </>
                     ) : (

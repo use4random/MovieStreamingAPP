@@ -1,0 +1,11 @@
+{
+  "openai.apiBase": "http://localhost:20128/api/v1/vscode/sk-d3f7200b496617a9-48ec87-048b8080",
+  "openai.baseUrl": "http://localhost:20128/api/v1/vscode/sk-d3f7200b496617a9-48ec87-048b8080",
+  "openai.apiKey": "sk-d3f7200b496617a9-48ec87-048b8080",
+  "kilo.openAiBaseUrl": "http://localhost:20128/api/v1/vscode/sk-d3f7200b496617a9-48ec87-048b8080",
+  "kilo.apiKey": "sk-d3f7200b496617a9-48ec87-048b8080",
+  "cline.openAiBaseUrl": "http://localhost:20128/api/v1/vscode/sk-d3f7200b496617a9-48ec87-048b8080",
+  "cline.apiKey": "sk-d3f7200b496617a9-48ec87-048b8080",
+  "continue.apiBase": "http://localhost:20128/api/v1/vscode/sk-d3f7200b496617a9-48ec87-048b8080",
+  "continue.apiKey": "sk-d3f7200b496617a9-48ec87-048b8080"
+}

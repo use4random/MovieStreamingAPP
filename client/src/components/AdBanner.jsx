@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ENABLE_ADS, AD_CONFIG } from '../config/ads';
 
-// Temporary Cyber Ad Templates for realistic preview
+// Temporary Ad Templates for realistic preview
 const TEMPORARY_ADS = {
     sidebar: {
-        title: 'CYBER SHIELD VPN 2026',
+        title: 'SHIELD VPN 2026',
         desc: 'Encrypted Streaming & Zero Logs. 75% OFF + 3 Months Free.',
         badge: 'SPONSORED',
         cta: 'CLAIM OFFER',
