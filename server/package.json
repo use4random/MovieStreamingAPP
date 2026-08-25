@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "build": "cd .. && npm run build"
+    "build": "cd .. && npm install --include=dev && npm run build"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
