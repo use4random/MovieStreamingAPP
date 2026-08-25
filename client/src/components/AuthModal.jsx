@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 
 export default function AuthModal() {
@@ -7,8 +7,40 @@ export default function AuthModal() {
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+
+    const firstInputRef = useRef(null);
+
+    // Prevent body scrolling and attach Escape key listener when modal is open
+    useEffect(() => {
+        if (!authModalOpen) return;
+
+        const originalOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') {
+                closeAuthModal();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        // Auto-focus first input
+        const timer = setTimeout(() => {
+            if (firstInputRef.current) {
+                firstInputRef.current.focus();
+            }
+        }, 80);
+
+        return () => {
+            document.body.style.overflow = originalOverflow;
+            window.removeEventListener('keydown', handleKeyDown);
+            clearTimeout(timer);
+        };
+    }, [authModalOpen, authMode]);
 
     if (!authModalOpen) return null;
 
@@ -23,159 +55,229 @@ export default function AuthModal() {
             } else {
                 await register(username, email, password);
             }
-            // Reset fields
+            // Reset fields on success
             setIdentifier('');
             setUsername('');
             setEmail('');
             setPassword('');
         } catch (err) {
-            setError(err.message || 'Authentication failed');
+            setError(err.message || 'Authentication failed. Please check your details and try again.');
         } finally {
             setLoading(false);
         }
     };
 
+    const handleBackdropClick = (e) => {
+        if (e.target === e.currentTarget) {
+            closeAuthModal();
+        }
+    };
+
+    const switchMode = (newMode) => {
+        setError('');
+        setAuthMode(newMode);
+    };
+
     return (
-        <div className="search-modal-backdrop" onClick={closeAuthModal} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
+        <div 
+            className="auth-modal-overlay" 
+            onClick={handleBackdropClick}
+            role="dialog"
+            aria-modal="true"
+            aria-label={authMode === 'login' ? 'Account Login' : 'Create Account'}
+        >
             <div 
-                className="search-modal-content" 
-                onClick={(e) => e.stopPropagation()} 
-                style={{ maxWidth: '440px', width: '90%', padding: '32px', borderRadius: '16px', border: '1px solid rgba(255, 81, 104, 0.3)', background: '#0a0c16', boxShadow: '0 20px 60px rgba(0,0,0,0.8), 0 0 30px rgba(255, 81, 104, 0.15)' }}
+                className="auth-modal-box" 
+                onClick={(e) => e.stopPropagation()}
             >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <i className="fas fa-shield-halved text-brand" style={{ fontSize: '20px' }}></i>
-                        <h2 style={{ fontSize: '20px', fontWeight: '700', letterSpacing: '0.5px', margin: 0 }}>
-                            {authMode === 'login' ? 'ACCOUNT LOGIN' : 'CREATE ACCOUNT'}
-                        </h2>
+                {/* Header */}
+                <div className="auth-modal-header-row">
+                    <div className="auth-modal-title">
+                        <i className={`fas ${authMode === 'login' ? 'fa-shield-halved' : 'fa-user-plus'} text-brand`} style={{ fontSize: '22px' }}></i>
+                        <h2>{authMode === 'login' ? 'Account Login' : 'Create Account'}</h2>
                     </div>
                     <button 
+                        type="button"
+                        className="auth-close-btn"
                         onClick={closeAuthModal}
-                        style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '18px', cursor: 'pointer' }}
+                        aria-label="Close authentication modal"
                     >
-                        <i className="fas fa-xmark"></i>
+                        <i className="fas fa-times"></i>
                     </button>
                 </div>
 
+                {/* Mode Tabs */}
+                <div className="auth-modal-tabs" role="tablist">
+                    <button
+                        type="button"
+                        role="tab"
+                        aria-selected={authMode === 'login'}
+                        className={`auth-tab-btn ${authMode === 'login' ? 'active' : ''}`}
+                        onClick={() => switchMode('login')}
+                    >
+                        <i className="fas fa-right-to-bracket"></i>
+                        <span>Sign In</span>
+                    </button>
+                    <button
+                        type="button"
+                        role="tab"
+                        aria-selected={authMode === 'register'}
+                        className={`auth-tab-btn ${authMode === 'register' ? 'active' : ''}`}
+                        onClick={() => switchMode('register')}
+                    >
+                        <i className="fas fa-user-plus"></i>
+                        <span>Sign Up</span>
+                    </button>
+                </div>
+
+                {/* Error Banner */}
                 {error && (
-                    <div style={{ padding: '12px 16px', background: 'rgba(255, 81, 104, 0.12)', border: '1px solid rgba(255, 81, 104, 0.4)', borderRadius: '8px', color: 'var(--brand)', fontSize: '13px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <i className="fas fa-circle-exclamation"></i>
+                    <div className="auth-error-alert" role="alert">
+                        <i className="fas fa-circle-exclamation" style={{ fontSize: '16px' }}></i>
                         <span>{error}</span>
                     </div>
                 )}
 
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {/* Form */}
+                <form onSubmit={handleSubmit} className="auth-form" noValidate={false}>
                     {authMode === 'login' ? (
-                        <div>
-                            <label style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>Username or Email</label>
-                            <input
-                                type="text"
-                                value={identifier}
-                                onChange={(e) => setIdentifier(e.target.value)}
-                                placeholder="username or user@cinepulse.io"
-                                required
-                                style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '14px', outline: 'none' }}
-                            />
+                        <div className="auth-input-group">
+                            <label className="auth-input-label" htmlFor="auth-identifier">
+                                Username or Email
+                            </label>
+                            <div className="auth-input-wrapper">
+                                <i className="fas fa-user auth-input-icon"></i>
+                                <input
+                                    ref={firstInputRef}
+                                    id="auth-identifier"
+                                    type="text"
+                                    className="auth-text-input"
+                                    value={identifier}
+                                    onChange={(e) => setIdentifier(e.target.value)}
+                                    placeholder="Username or email address"
+                                    required
+                                    autoComplete="username"
+                                />
+                            </div>
                         </div>
                     ) : (
                         <>
-                            <div>
-                                <label style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>Username</label>
-                                <input
-                                    type="text"
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                    placeholder="username"
-                                    required
-                                    minLength={3}
-                                    style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '14px', outline: 'none' }}
-                                />
+                            <div className="auth-input-group">
+                                <label className="auth-input-label" htmlFor="auth-username">
+                                    Username
+                                </label>
+                                <div className="auth-input-wrapper">
+                                    <i className="fas fa-user-tag auth-input-icon"></i>
+                                    <input
+                                        ref={firstInputRef}
+                                        id="auth-username"
+                                        type="text"
+                                        className="auth-text-input"
+                                        value={username}
+                                        onChange={(e) => setUsername(e.target.value)}
+                                        placeholder="Choose a username (min. 3 chars)"
+                                        required
+                                        minLength={3}
+                                        autoComplete="username"
+                                    />
+                                </div>
                             </div>
-                            <div>
-                                <label style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)', display: 'block', marginBottom: '6px' }}>Email Address</label>
-                                <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="user@cinepulse.io"
-                                    required
-                                    style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '14px', outline: 'none' }}
-                                />
+
+                            <div className="auth-input-group">
+                                <label className="auth-input-label" htmlFor="auth-email">
+                                    Email Address
+                                </label>
+                                <div className="auth-input-wrapper">
+                                    <i className="fas fa-envelope auth-input-icon"></i>
+                                    <input
+                                        id="auth-email"
+                                        type="email"
+                                        className="auth-text-input"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="user@cinepulse.io"
+                                        required
+                                        autoComplete="email"
+                                    />
+                                </div>
                             </div>
                         </>
                     )}
 
-                    <div>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                            <label style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--text-muted)' }}>Password</label>
+                    <div className="auth-input-group">
+                        <div className="auth-input-label">
+                            <label htmlFor="auth-password">Password</label>
                             {authMode === 'register' && (
                                 <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Min. 6 characters</span>
                             )}
                         </div>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="••••••••••••"
-                            required
-                            minLength={6}
-                            style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.12)', color: '#fff', fontSize: '14px', outline: 'none' }}
-                        />
+                        <div className="auth-input-wrapper">
+                            <i className="fas fa-lock auth-input-icon"></i>
+                            <input
+                                id="auth-password"
+                                type={showPassword ? 'text' : 'password'}
+                                className="auth-text-input"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                placeholder={authMode === 'login' ? '••••••••••••' : 'Create strong password'}
+                                required
+                                minLength={6}
+                                autoComplete={authMode === 'login' ? 'current-password' : 'new-password'}
+                            />
+                            <button
+                                type="button"
+                                className="auth-password-toggle"
+                                onClick={() => setShowPassword(!showPassword)}
+                                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                            >
+                                <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                            </button>
+                        </div>
                     </div>
 
                     <button
                         type="submit"
+                        className="auth-submit-btn"
                         disabled={loading}
-                        style={{
-                            marginTop: '8px',
-                            padding: '14px',
-                            borderRadius: '8px',
-                            background: 'linear-gradient(135deg, var(--brand) 0%, #b81d24 100%)',
-                            border: 'none',
-                            color: '#fff',
-                            fontWeight: '700',
-                            fontSize: '14px',
-                            letterSpacing: '1px',
-                            cursor: loading ? 'not-allowed' : 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '8px',
-                            boxShadow: '0 4px 20px rgba(255, 81, 104, 0.4)'
-                        }}
                     >
                         {loading ? (
-                            <i className="fas fa-spinner fa-spin"></i>
+                            <>
+                                <i className="fas fa-spinner fa-spin"></i>
+                                <span>Processing...</span>
+                            </>
                         ) : (
                             <>
-                                <i className={`fas ${authMode === 'login' ? 'fa-right-to-bracket' : 'fa-user-plus'}`}></i>
-                                {authMode === 'login' ? 'AUTHENTICATE SESSION' : 'REGISTER PROFILE'}
+                                <i className={`fas ${authMode === 'login' ? 'fa-right-to-bracket' : 'fa-user-check'}`}></i>
+                                <span>{authMode === 'login' ? 'AUTHENTICATE SESSION' : 'REGISTER PROFILE'}</span>
                             </>
                         )}
                     </button>
                 </form>
 
-                <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '13px', color: 'var(--text-muted)' }}>
+                {/* Footer Switcher */}
+                <div className="auth-footer-toggle">
                     {authMode === 'login' ? (
-                        <>
+                        <span>
                             Don't have a profile yet?{' '}
                             <button
-                                onClick={() => { setError(''); setAuthMode('register'); }}
-                                style={{ background: 'none', border: 'none', color: 'var(--cyan)', cursor: 'pointer', fontWeight: '600', textDecoration: 'underline' }}
+                                type="button"
+                                className="auth-link-btn"
+                                onClick={() => switchMode('register')}
                             >
-                                Register Account
+                                Sign Up Now
                             </button>
-                        </>
+                        </span>
                     ) : (
-                        <>
+                        <span>
                             Already registered?{' '}
                             <button
-                                onClick={() => { setError(''); setAuthMode('login'); }}
-                                style={{ background: 'none', border: 'none', color: 'var(--cyan)', cursor: 'pointer', fontWeight: '600', textDecoration: 'underline' }}
+                                type="button"
+                                className="auth-link-btn"
+                                onClick={() => switchMode('login')}
                             >
                                 Log In
                             </button>
-                        </>
+                        </span>
                     )}
                 </div>
             </div>

@@ -205,6 +205,7 @@ export default function Navbar({ onOpenSearch }) {
                                 <span>{user.username}</span>
                             </div>
                             <button
+                                type="button"
                                 onClick={logout}
                                 title="Sign Out"
                                 className="hidden-mobile"
@@ -213,6 +214,7 @@ export default function Navbar({ onOpenSearch }) {
                                 <i className="fas fa-right-from-bracket"></i>
                             </button>
                             <button
+                                type="button"
                                 onClick={logout}
                                 title={`Sign Out (${user.username})`}
                                 className="visible-mobile-only mobile-user-avatar"
@@ -221,23 +223,34 @@ export default function Navbar({ onOpenSearch }) {
                             </button>
                         </div>
                     ) : (
-                        <>
+                        <div className="nav-auth-group">
                             <button
+                                type="button"
                                 onClick={() => openAuthModal('login')}
-                                className="hidden-mobile"
-                                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', background: 'linear-gradient(135deg, var(--brand) 0%, #b81d24 100%)', border: 'none', color: '#fff', fontSize: '13px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 2px 10px rgba(255,81,104,0.3)' }}
+                                className="hidden-mobile nav-auth-btn nav-signin-btn"
+                                title="Sign In to your account"
                             >
-                                <i className="fas fa-shield-halved"></i>
+                                <i className="fas fa-right-to-bracket"></i>
                                 <span>Sign In</span>
                             </button>
                             <button
+                                type="button"
+                                onClick={() => openAuthModal('register')}
+                                className="hidden-mobile nav-auth-btn nav-signup-btn"
+                                title="Create a new profile"
+                            >
+                                <i className="fas fa-user-plus"></i>
+                                <span>Sign Up</span>
+                            </button>
+                            <button
+                                type="button"
                                 onClick={() => openAuthModal('login')}
                                 className="visible-mobile-only mobile-user-avatar"
-                                title="Sign In"
+                                title="Sign In / Register"
                             >
                                 <i className="fas fa-user text-sm"></i>
                             </button>
-                        </>
+                        </div>
                     )}
                 </div>
             </div>
@@ -280,6 +293,7 @@ export default function Navbar({ onOpenSearch }) {
                                         <span>{user.username}</span>
                                     </div>
                                     <button
+                                        type="button"
                                         onClick={() => { toggleMobile(); logout(); }}
                                         style={{ padding: '6px 10px', borderRadius: '6px', background: 'rgba(255, 81, 104, 0.15)', border: '1px solid rgba(255, 81, 104, 0.4)', color: 'var(--brand)', cursor: 'pointer', fontSize: '12px', fontWeight: '600' }}
                                     >
@@ -287,13 +301,24 @@ export default function Navbar({ onOpenSearch }) {
                                     </button>
                                 </div>
                             ) : (
-                                <button
-                                    onClick={() => { toggleMobile(); openAuthModal('login'); }}
-                                    style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px', borderRadius: '10px', background: 'linear-gradient(135deg, var(--brand) 0%, #b81d24 100%)', border: 'none', color: '#fff', fontSize: '14px', fontWeight: '700', cursor: 'pointer', marginBottom: '16px', boxShadow: '0 4px 15px rgba(255,81,104,0.3)' }}
-                                >
-                                    <i className="fas fa-shield-halved"></i>
-                                    <span>Sign In / Register</span>
-                                </button>
+                                <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => { toggleMobile(); openAuthModal('login'); }}
+                                        className="mobile-drawer-auth-btn mobile-drawer-signin"
+                                    >
+                                        <i className="fas fa-right-to-bracket"></i>
+                                        <span>Sign In</span>
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => { toggleMobile(); openAuthModal('register'); }}
+                                        className="mobile-drawer-auth-btn mobile-drawer-signup"
+                                    >
+                                        <i className="fas fa-user-plus"></i>
+                                        <span>Sign Up</span>
+                                    </button>
+                                </div>
                             )}
 
                             <div className="mobile-nav-group-title">MAIN NAVIGATION</div>

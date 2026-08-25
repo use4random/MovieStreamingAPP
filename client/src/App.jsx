@@ -8,6 +8,7 @@ import SearchModal from './components/SearchModal';
 import AuthModal from './components/AuthModal';
 import MobileBottomNav from './components/MobileBottomNav';
 import { useCinePulseStore } from './store/useCinePulseStore';
+import { useAuth } from './context/AuthContext';
 
 // ── Code-split page imports (each becomes its own JS chunk) ──────────
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -40,7 +41,17 @@ function PageLoader() {
 
 export default function App() {
     const { searchOpen, openSearch, closeSearch } = useCinePulseStore();
+    const { openAuthModal } = useAuth();
     const location = useLocation();
+
+    // Route based auth modal trigger
+    useEffect(() => {
+        if (location.pathname === '/signup' || location.pathname === '/register') {
+            openAuthModal('register');
+        } else if (location.pathname === '/login' || location.pathname === '/signin') {
+            openAuthModal('login');
+        }
+    }, [location.pathname]);
 
     // Global Anti-Popunder & Strict Mobile Ad Interceptor
     useEffect(() => {
@@ -157,6 +168,10 @@ export default function App() {
                                 <Routes location={location}>
                                     <Route path="/" element={<HomePage />} />
                                     <Route path="/index.html" element={<HomePage />} />
+                                    <Route path="/signup" element={<HomePage />} />
+                                    <Route path="/register" element={<HomePage />} />
+                                    <Route path="/login" element={<HomePage />} />
+                                    <Route path="/signin" element={<HomePage />} />
                                     <Route path="/detail/:type/:id" element={<DetailPage />} />
                                     <Route path="/search/:query" element={<SearchPage />} />
                                     <Route path="/genre/:genreId/:name" element={<GenrePage />} />

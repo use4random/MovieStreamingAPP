@@ -79,6 +79,7 @@ export function AuthProvider({ children }) {
             isAuthenticated: !!user,
             authModalOpen,
             authMode,
+            setAuthMode,
             openAuthModal,
             closeAuthModal,
             login,
