@@ -109,7 +109,7 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
         return () => { cancelled = true; };
     }, [id, season, episode]);
 
-    // Watchdog timer: automatically switch if current server isn't responding within 4500ms
+    // Watchdog timer: automatically switch if current server isn't responding within 12000ms (12s)
     useEffect(() => {
         setIframeError(false);
         setLoading(true);
@@ -118,9 +118,9 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
         if (!currentServer) return;
 
         const watchdog = setTimeout(() => {
-            console.warn(`[StreamHUD]: Node ${currentServer.name} unresponsive (>4.5s). Auto-switching to next working node.`);
-            markNodeAsDisabledAndSwitch(selectedServer, "isn't responding instantly");
-        }, 4500);
+            console.warn(`[StreamHUD]: Node ${currentServer.name} unresponsive (>12s). Auto-switching to next working node.`);
+            markNodeAsDisabledAndSwitch(selectedServer, "took too long to initialize");
+        }, 12000);
 
         return () => {
             clearTimeout(watchdog);
