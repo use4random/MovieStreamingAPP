@@ -16,6 +16,10 @@
       "destination": "/api/index.js"
     },
     {
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
       "source": "/((?!api(?:/|$)).*)",
       "destination": "/index.html"
     }

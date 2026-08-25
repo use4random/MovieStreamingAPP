@@ -24,3 +24,15 @@
 *.db
 *.db-shm
 *.db-wal
+
+
+@"
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+.vercel/
+.env
+.env.*
+!.env.example
+"@ | Set-Content .gitignore
