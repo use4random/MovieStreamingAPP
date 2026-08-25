@@ -121,20 +121,26 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-const distPath = path.join(process.cwd(), 'dist');
-const clientDistPath = path.join(process.cwd(), 'client/dist');
-const clientDist = fs.existsSync(path.join(distPath, 'index.html')) ? distPath : clientDistPath;
-app.use(express.static(clientDist));
-
-app.get('*', (req, res) => {
-    if (!req.url.startsWith('/api')) {
-        const indexPath = path.join(clientDist, 'index.html');
-        if (fs.existsSync(indexPath)) {
-            return res.sendFile(indexPath);
-        }
-    }
+app.use('/api/*', (req, res) => {
     res.status(404).json({ error: 'API endpoint not found' });
 });
+
+if (!process.env.VERCEL) {
+    const distPath = path.join(process.cwd(), 'dist');
+    const clientDistPath = path.join(process.cwd(), 'client/dist');
+    const clientDist = fs.existsSync(path.join(distPath, 'index.html')) ? distPath : clientDistPath;
+    app.use(express.static(clientDist));
+
+    app.get('*', (req, res) => {
+        if (!req.url.startsWith('/api')) {
+            const indexPath = path.join(clientDist, 'index.html');
+            if (fs.existsSync(indexPath)) {
+                return res.sendFile(indexPath);
+            }
+        }
+        res.status(404).json({ error: 'Page not found' });
+    });
+}
 
 // Global Error Handling Middleware (catches any unhandled errors gracefully)
 app.use((err, req, res, next) => {
