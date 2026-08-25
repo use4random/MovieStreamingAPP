@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import VideoPlayerHUD from '../components/VideoPlayerHUD';
@@ -6,7 +6,7 @@ import SeasonNavigator from '../components/SeasonNavigator';
 import MovieCard from '../components/MovieCard';
 import RecommendationRail from '../components/RecommendationRail';
 import ComponentErrorBoundary from '../components/ComponentErrorBoundary';
-import { api, getRating, getYear } from '../services/api';
+import { api, getRating, getYear, getBackdrop, getPoster } from '../services/api';
 import { useWatchlist } from '../context/WatchlistContext';
 import { useAudio } from '../context/AudioContext';
 
@@ -19,6 +19,11 @@ export default function DetailPage() {
     const { has, toggle } = useWatchlist();
     const { playClick } = useAudio();
     const navigate = useNavigate();
+    const [mobilePlaying, setMobilePlaying] = useState(false);
+
+    useEffect(() => {
+        setMobilePlaying(false);
+    }, [id, type]);
 
     // ── Cached media details (won't refetch if already in cache) ──
     const { data, isLoading } = useQuery({
@@ -97,7 +102,9 @@ export default function DetailPage() {
 
     return (
         <div className="fade-in">
-            {/* Breadcrumbs */}
+            {/* Desktop View */}
+            <div className="hidden-mobile">
+                {/* Breadcrumbs */}
             <nav className="breadcrumb-nav">
                 <Link to="/" onClick={playClick}><i className="fas fa-home"></i> Home</Link>
                 <i className="fas fa-chevron-right" style={{ fontSize: '9px' }}></i>
@@ -315,6 +322,115 @@ export default function DetailPage() {
                     </div>
                 </div>
             )}
+            </div>
+
+            {/* Mobile View */}
+            <div className="visible-mobile-only" style={{ flexDirection: 'column', width: '100%' }}>
+                {mobilePlaying ? (
+                    <div style={{ marginBottom: '24px', width: '100%' }}>
+                        <button 
+                            className="mobile-back-btn" 
+                            style={{ position: 'static', marginBottom: '16px', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+                            onClick={() => setMobilePlaying(false)}
+                        >
+                            <i className="fas fa-arrow-left"></i> Close Stream Player
+                        </button>
+                        <ComponentErrorBoundary name="Stream Player">
+                            <VideoPlayerHUD
+                                mediaType={type}
+                                id={id}
+                                season={season}
+                                episode={episode}
+                                title={title}
+                                trailerKey={trailerKey}
+                                servers={servers}
+                            />
+                        </ComponentErrorBoundary>
+                    </div>
+                ) : (
+                    <>
+                        {/* Backdrop Header */}
+                        <div className="mobile-backdrop-header">
+                            <img src={getBackdrop(data.backdrop_path)} alt={title} />
+                            <div className="mobile-backdrop-vignette"></div>
+                            
+                            <button onClick={() => navigate(-1)} className="mobile-back-btn">
+                                <i className="fas fa-arrow-left"></i> Back
+                            </button>
+                        </div>
+
+                        {/* Content Details */}
+                        <div className="mobile-details-container">
+                            <div className="mobile-details-poster-wrap">
+                                <img src={getPoster(data.poster_path)} alt={title} style={{ width: '100%', height: 'auto' }} />
+                            </div>
+
+                            <div className="mobile-details-info">
+                                <h1 className="mobile-details-title">{title}</h1>
+
+                                <div className="mobile-details-meta">
+                                    <span className="mobile-details-meta-item mobile-rating-gold">
+                                        <i className="fas fa-star"></i> {getRating(data.vote_average)}
+                                    </span>
+                                    <span>{getYear(data.release_date || data.first_air_date)}</span>
+                                    <span className="mobile-quality-badge">4K ULTRA</span>
+                                    <span>{runtime}</span>
+                                </div>
+
+                                <div className="mobile-details-meta" style={{ marginTop: '-12px', marginBottom: '20px' }}>
+                                    <span className="mobile-genre-text">
+                                        {genres.map(g => g.name).join(', ')}
+                                    </span>
+                                </div>
+
+                                <p className="mobile-details-desc">{data.overview || 'No synopsis available.'}</p>
+
+                                {/* Play Actions */}
+                                <div className="mobile-actions-row">
+                                    <button onClick={() => { playClick(); setMobilePlaying(true); }} className="mobile-play-btn">
+                                        <i className="fas fa-play"></i> Play Movie
+                                    </button>
+                                    <button 
+                                        className="mobile-icon-btn" 
+                                        onClick={() => { playClick(); toggle(data); }}
+                                        title={inWatchlist ? 'Remove from Watchlist' : 'Add to Watchlist'}
+                                    >
+                                        <i className={`fas fa-${inWatchlist ? 'check text-brand' : 'plus'}`} style={{ color: inWatchlist ? '#E50914' : '' }}></i>
+                                    </button>
+                                    <button 
+                                        className="mobile-icon-btn"
+                                        onClick={() => {
+                                            playClick();
+                                            if (navigator.share) {
+                                                navigator.share({ title, text: data.overview, url: window.location.href });
+                                            } else {
+                                                navigator.clipboard.writeText(window.location.href);
+                                                alert('Link copied to clipboard!');
+                                            }
+                                        }}
+                                    >
+                                        <i className="fas fa-share-nodes"></i>
+                                    </button>
+                                </div>
+
+                                {/* Cast Section */}
+                                {cast.length > 0 && (
+                                    <div className="mobile-cast-section">
+                                        <h3>Top Cast</h3>
+                                        <div className="mobile-cast-list">
+                                            {cast.map(actor => (
+                                                <span key={actor.id} className="mobile-cast-pill">
+                                                    {actor.name}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </>
+                )}
+            </div>
 
             {/* TV Seasons & Episode Navigator */}
             {isTV && data.seasons && (

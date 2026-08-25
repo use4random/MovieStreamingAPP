@@ -127,17 +127,7 @@ export default function App() {
     }, []);
 
 
-    // Ctrl+K shortcut for search
-    useEffect(() => {
-        const handleKeyDown = (e) => {
-            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-                e.preventDefault();
-                openSearch();
-            }
-        };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, []);
+
 
 
     // Close search on route change

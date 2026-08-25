@@ -8,6 +8,15 @@ import { api, getPoster, getRating, getYear } from '../services/api';
 import { useAudio } from '../context/AudioContext';
 import { useCinePulseStore } from '../store/useCinePulseStore';
 
+const QUICK_GENRES = [
+    { id: 28, name: 'Action' },
+    { id: 35, name: 'Comedy' },
+    { id: 878, name: 'Sci-Fi' },
+    { id: 27, name: 'Horror' },
+    { id: 10749, name: 'Romance' },
+    { id: 18, name: 'Drama' }
+];
+
 export default function HomePage() {
     const { activeHub, setActiveHub } = useCinePulseStore();
     const [hubData, setHubData] = useState({ title: 'Top Trending This Week', items: [] });
@@ -96,6 +105,37 @@ export default function HomePage() {
         <div className="fade-in">
             {/* Hero Carousel */}
             <HeroCarousel items={trending} />
+
+            {/* Genres Quick Links (Mobile Only) */}
+            <div className="visible-mobile-only" style={{ padding: '0 8px 16px 8px', marginTop: '-12px' }}>
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(2, 1fr)',
+                    gap: '10px',
+                    width: '100%'
+                }}>
+                    {QUICK_GENRES.map(genre => (
+                        <Link
+                            key={genre.id}
+                            to={`/genre/${genre.id}/${encodeURIComponent(genre.name)}?mediaType=movie`}
+                            onClick={playClick}
+                            className="glass-panel"
+                            style={{
+                                padding: '12px 8px',
+                                borderRadius: '10px',
+                                textDecoration: 'none',
+                                textAlign: 'center',
+                                fontSize: '13px',
+                                fontWeight: '600',
+                                color: 'var(--text-secondary)',
+                                transition: 'all 0.25s ease'
+                            }}
+                        >
+                            {genre.name}
+                        </Link>
+                    ))}
+                </div>
+            </div>
 
             {/* Multi-Site Network Filter Pills */}
             <MultiHubPills activeHub={activeHub} onSelectHub={handleSelectHub} />

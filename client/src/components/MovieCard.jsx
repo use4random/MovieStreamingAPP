@@ -36,19 +36,29 @@ export default function MovieCard({ item, showType = true }) {
                 <img src={posterUrl} alt={title} loading="lazy" />
                 <div className="poster-gradient" style={{ position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none' }}></div>
                 
-                {/* Top Badges */}
+                {/* Desktop Top Badges */}
                 <button
-                    className={`card-watchlist ${inWatchlist ? 'active' : ''}`}
+                    className={`card-watchlist hidden-mobile ${inWatchlist ? 'active' : ''}`}
                     onClick={handleWatchlist}
                     title={inWatchlist ? 'Remove from Watchlist' : 'Add to Watchlist'}
                     aria-label="Toggle Watchlist"
                 >
                     <i className={`fas fa-heart ${inWatchlist ? 'text-brand' : ''}`} style={{ fontSize: '14px' }}></i>
                 </button>
-
-                <div className="card-rating-badge">
+ 
+                <div className="card-rating-badge hidden-mobile">
                     <i className="fas fa-star" style={{ fontSize: '11px', color: '#fbbf24', marginRight: '4px' }}></i>
                     <span>{itemRating}</span>
+                </div>
+ 
+                {/* Mobile Top Badges */}
+                <div className="visible-mobile-only" style={{ position: 'absolute', top: '8px', left: '8px', right: '8px', justifyContent: 'space-between', zIndex: 10, display: 'flex', alignItems: 'center', width: 'calc(100% - 16px)' }}>
+                    <span style={{ backgroundColor: 'var(--brand)', color: '#fff', fontSize: '9px', fontWeight: '800', padding: '2px 6px', borderRadius: '4px', textTransform: 'uppercase' }}>
+                        {item.universe_details ? 'UNIVERSE' : '4K'}
+                    </span>
+                    <span style={{ backgroundColor: 'rgba(0, 0, 0, 0.6)', backdropFilter: 'blur(8px)', color: '#fbbf24', fontSize: '10px', fontWeight: '700', padding: '2px 6px', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                        <i className="fas fa-star" style={{ fontSize: '9px' }}></i> {itemRating}
+                    </span>
                 </div>
                 
                 {/* Centered Play Hover Overlay */}
@@ -61,10 +71,10 @@ export default function MovieCard({ item, showType = true }) {
                     </span>
                 </div>
             </div>
-
+ 
             {/* Bottom Content Area */}
             <div className="card-info">
-                <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '2px' }}>
+                <div className="hidden-mobile" style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', marginBottom: '2px' }}>
                     {item.universe_details ? (
                         <span 
                             className="card-universe-badge" 
@@ -78,14 +88,21 @@ export default function MovieCard({ item, showType = true }) {
                     )}
                     {showType && isTV && <span className="card-type-badge">TV SERIES</span>}
                 </div>
-
+ 
                 <h3 className="card-title" title={title}>{title}</h3>
                 
-                <div className="card-meta">
+                {/* Desktop Meta */}
+                <div className="card-meta hidden-mobile">
                     <span>{itemYear}</span>
                     <span className="card-meta-stream">
                         <i className="fas fa-bolt" style={{ fontSize: '11px', color: 'var(--cyan)', marginRight: '4px' }}></i> FAST STREAM
                     </span>
+                </div>
+ 
+                {/* Mobile Meta */}
+                <div className="card-meta visible-mobile-only" style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center', fontSize: '11px' }}>
+                    <span>{itemYear} &bull; {isTV ? 'TV' : 'Movie'}</span>
+                    <span style={{ color: 'var(--text-muted)', fontSize: '10px' }}>FAST STREAM</span>
                 </div>
             </div>
         </div>

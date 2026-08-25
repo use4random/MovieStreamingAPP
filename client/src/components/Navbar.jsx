@@ -65,10 +65,11 @@ export default function Navbar({ onOpenSearch }) {
                         <i className="fas fa-bars" style={{ fontSize: '20px', color: '#fff' }}></i>
                     </button>
 
-                    <Link to="/" className="pulse-logo-wrap" onClick={playClick}>
+                    {/* Desktop Logo */}
+                    <Link to="/" className="pulse-logo-wrap hidden-mobile" onClick={playClick}>
                         <div className="logo-top-badge">
                             <span className="logo-top-sparkle">✦</span>
-                            <span className="logo-top-text">CINESTREAM 4K</span>
+                            <span className="logo-top-text">MULTIMOVIES 4K</span>
                             <span className="logo-top-sparkle">✦</span>
                             <div className="logo-top-laser"></div>
                         </div>
@@ -79,10 +80,36 @@ export default function Navbar({ onOpenSearch }) {
                                 <span className="logo-pulse-dot"></span>
                             </div>
                             <div className="logo-text">
-                                <span className="logo-cine">CINE</span>
-                                <span className="logo-pulse">PULSE</span>
+                                <span className="logo-cine">Multi</span>
+                                <span className="logo-pulse" style={{ color: '#E50914' }}>Movies</span>
                             </div>
                         </div>
+                    </Link>
+
+                    {/* Mobile Logo: MultiMovies */}
+                    <Link to="/" className="visible-mobile-only" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }} onClick={playClick}>
+                        <div style={{
+                            width: '32px',
+                            height: '32px',
+                            backgroundColor: '#E50914',
+                            borderRadius: '8px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: '#fff',
+                            boxShadow: '0 0 12px rgba(229,9,20,0.4)'
+                        }}>
+                            <i className="fas fa-play text-xs" style={{ marginLeft: '2px' }}></i>
+                        </div>
+                        <span style={{
+                            fontWeight: '800',
+                            fontSize: '20px',
+                            letterSpacing: '-0.03em',
+                            color: '#fff',
+                            fontFamily: 'var(--font-heading)'
+                        }}>
+                            Multi<span style={{ color: '#E50914' }}>Movies</span>
+                        </span>
                     </Link>
                 </div>
 
@@ -164,37 +191,53 @@ export default function Navbar({ onOpenSearch }) {
                         </li>
                     </ul>
                 </nav>
-
                 {/* Quick Search & Auth Triggers */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <button className="quick-search-trigger" onClick={onOpenSearch} title="Search (Ctrl + K)">
+                    <button className="quick-search-trigger" onClick={onOpenSearch} title="Search">
                         <i className="fas fa-search" style={{ color: 'var(--brand)' }}></i>
                         <span className="search-placeholder">Quick Search...</span>
-                        <kbd className="pulse-kbd">Ctrl K</kbd>
                     </button>
-
+ 
                     {isAuthenticated && user ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px', borderRadius: '8px', background: 'rgba(0, 219, 233, 0.1)', border: '1px solid rgba(0, 219, 233, 0.3)', color: '#fff', fontSize: '13px', fontWeight: '600' }}>
+                            <div className="hidden-mobile" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px', borderRadius: '8px', background: 'rgba(0, 219, 233, 0.1)', border: '1px solid rgba(0, 219, 233, 0.3)', color: '#fff', fontSize: '13px', fontWeight: '600' }}>
                                 <i className="fas fa-user-astronaut text-cyan"></i>
                                 <span>{user.username}</span>
                             </div>
                             <button
                                 onClick={logout}
                                 title="Sign Out"
+                                className="hidden-mobile"
                                 style={{ padding: '8px 12px', borderRadius: '8px', background: 'rgba(255, 81, 104, 0.1)', border: '1px solid rgba(255, 81, 104, 0.3)', color: 'var(--brand)', cursor: 'pointer', fontSize: '13px' }}
                             >
                                 <i className="fas fa-right-from-bracket"></i>
                             </button>
+                            <button
+                                onClick={logout}
+                                title={`Sign Out (${user.username})`}
+                                className="visible-mobile-only mobile-user-avatar"
+                            >
+                                <i className="fas fa-user text-sm"></i>
+                            </button>
                         </div>
                     ) : (
-                        <button
-                            onClick={() => openAuthModal('login')}
-                            style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', background: 'linear-gradient(135deg, var(--brand) 0%, #b81d24 100%)', border: 'none', color: '#fff', fontSize: '13px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 2px 10px rgba(255,81,104,0.3)' }}
-                        >
-                            <i className="fas fa-shield-halved"></i>
-                            <span>Sign In</span>
-                        </button>
+                        <>
+                            <button
+                                onClick={() => openAuthModal('login')}
+                                className="hidden-mobile"
+                                style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', background: 'linear-gradient(135deg, var(--brand) 0%, #b81d24 100%)', border: 'none', color: '#fff', fontSize: '13px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 2px 10px rgba(255,81,104,0.3)' }}
+                            >
+                                <i className="fas fa-shield-halved"></i>
+                                <span>Sign In</span>
+                            </button>
+                            <button
+                                onClick={() => openAuthModal('login')}
+                                className="visible-mobile-only mobile-user-avatar"
+                                title="Sign In"
+                            >
+                                <i className="fas fa-user text-sm"></i>
+                            </button>
+                        </>
                     )}
                 </div>
             </div>

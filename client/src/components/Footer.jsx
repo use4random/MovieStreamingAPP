@@ -10,10 +10,11 @@ export default function Footer() {
             <div className="footer-inner">
                 <div className="footer-grid">
                     <div className="footer-col">
-                        <Link to="/" className="pulse-logo-wrap" onClick={playClick}>
+                        {/* Desktop Footer Logo */}
+                        <Link to="/" className="pulse-logo-wrap hidden-mobile" onClick={playClick}>
                             <div className="logo-top-badge">
                                 <span className="logo-top-sparkle">✦</span>
-                                <span className="logo-top-text">CINESTREAM 4K</span>
+                                <span className="logo-top-text">MULTIMOVIES 4K</span>
                                 <span className="logo-top-sparkle">✦</span>
                                 <div className="logo-top-laser"></div>
                             </div>
@@ -24,13 +25,39 @@ export default function Footer() {
                                     <span className="logo-pulse-dot"></span>
                                 </div>
                                 <div className="logo-text">
-                                    <span className="logo-cine">CINE</span>
-                                    <span className="logo-pulse">PULSE</span>
+                                    <span className="logo-cine">Multi</span>
+                                    <span className="logo-pulse" style={{ color: '#E50914' }}>Movies</span>
                                 </div>
                             </div>
                         </Link>
+
+                        {/* Mobile Footer Logo */}
+                        <Link to="/" className="visible-mobile-only" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', marginBottom: '16px' }} onClick={playClick}>
+                            <div style={{
+                                width: '32px',
+                                height: '32px',
+                                backgroundColor: '#E50914',
+                                borderRadius: '8px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: '#fff',
+                                boxShadow: '0 0 12px rgba(229,9,20,0.4)'
+                            }}>
+                                <i className="fas fa-play" style={{ fontSize: '12px', marginLeft: '2px' }}></i>
+                            </div>
+                            <span style={{
+                                fontWeight: '800',
+                                fontSize: '20px',
+                                letterSpacing: '-0.03em',
+                                color: '#fff',
+                                fontFamily: 'var(--font-heading)'
+                            }}>
+                                Multi<span style={{ color: '#E50914' }}>Movies</span>
+                            </span>
+                        </Link>
                         <p className="footer-desc">
-                            <strong>Disclaimer:</strong> CinePulse is a next-generation streaming discovery engine & catalog index. Experience instant 4K cloud feeds, multi-node redundancy, dynamic season browsers, and futuristic HUD player.
+                            <strong>Disclaimer:</strong> MultiMovies is a next-generation streaming discovery engine & catalog index. Experience instant 4K cloud feeds, multi-node redundancy, dynamic season browsers, and futuristic HUD player.
                         </p>
                     </div>
 
@@ -59,14 +86,14 @@ export default function Footer() {
                     <div className="footer-col">
                         <h4><i className="fas fa-shield-halved text-brand"></i> Legal & Disclaimer</h4>
                         <p style={{ fontSize: '12px', color: 'var(--text-muted)', lineHeight: '1.6', marginBottom: '12px' }}>
-                            CinePulse operates as a high-performance content index and discovery engine. All media metadata, artwork, and details are dynamically retrieved via public API services. CinePulse does not host, store, or upload any media files on its servers.
+                            MultiMovies operates as a high-performance content index and discovery engine. All media metadata, artwork, and details are dynamically retrieved via public API services. MultiMovies does not host, store, or upload any media files on its servers.
                         </p>
                     </div>
                 </div>
 
                 <div className="footer-bottom">
                     <div>
-                        &copy; 2026 <strong>CinePulse</strong>. All rights reserved.
+                        &copy; 2026 <strong>MultiMovies</strong>. All rights reserved.
                     </div>
                 </div>
             </div>
