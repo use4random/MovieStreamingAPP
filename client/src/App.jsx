@@ -166,6 +166,7 @@ export default function App() {
                             >
                                 <Routes location={location}>
                                     <Route path="/" element={<HomePage />} />
+                                    <Route path="/index.html" element={<HomePage />} />
                                     <Route path="/detail/:type/:id" element={<DetailPage />} />
                                     <Route path="/search/:query" element={<SearchPage />} />
                                     <Route path="/genre/:genreId/:name" element={<GenrePage />} />
