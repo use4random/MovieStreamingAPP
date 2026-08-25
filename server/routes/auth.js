@@ -14,7 +14,7 @@ import { setCsrfCookie } from '../middleware/csrf.js';
 
 const router = express.Router();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'cinepulse-cyber-auth-production-jwt-secret-key-2026';
+const JWT_SECRET = process.env.JWT_SECRET || 'cinepulse-auth-production-jwt-secret-key-2026';
 const TOKEN_EXPIRE_SECONDS = 7 * 24 * 60 * 60; // 7 days
 // Safe precomputed bcrypt dummy hash for constant-time comparison on nonexistent accounts
 const DUMMY_HASH = '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy';
@@ -243,7 +243,7 @@ router.get('/me', requireAuth, async (req, res) => {
         // Fallback directly to cryptographically verified JWT payload
         const userProfile = {
             id: req.userId,
-            username: user?.username || req.user?.username || 'Cyber Pilot',
+            username: user?.username || req.user?.username || 'Guest User',
             email: user?.email || req.user?.email || '',
             role: user?.role || req.user?.role || 'user',
             created_at: user?.created_at || new Date().toISOString()

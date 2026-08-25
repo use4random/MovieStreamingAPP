@@ -37,7 +37,7 @@ describe('End-to-End Sign Up and Sign In Authentication Lifecycle Tests', () => 
     const testUser = {
         username: `pilot_${testId}`,
         email: `pilot_${testId}@cinepulse.io`,
-        password: 'CyberPilotPassword2026'
+        password: 'PilotPassword2026'
     };
 
     let sessionToken = null;

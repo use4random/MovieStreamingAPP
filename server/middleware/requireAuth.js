@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'cinepulse-cyber-auth-production-jwt-secret-key-2026';
+const JWT_SECRET = process.env.JWT_SECRET || 'cinepulse-auth-production-jwt-secret-key-2026';
 
 /**
  * Strict authentication middleware.

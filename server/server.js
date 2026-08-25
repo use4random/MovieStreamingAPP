@@ -160,7 +160,7 @@ app.use((err, req, res, next) => {
 if (!process.env.VERCEL) {
     app.listen(PORT, () => {
         console.log(`\n=================================================`);
-        console.log(`🚀 CINEPULSE CYBER BACKEND RUNNING ON PORT ${PORT}`);
+        console.log(`🚀 CINEPULSE STREAMING BACKEND RUNNING ON PORT ${PORT}`);
         console.log(`📡 TMDB API Gateway: http://localhost:${PORT}/api/health`);
         console.log(`=================================================\n`);
 
