@@ -20,7 +20,6 @@
  *  - OR run manually: node server/sync/contentSync.js
  */
 
-import Database from 'better-sqlite3';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import 'dotenv/config';
@@ -39,56 +38,72 @@ const SYNC_INTERVAL_MS = 6 * 60 * 60 * 1000; // Auto-sync every 6 hours
 
 import db from '../data/db.js';
 
-db.exec(`
-    CREATE TABLE IF NOT EXISTS media_catalog (
-        id                INTEGER PRIMARY KEY AUTOINCREMENT,
-        tmdb_id           INTEGER NOT NULL,
-        media_type        TEXT NOT NULL CHECK(media_type IN ('movie', 'tv')),
-        title             TEXT,
-        poster_path       TEXT,
-        backdrop_path     TEXT,
-        overview          TEXT,
-        vote_average      REAL    DEFAULT 0,
-        vote_count        INTEGER DEFAULT 0,
-        release_date      TEXT,
-        genre_ids         TEXT,
-        popularity        REAL    DEFAULT 0,
-        original_language TEXT,
-        category          TEXT,
-        synced_at         DATETIME DEFAULT CURRENT_TIMESTAMP,
-        UNIQUE(tmdb_id, media_type)
-    );
+// Guard: only run SQLite schema init if a real DB connection is available
+try {
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS media_catalog (
+            id                INTEGER PRIMARY KEY AUTOINCREMENT,
+            tmdb_id           INTEGER NOT NULL,
+            media_type        TEXT NOT NULL CHECK(media_type IN ('movie', 'tv')),
+            title             TEXT,
+            poster_path       TEXT,
+            backdrop_path     TEXT,
+            overview          TEXT,
+            vote_average      REAL    DEFAULT 0,
+            vote_count        INTEGER DEFAULT 0,
+            release_date      TEXT,
+            genre_ids         TEXT,
+            popularity        REAL    DEFAULT 0,
+            original_language TEXT,
+            category          TEXT,
+            synced_at         DATETIME DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE(tmdb_id, media_type)
+        );
 
-    CREATE INDEX IF NOT EXISTS idx_catalog_category   ON media_catalog(category);
-    CREATE INDEX IF NOT EXISTS idx_catalog_type       ON media_catalog(media_type);
-    CREATE INDEX IF NOT EXISTS idx_catalog_popularity ON media_catalog(popularity DESC);
-    CREATE INDEX IF NOT EXISTS idx_catalog_vote       ON media_catalog(vote_average DESC);
-    CREATE INDEX IF NOT EXISTS idx_catalog_language   ON media_catalog(original_language);
-    CREATE INDEX IF NOT EXISTS idx_catalog_synced     ON media_catalog(synced_at DESC);
-`);
+        CREATE INDEX IF NOT EXISTS idx_catalog_category   ON media_catalog(category);
+        CREATE INDEX IF NOT EXISTS idx_catalog_type       ON media_catalog(media_type);
+        CREATE INDEX IF NOT EXISTS idx_catalog_popularity ON media_catalog(popularity DESC);
+        CREATE INDEX IF NOT EXISTS idx_catalog_vote       ON media_catalog(vote_average DESC);
+        CREATE INDEX IF NOT EXISTS idx_catalog_language   ON media_catalog(original_language);
+        CREATE INDEX IF NOT EXISTS idx_catalog_synced     ON media_catalog(synced_at DESC);
+    `);
+} catch (e) {
+    console.warn('[Sync] SQLite schema init skipped (no native DB):', e.message);
+}
 
-const upsertMediaStmt = db.prepare(`
-    INSERT INTO media_catalog (
-        tmdb_id, media_type, title, poster_path, backdrop_path,
-        overview, vote_average, vote_count, release_date, genre_ids,
-        popularity, original_language, category, synced_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-    ON CONFLICT(tmdb_id, media_type) DO UPDATE SET
-        title             = excluded.title,
-        poster_path       = excluded.poster_path,
-        backdrop_path     = excluded.backdrop_path,
-        overview          = excluded.overview,
-        vote_average      = excluded.vote_average,
-        vote_count        = excluded.vote_count,
-        release_date      = excluded.release_date,
-        genre_ids         = excluded.genre_ids,
-        popularity        = excluded.popularity,
-        original_language = excluded.original_language,
-        category          = excluded.category,
-        synced_at         = CURRENT_TIMESTAMP
-`);
+// Safe prepared statements — fallback to noop stubs when DB is unavailable
+let upsertMediaStmt;
+try {
+    upsertMediaStmt = db.prepare(`
+        INSERT INTO media_catalog (
+            tmdb_id, media_type, title, poster_path, backdrop_path,
+            overview, vote_average, vote_count, release_date, genre_ids,
+            popularity, original_language, category, synced_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(tmdb_id, media_type) DO UPDATE SET
+            title             = excluded.title,
+            poster_path       = excluded.poster_path,
+            backdrop_path     = excluded.backdrop_path,
+            overview          = excluded.overview,
+            vote_average      = excluded.vote_average,
+            vote_count        = excluded.vote_count,
+            release_date      = excluded.release_date,
+            genre_ids         = excluded.genre_ids,
+            popularity        = excluded.popularity,
+            original_language = excluded.original_language,
+            category          = excluded.category,
+            synced_at         = CURRENT_TIMESTAMP
+    `);
+} catch (e) {
+    upsertMediaStmt = { run: () => ({}) };
+}
 
-const getCatalogCountStmt = db.prepare(`SELECT COUNT(*) as count FROM media_catalog`);
+let getCatalogCountStmt;
+try {
+    getCatalogCountStmt = db.prepare(`SELECT COUNT(*) as count FROM media_catalog`);
+} catch (e) {
+    getCatalogCountStmt = { get: () => ({ count: 0 }) };
+}
 
 // ── TMDB Fetch Helper ────────────────────────────────────────────────────────
 async function fetchTMDB(endpoint, params = {}) {
@@ -127,28 +142,36 @@ async function syncCategory({ name, endpoint, params = {}, mediaType }) {
             const results = data?.results || [];
             if (!results.length) break;
 
-            // Bulk-insert page results in a single transaction for speed
-            db.transaction((items) => {
+            // Bulk-insert page results — use transaction when available, plain loop otherwise
+            const insertBatch = (items) => {
                 for (const item of items) {
                     const type = mediaType || item.media_type;
                     if (!type || !['movie', 'tv'].includes(type)) continue;
-                    upsertMediaStmt.run(
-                        item.id,
-                        type,
-                        item.title || item.name || null,
-                        item.poster_path || null,
-                        item.backdrop_path || null,
-                        (item.overview || '').substring(0, 1000),
-                        item.vote_average || 0,
-                        item.vote_count || 0,
-                        item.release_date || item.first_air_date || null,
-                        JSON.stringify(item.genre_ids || []),
-                        item.popularity || 0,
-                        item.original_language || null,
-                        name
-                    );
+                    try {
+                        upsertMediaStmt.run(
+                            item.id,
+                            type,
+                            item.title || item.name || null,
+                            item.poster_path || null,
+                            item.backdrop_path || null,
+                            (item.overview || '').substring(0, 1000),
+                            item.vote_average || 0,
+                            item.vote_count || 0,
+                            item.release_date || item.first_air_date || null,
+                            JSON.stringify(item.genre_ids || []),
+                            item.popularity || 0,
+                            item.original_language || null,
+                            name
+                        );
+                    } catch {}
                 }
-            })(results);
+            };
+
+            if (typeof db.transaction === 'function') {
+                db.transaction(insertBatch)(results);
+            } else {
+                insertBatch(results);
+            }
 
             total += results.length;
             if (page >= (data.total_pages || 1)) break;
