@@ -32,10 +32,12 @@ export default function DetailPage() {
         enabled: !!id,
     });
 
+    const imdbId = data?.external_ids?.imdb_id;
+
     // ── Cached initial servers ──
     const { data: initialServers } = useQuery({
-        queryKey: ['servers', type, id, 1, 1],
-        queryFn: () => api.getServers(type, id, 1, 1),
+        queryKey: ['servers', type, id, 1, 1, imdbId],
+        queryFn: () => api.getServers(type, id, 1, 1, imdbId),
         enabled: !!id,
     });
 
@@ -53,8 +55,9 @@ export default function DetailPage() {
     const handleSelectEpisode = (s, e) => {
         setSeason(s);
         setEpisode(e);
+        const currentImdbId = data?.external_ids?.imdb_id;
         // Refresh server URLs for this specific episode
-        api.getServers(type, id, s, e).then(res => {
+        api.getServers(type, id, s, e, currentImdbId).then(res => {
             if (res) setManualServers(res);
         });
     };

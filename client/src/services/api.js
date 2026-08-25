@@ -118,7 +118,7 @@ export const api = {
     search: (query, page = 1) => request('/search', { query, page }),
     getGenres: (type = 'movie') => request('/genres', { type }),
     getCollections: () => request('/collections'),
-    getServers: (type, id, season, episode) => request('/servers', { type, id, season, episode }),
+    getServers: (type, id, season = 1, episode = 1, imdb) => request('/servers', { type, id, season, episode, imdb }),
     getServerHealth: () => request('/servers/health'),
 
     // Authentication APIs

@@ -11,7 +11,7 @@ const STREAM_SERVERS = [
         ping: '8ms',
         quality: '4K Ultra HDR',
         type: 'Primary Node (Fastest)',
-        getUrl: (type, id, s = 1, e = 1) =>
+        getUrl: (type, id, s = 1, e = 1, imdb = null) =>
             type === 'tv'
                 ? `https://vidlink.pro/tv/${id}/${s}/${e}?primaryColor=e50914&secondaryColor=b81d24&iconColor=ffffff&title=true&poster=true&autoplay=true`
                 : `https://vidlink.pro/movie/${id}?primaryColor=e50914&secondaryColor=b81d24&iconColor=ffffff&title=true&poster=true&autoplay=true`
@@ -23,10 +23,10 @@ const STREAM_SERVERS = [
         ping: '10ms',
         quality: '1080p Multi-Sub',
         type: 'Fast Reliable Edge Node',
-        getUrl: (type, id, s = 1, e = 1) =>
+        getUrl: (type, id, s = 1, e = 1, imdb = null) =>
             type === 'tv'
-                ? `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`
-                : `https://www.2embed.cc/embed/${id}`
+                ? (imdb ? `https://www.2embed.cc/embedtv/${imdb}&s=${s}&e=${e}` : `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`)
+                : (imdb ? `https://www.2embed.cc/embed/${imdb}` : `https://www.2embed.cc/embed/${id}`)
     },
     {
         id: 'videasy',
@@ -35,7 +35,7 @@ const STREAM_SERVERS = [
         ping: '11ms',
         quality: '1080p Ultra',
         type: 'Fast Direct Node',
-        getUrl: (type, id, s = 1, e = 1) =>
+        getUrl: (type, id, s = 1, e = 1, imdb = null) =>
             type === 'tv'
                 ? `https://player.videasy.to/tv/${id}/${s}/${e}`
                 : `https://player.videasy.to/movie/${id}`
@@ -47,10 +47,10 @@ const STREAM_SERVERS = [
         ping: '12ms',
         quality: '4K IMAX',
         type: 'SBS Multi-Node',
-        getUrl: (type, id, s = 1, e = 1) =>
+        getUrl: (type, id, s = 1, e = 1, imdb = null) =>
             type === 'tv'
-                ? `https://vidsrc.sbs/embed/tv/${id}/${s}/${e}/`
-                : `https://vidsrc.sbs/embed/movie/${id}/`
+                ? (imdb ? `https://vidsrc.sbs/embed/tv/${imdb}/${s}/${e}` : `https://vidsrc.sbs/embed/tv/${id}/${s}/${e}/`)
+                : (imdb ? `https://vidsrc.sbs/embed/movie/${imdb}` : `https://vidsrc.sbs/embed/movie/${id}/`)
     },
     {
         id: 'autoembed',
@@ -59,10 +59,10 @@ const STREAM_SERVERS = [
         ping: '14ms',
         quality: '1080p 60FPS',
         type: 'High-Speed Backup',
-        getUrl: (type, id, s = 1, e = 1) =>
+        getUrl: (type, id, s = 1, e = 1, imdb = null) =>
             type === 'tv'
-                ? `https://autoembed.co/tv/tmdb/${id}-${s}-${e}`
-                : `https://autoembed.co/movie/tmdb/${id}`
+                ? (imdb ? `https://autoembed.co/tv/imdb/${imdb}-${s}-${e}` : `https://autoembed.co/tv/tmdb/${id}-${s}-${e}`)
+                : (imdb ? `https://autoembed.co/movie/imdb/${imdb}` : `https://autoembed.co/movie/tmdb/${id}`)
     },
     {
         id: 'vidsrc_io',
@@ -71,10 +71,10 @@ const STREAM_SERVERS = [
         ping: '16ms',
         quality: '1080p HD',
         type: 'Cloud Stream Node',
-        getUrl: (type, id, s = 1, e = 1) =>
+        getUrl: (type, id, s = 1, e = 1, imdb = null) =>
             type === 'tv'
-                ? `https://vidsrc.io/embed/tv/${id}/${s}/${e}`
-                : `https://vidsrc.io/embed/movie/${id}`
+                ? (imdb ? `https://vidsrc.io/embed/tv/${imdb}/${s}/${e}` : `https://vidsrc.io/embed/tv/${id}/${s}/${e}`)
+                : (imdb ? `https://vidsrc.io/embed/movie/${imdb}` : `https://vidsrc.io/embed/movie/${id}`)
     },
     {
         id: 'vidsrc_pm',
@@ -83,10 +83,10 @@ const STREAM_SERVERS = [
         ping: '17ms',
         quality: '1080p HD',
         type: 'Cloud Edge Node',
-        getUrl: (type, id, s = 1, e = 1) =>
+        getUrl: (type, id, s = 1, e = 1, imdb = null) =>
             type === 'tv'
-                ? `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`
-                : `https://vidsrc.pm/embed/movie/${id}`
+                ? (imdb ? `https://vidsrc.pm/embed/tv/${imdb}/${s}/${e}` : `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`)
+                : (imdb ? `https://vidsrc.pm/embed/movie/${imdb}` : `https://vidsrc.pm/embed/movie/${id}`)
     },
     {
         id: 'vidsrc_me',
@@ -95,10 +95,34 @@ const STREAM_SERVERS = [
         ping: '18ms',
         quality: '1080p Ultra',
         type: 'Classic Backup Node',
-        getUrl: (type, id, s = 1, e = 1) =>
+        getUrl: (type, id, s = 1, e = 1, imdb = null) =>
             type === 'tv'
-                ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
-                : `https://vidsrc.me/embed/movie?tmdb=${id}`
+                ? (imdb ? `https://vidsrc.me/embed/tv?imdb=${imdb}&season=${s}&episode=${e}` : `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`)
+                : (imdb ? `https://vidsrc.me/embed/movie?imdb=${imdb}` : `https://vidsrc.me/embed/movie?tmdb=${id}`)
+    },
+    {
+        id: 'embedsu',
+        name: 'EmbedSu Cloud',
+        icon: 'fa-cloud',
+        ping: '19ms',
+        quality: '1080p HD',
+        type: 'Multi-Source Node',
+        getUrl: (type, id, s = 1, e = 1, imdb = null) =>
+            type === 'tv'
+                ? `https://embed.su/embed/tv/${id}/${s}/${e}`
+                : `https://embed.su/embed/movie/${id}`
+    },
+    {
+        id: 'vidsrc_cc',
+        name: 'VidSrc CC',
+        icon: 'fa-satellite',
+        ping: '20ms',
+        quality: '1080p HD',
+        type: 'V2 Stream Engine',
+        getUrl: (type, id, s = 1, e = 1, imdb = null) =>
+            type === 'tv'
+                ? `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}`
+                : `https://vidsrc.cc/v2/embed/movie/${id}`
     }
 ];
 
@@ -227,7 +251,7 @@ router.get('/health', async (req, res) => {
 });
 
 router.get('/', async (req, res) => {
-    const { type = 'movie', id, season = 1, episode = 1 } = req.query;
+    const { type = 'movie', id, imdb, season = 1, episode = 1 } = req.query;
 
     // Retrieve health data if available or run fast check
     let healthData = await cache.get('server-health');
@@ -250,7 +274,7 @@ router.get('/', async (req, res) => {
             type: s.type,
             healthy: h ? h.healthy : true,
             responseTime: h ? h.responseTime : 999,
-            url: id ? s.getUrl(type, id, season, episode) : null
+            url: id ? s.getUrl(type, id, season, episode, imdb) : null
         };
     });
 

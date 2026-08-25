@@ -220,7 +220,7 @@ router.get('/media/:type/:id', async (req, res) => {
             return res.status(400).json({ error: 'Invalid media type. Must be "movie" or "tv".' });
         }
         const data = await fetchTMDB(`/${type}/${id}`, {
-            append_to_response: 'credits,videos,similar,recommendations'
+            append_to_response: 'credits,videos,similar,recommendations,external_ids'
         });
         if (data) {
             enrichMediaWithUniverse(data);
