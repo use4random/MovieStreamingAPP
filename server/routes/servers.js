@@ -11,7 +11,7 @@ const STREAM_SERVERS = [
         ping: '8ms',
         quality: '4K Ultra HDR',
         type: 'Primary Node (Fastest)',
-        getUrl: (type, id, s = 1, e = 1, imdb = null) =>
+        getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
                 ? `https://vidlink.pro/tv/${id}/${s}/${e}?primaryColor=e50914&secondaryColor=b81d24&iconColor=ffffff&title=true&poster=true&autoplay=true`
                 : `https://vidlink.pro/movie/${id}?primaryColor=e50914&secondaryColor=b81d24&iconColor=ffffff&title=true&poster=true&autoplay=true`
@@ -23,10 +23,10 @@ const STREAM_SERVERS = [
         ping: '10ms',
         quality: '1080p Multi-Sub',
         type: 'Fast Reliable Edge Node',
-        getUrl: (type, id, s = 1, e = 1, imdb = null) =>
+        getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
-                ? (imdb ? `https://www.2embed.cc/embedtv/${imdb}&s=${s}&e=${e}` : `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`)
-                : (imdb ? `https://www.2embed.cc/embed/${imdb}` : `https://www.2embed.cc/embed/${id}`)
+                ? `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`
+                : `https://www.2embed.cc/embed/${id}`
     },
     {
         id: 'videasy',
@@ -35,7 +35,7 @@ const STREAM_SERVERS = [
         ping: '11ms',
         quality: '1080p Ultra',
         type: 'Fast Direct Node',
-        getUrl: (type, id, s = 1, e = 1, imdb = null) =>
+        getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
                 ? `https://player.videasy.to/tv/${id}/${s}/${e}`
                 : `https://player.videasy.to/movie/${id}`
@@ -47,10 +47,10 @@ const STREAM_SERVERS = [
         ping: '12ms',
         quality: '4K IMAX',
         type: 'SBS Multi-Node',
-        getUrl: (type, id, s = 1, e = 1, imdb = null) =>
+        getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
-                ? (imdb ? `https://vidsrc.sbs/embed/tv/${imdb}/${s}/${e}` : `https://vidsrc.sbs/embed/tv/${id}/${s}/${e}/`)
-                : (imdb ? `https://vidsrc.sbs/embed/movie/${imdb}` : `https://vidsrc.sbs/embed/movie/${id}/`)
+                ? `https://vidsrc.sbs/embed/tv/${id}/${s}/${e}/`
+                : `https://vidsrc.sbs/embed/movie/${id}/`
     },
     {
         id: 'autoembed',
@@ -59,10 +59,10 @@ const STREAM_SERVERS = [
         ping: '14ms',
         quality: '1080p 60FPS',
         type: 'High-Speed Backup',
-        getUrl: (type, id, s = 1, e = 1, imdb = null) =>
+        getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
-                ? (imdb ? `https://autoembed.co/tv/imdb/${imdb}-${s}-${e}` : `https://autoembed.co/tv/tmdb/${id}-${s}-${e}`)
-                : (imdb ? `https://autoembed.co/movie/imdb/${imdb}` : `https://autoembed.co/movie/tmdb/${id}`)
+                ? `https://autoembed.co/tv/tmdb/${id}-${s}-${e}`
+                : `https://autoembed.co/movie/tmdb/${id}`
     },
     {
         id: 'vidsrc_io',
@@ -71,10 +71,10 @@ const STREAM_SERVERS = [
         ping: '16ms',
         quality: '1080p HD',
         type: 'Cloud Stream Node',
-        getUrl: (type, id, s = 1, e = 1, imdb = null) =>
+        getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
-                ? (imdb ? `https://vidsrc.io/embed/tv/${imdb}/${s}/${e}` : `https://vidsrc.io/embed/tv/${id}/${s}/${e}`)
-                : (imdb ? `https://vidsrc.io/embed/movie/${imdb}` : `https://vidsrc.io/embed/movie/${id}`)
+                ? `https://vidsrc.io/embed/tv/${id}/${s}/${e}`
+                : `https://vidsrc.io/embed/movie/${id}`
     },
     {
         id: 'vidsrc_pm',
@@ -83,10 +83,10 @@ const STREAM_SERVERS = [
         ping: '17ms',
         quality: '1080p HD',
         type: 'Cloud Edge Node',
-        getUrl: (type, id, s = 1, e = 1, imdb = null) =>
+        getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
-                ? (imdb ? `https://vidsrc.pm/embed/tv/${imdb}/${s}/${e}` : `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`)
-                : (imdb ? `https://vidsrc.pm/embed/movie/${imdb}` : `https://vidsrc.pm/embed/movie/${id}`)
+                ? `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`
+                : `https://vidsrc.pm/embed/movie/${id}`
     },
     {
         id: 'vidsrc_me',
@@ -95,10 +95,10 @@ const STREAM_SERVERS = [
         ping: '18ms',
         quality: '1080p Ultra',
         type: 'Classic Backup Node',
-        getUrl: (type, id, s = 1, e = 1, imdb = null) =>
+        getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
-                ? (imdb ? `https://vidsrc.me/embed/tv?imdb=${imdb}&season=${s}&episode=${e}` : `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`)
-                : (imdb ? `https://vidsrc.me/embed/movie?imdb=${imdb}` : `https://vidsrc.me/embed/movie?tmdb=${id}`)
+                ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
+                : `https://vidsrc.me/embed/movie?tmdb=${id}`
     },
     {
         id: 'embedsu',
@@ -107,7 +107,7 @@ const STREAM_SERVERS = [
         ping: '19ms',
         quality: '1080p HD',
         type: 'Multi-Source Node',
-        getUrl: (type, id, s = 1, e = 1, imdb = null) =>
+        getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
                 ? `https://embed.su/embed/tv/${id}/${s}/${e}`
                 : `https://embed.su/embed/movie/${id}`
@@ -119,7 +119,7 @@ const STREAM_SERVERS = [
         ping: '20ms',
         quality: '1080p HD',
         type: 'V2 Stream Engine',
-        getUrl: (type, id, s = 1, e = 1, imdb = null) =>
+        getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
                 ? `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}`
                 : `https://vidsrc.cc/v2/embed/movie/${id}`
@@ -278,9 +278,13 @@ router.get('/', async (req, res) => {
         };
     });
 
-    // Remove permanently failing or unresponsive nodes from active pool, sort by performance
+    // Remove permanently failing or unresponsive nodes from active pool, keeping VidLink HD as primary node
     servers = servers.filter(s => s.healthy !== false);
-    servers.sort((a, b) => (a.responseTime || 999) - (b.responseTime || 999));
+    servers.sort((a, b) => {
+        if (a.id === 'vidlink') return -1;
+        if (b.id === 'vidlink') return 1;
+        return (a.responseTime || 999) - (b.responseTime || 999);
+    });
 
     res.json(servers);
 });
