@@ -69,7 +69,7 @@ export default function Navbar({ onOpenSearch }) {
                     <Link to="/" className="pulse-logo-wrap hidden-mobile" onClick={playClick}>
                         <div className="logo-top-badge">
                             <span className="logo-top-sparkle">✦</span>
-                            <span className="logo-top-text">MULTIMOVIES 4K</span>
+                            <span className="logo-top-text">CINESTREAM 4K</span>
                             <span className="logo-top-sparkle">✦</span>
                             <div className="logo-top-laser"></div>
                         </div>
@@ -80,13 +80,13 @@ export default function Navbar({ onOpenSearch }) {
                                 <span className="logo-pulse-dot"></span>
                             </div>
                             <div className="logo-text">
-                                <span className="logo-cine">Multi</span>
-                                <span className="logo-pulse" style={{ color: '#E50914' }}>Movies</span>
+                                <span className="logo-cine">CINE</span>
+                                <span className="logo-pulse">PULSE</span>
                             </div>
                         </div>
                     </Link>
 
-                    {/* Mobile Logo: MultiMovies */}
+                    {/* Mobile Logo: CinePulse */}
                     <Link to="/" className="visible-mobile-only" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }} onClick={playClick}>
                         <div style={{
                             width: '32px',
@@ -108,7 +108,7 @@ export default function Navbar({ onOpenSearch }) {
                             color: '#fff',
                             fontFamily: 'var(--font-heading)'
                         }}>
-                            Multi<span style={{ color: '#E50914' }}>Movies</span>
+                            Cine<span style={{ color: '#E50914' }}>Pulse</span>
                         </span>
                     </Link>
                 </div>
