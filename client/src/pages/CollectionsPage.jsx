@@ -61,8 +61,8 @@ export default function CollectionsPage() {
 
     if (loading) {
         return (
-            <div className="cyber-loader-wrap">
-                <div className="cyber-spinner">
+            <div className="pulse-loader-wrap">
+                <div className="pulse-spinner">
                     <div className="spinner-ring"></div>
                     <div className="spinner-core"><i className="fas fa-compass text-brand" style={{ fontSize: '24px' }}></i></div>
                 </div>
@@ -177,7 +177,7 @@ export default function CollectionsPage() {
                 </div>
             </div>
 
-            <div className="page-header-cyber">
+            <div className="page-header-pulse">
                 <h1 className="page-title">
                     <i className="fas fa-cubes text-brand" style={{ marginRight: '8px', fontSize: '22px' }}></i>
                     Cinematic Universe & Franchise Collections
@@ -234,7 +234,7 @@ export default function CollectionsPage() {
                                 <p className="collection-desc">{col.desc}</p>
                                 <Link
                                     to={`/genre/0/${encodeURIComponent(col.name)}?endpoint=${col.endpoint}`}
-                                    className="cyber-btn-sm"
+                                    className="pulse-btn-sm"
                                     onClick={(e) => { e.stopPropagation(); playClick(); }}
                                 >
                                     <i className="fas fa-arrow-right"></i> Explore Full Feed
@@ -254,8 +254,8 @@ export default function CollectionsPage() {
                         </h2>
                     </div>
                     {feedLoading ? (
-                        <div className="cyber-loader-wrap" style={{ padding: '40px 0' }}>
-                            <div className="cyber-spinner">
+                        <div className="pulse-loader-wrap" style={{ padding: '40px 0' }}>
+                            <div className="pulse-spinner">
                                 <div className="spinner-ring"></div>
                                 <div className="spinner-core"><i className="fas fa-satellite-dish"></i></div>
                             </div>

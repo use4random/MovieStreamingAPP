@@ -49,8 +49,8 @@ export default function SearchPage() {
 
     if (loading) {
         return (
-            <div className="cyber-loader-wrap">
-                <div className="cyber-spinner">
+            <div className="pulse-loader-wrap">
+                <div className="pulse-spinner">
                     <div className="spinner-ring"></div>
                     <div className="spinner-core"><i className="fas fa-search"></i></div>
                 </div>
@@ -67,7 +67,7 @@ export default function SearchPage() {
                 <span style={{ color: '#fff', fontWeight: '600' }}>Search Results</span>
             </nav>
 
-            <div className="page-header-cyber">
+            <div className="page-header-pulse">
                 <h1 className="page-title">
                     <i className="fas fa-search text-brand"></i> Search Results for: <span className="text-brand">"{query}"</span>
                 </h1>
@@ -97,7 +97,7 @@ export default function SearchPage() {
                     <i className="fas fa-search-minus"></i>
                     <h3>No Results Found</h3>
                     <p>Try a different search term or browse our collections.</p>
-                    <Link to="/collections" className="cyber-btn-primary" style={{ marginTop: '16px', display: 'inline-block' }}>
+                    <Link to="/collections" className="pulse-btn-primary" style={{ marginTop: '16px', display: 'inline-block' }}>
                         <i className="fas fa-layer-group"></i> Browse Collections
                     </Link>
                 </div>

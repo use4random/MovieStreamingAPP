@@ -207,11 +207,11 @@ export default function SearchModal({ isOpen, onClose }) {
                         })
                     ) : query.trim() ? (
                         <div style={{ textAlign: 'center', padding: '30px', color: 'var(--text-muted)', fontSize: '13px' }}>
-                            No instant preview found. Press <kbd className="cyber-kbd">Enter</kbd> for deep search.
+                            No instant preview found. Press <kbd className="pulse-kbd">Enter</kbd> for deep search.
                         </div>
                     ) : (
                         <div style={{ textAlign: 'center', padding: '35px', color: 'var(--text-muted)', fontSize: '13px' }}>
-                            <i className="fas fa-terminal" style={{ marginRight: '6px' }}></i> Type a keyword or press <kbd className="cyber-kbd">Enter</kbd> to search everything
+                            <i className="fas fa-terminal" style={{ marginRight: '6px' }}></i> Type a keyword or press <kbd className="pulse-kbd">Enter</kbd> to search everything
                         </div>
                     )}
                 </div>

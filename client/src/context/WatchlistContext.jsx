@@ -20,12 +20,12 @@ export function WatchlistProvider({ children }) {
                     setWatchlist(res.watchlist);
                 } else if (isMounted) {
                     // Fallback to local storage for guests
-                    const local = JSON.parse(localStorage.getItem('cinepulse_watchlist') || localStorage.getItem('cinepulse_cyber_watchlist')) || [];
+                    const local = JSON.parse(localStorage.getItem('cinepulse_watchlist') || localStorage.getItem('cinepulse_pulse_watchlist')) || [];
                     setWatchlist(local);
                 }
             } catch {
                 if (isMounted) {
-                    const local = JSON.parse(localStorage.getItem('cinepulse_watchlist') || localStorage.getItem('cinepulse_cyber_watchlist')) || [];
+                    const local = JSON.parse(localStorage.getItem('cinepulse_watchlist') || localStorage.getItem('cinepulse_pulse_watchlist')) || [];
                     setWatchlist(local);
                 }
             } finally {
@@ -100,7 +100,7 @@ export function WatchlistProvider({ children }) {
         setWatchlist([]);
         try {
             localStorage.removeItem('cinepulse_watchlist');
-            localStorage.removeItem('cinepulse_cyber_watchlist');
+            localStorage.removeItem('cinepulse_pulse_watchlist');
         } catch (e) {
             console.error('Failed to clear watchlist storage:', e);
         }

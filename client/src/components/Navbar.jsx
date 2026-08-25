@@ -65,7 +65,7 @@ export default function Navbar({ onOpenSearch }) {
                         <i className="fas fa-bars" style={{ fontSize: '20px', color: '#fff' }}></i>
                     </button>
 
-                    <Link to="/" className="cyber-logo-wrap" onClick={playClick}>
+                    <Link to="/" className="pulse-logo-wrap" onClick={playClick}>
                         <div className="logo-top-badge">
                             <span className="logo-top-sparkle">✦</span>
                             <span className="logo-top-text">CINESTREAM 4K</span>
@@ -109,7 +109,7 @@ export default function Navbar({ onOpenSearch }) {
                         {/* Genre Dropdown */}
                         <li className="has-dropdown">
                             <a href="#" className="nav-link" onClick={e => e.preventDefault()}>Genre <i className="fas fa-angle-down"></i></a>
-                            <ul className="dropdown-menu cyber-dropdown">
+                            <ul className="dropdown-menu pulse-dropdown">
                                 {genres.map(g => (
                                     <li key={g.id}>
                                         <Link to={`/genre/${g.id}/${encodeURIComponent(g.name)}`} onClick={playClick}>
@@ -123,7 +123,7 @@ export default function Navbar({ onOpenSearch }) {
                         {/* Categories Dropdown */}
                         <li className="has-dropdown">
                             <a href="#" className="nav-link" onClick={e => e.preventDefault()}>Category <i className="fas fa-angle-down"></i></a>
-                            <ul className="dropdown-menu cyber-dropdown">
+                            <ul className="dropdown-menu pulse-dropdown">
                                 <li><Link to="/genre/0/Trending%20Today?endpoint=trending_day" onClick={playClick}><i className="fas fa-fire text-brand"></i> Trending Today</Link></li>
                                 <li><Link to="/genre/0/Trending%20This%20Week?endpoint=trending" onClick={playClick}><i className="fas fa-bolt text-cyan"></i> Trending This Week</Link></li>
                                 <li><Link to="/genre/0/Top%20Rated?endpoint=top_rated" onClick={playClick}><i className="fas fa-star text-gold"></i> Top Rated All-Time</Link></li>
@@ -136,7 +136,7 @@ export default function Navbar({ onOpenSearch }) {
                         {/* OTT Streams Dropdown */}
                         <li className="has-dropdown">
                             <a href="#" className="nav-link" onClick={e => e.preventDefault()}>OTT Streams <i className="fas fa-angle-down"></i></a>
-                            <ul className="dropdown-menu cyber-dropdown">
+                            <ul className="dropdown-menu pulse-dropdown">
                                 <li><Link to="/genre/0/Netflix?endpoint=netflix" onClick={playClick}><span className="ott-tag netflix">N</span> Netflix Originals</Link></li>
                                 <li><Link to="/genre/0/Prime%20Video?endpoint=prime" onClick={playClick}><span className="ott-tag prime">P</span> Prime Video</Link></li>
                                 <li><Link to="/genre/0/Disney+?endpoint=disney" onClick={playClick}><span className="ott-tag disney">D+</span> Disney+ Originals</Link></li>
@@ -149,7 +149,7 @@ export default function Navbar({ onOpenSearch }) {
                         {/* Universes Dropdown */}
                         <li className="has-dropdown">
                             <a href="#" className="nav-link" onClick={e => e.preventDefault()}>Universes <i className="fas fa-angle-down"></i></a>
-                            <ul className="dropdown-menu cyber-dropdown">
+                            <ul className="dropdown-menu pulse-dropdown">
                                 <li><Link to="/genre/0/Marvel%20Cinematic%20Universe?endpoint=marvel" onClick={playClick}><i className="fas fa-shield-halved text-brand"></i> Marvel Cinematic (MCU)</Link></li>
                                 <li><Link to="/genre/0/DC%20Universe%20%26%20DCEU?endpoint=dc" onClick={playClick}><i className="fas fa-mask" style={{ color: '#0055ff' }}></i> DC Universe (DCEU)</Link></li>
                                 <li><Link to="/genre/0/Star%20Wars%20Galactic%20Universe?endpoint=starwars" onClick={playClick}><i className="fas fa-jedi" style={{ color: '#ffe81f' }}></i> Star Wars Saga</Link></li>
@@ -170,7 +170,7 @@ export default function Navbar({ onOpenSearch }) {
                     <button className="quick-search-trigger" onClick={onOpenSearch} title="Search (Ctrl + K)">
                         <i className="fas fa-search" style={{ color: 'var(--brand)' }}></i>
                         <span className="search-placeholder">Quick Search...</span>
-                        <kbd className="cyber-kbd">Ctrl K</kbd>
+                        <kbd className="pulse-kbd">Ctrl K</kbd>
                     </button>
 
                     {isAuthenticated && user ? (
@@ -205,7 +205,7 @@ export default function Navbar({ onOpenSearch }) {
                     <div className="mobile-overlay open" onClick={toggleMobile}></div>
                     <aside className="mobile-menu open">
                         <div className="mobile-menu-header">
-                            <Link to="/" className="cyber-logo-wrap" onClick={toggleMobile}>
+                            <Link to="/" className="pulse-logo-wrap" onClick={toggleMobile}>
                                 <div className="logo-top-badge">
                                     <span className="logo-top-sparkle">✦</span>
                                     <span className="logo-top-text">CINESTREAM 4K</span>

@@ -51,7 +51,7 @@
     --font-body: 'Hanken Grotesk', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
     
-    --shadow-cyber: 0 10px 35px -10px rgba(0, 0, 0, 0.8), 0 0 20px -5px rgba(255, 81, 104, 0.2);
+    --shadow-pulse: 0 10px 35px -10px rgba(0, 0, 0, 0.8), 0 0 20px -5px rgba(255, 81, 104, 0.2);
     --shadow-player: 0 20px 60px -15px rgba(0, 0, 0, 0.9), 0 0 35px -5px rgba(255, 81, 104, 0.25);
     --transition-smooth: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
     --transition-bounce: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -62,7 +62,7 @@ html {
     color-scheme: dark;
 }
 
-body.cyber-theme {
+body.pulse-theme {
     font-family: var(--font-body);
     background-color: var(--bg-void);
     background-image: 
@@ -238,7 +238,7 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
     font-family: var(--font-mono);
 }
 
-.cyber-dropdown {
+.pulse-dropdown {
     position: absolute;
     top: calc(100% + 8px);
     left: 0;
@@ -257,8 +257,8 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
     max-height: 420px;
     overflow-y: auto;
 }
-.main-nav > li:hover > .cyber-dropdown { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
-.cyber-dropdown li a {
+.main-nav > li:hover > .pulse-dropdown { opacity: 1; visibility: visible; transform: translateY(0) scale(1); }
+.pulse-dropdown li a {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -268,7 +268,7 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
     color: var(--text-secondary);
     border-radius: var(--radius-sm);
 }
-.cyber-dropdown li a:hover {
+.pulse-dropdown li a:hover {
     background: rgba(255, 30, 66, 0.14);
     color: #fff;
     transform: translateX(4px);
@@ -311,7 +311,7 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
     color: #fff;
     box-shadow: 0 0 20px var(--brand-glow);
 }
-.cyber-kbd {
+.pulse-kbd {
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 4px;
@@ -473,7 +473,7 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
     margin-bottom: 36px;
     background: var(--bg-secondary);
     border: 1px solid var(--border-bright);
-    box-shadow: var(--shadow-cyber);
+    box-shadow: var(--shadow-pulse);
 }
 .carousel-track { display: flex; transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1); }
 .carousel-slide { min-width: 100%; position: relative; aspect-ratio: 21/9; overflow: hidden; cursor: pointer; }
@@ -489,7 +489,7 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
     padding: 44px;
 }
 .slide-info { max-width: 580px; position: relative; z-index: 2; }
-.badge-cyber {
+.badge-pulse {
     background: var(--brand);
     color: #fff;
     padding: 3px 10px;
@@ -527,7 +527,7 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
     overflow: hidden;
     line-height: 1.6;
 }
-.cyber-btn-primary {
+.pulse-btn-primary {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -539,7 +539,7 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
     border-radius: var(--radius-md);
     box-shadow: 0 0 25px var(--brand-glow);
 }
-.cyber-btn-secondary {
+.pulse-btn-secondary {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -607,7 +607,7 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
     border-radius: 2px;
 }
 .section-count { font-size: 12px; color: var(--text-muted); background: rgba(255, 255, 255, 0.05); padding: 2px 8px; border-radius: 12px; }
-.see-all-cyber {
+.see-all-pulse {
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -621,7 +621,7 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
     border: 1px solid var(--border);
     transition: var(--transition-smooth);
 }
-.see-all-cyber:hover {
+.see-all-pulse:hover {
     background: var(--brand);
     border-color: var(--brand);
     color: #fff;
@@ -1005,12 +1005,12 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
 .empty-watchlist i { font-size: 48px; color: var(--brand); opacity: 0.5; margin-bottom: 16px; display: block; }
 .empty-watchlist h3 { font-size: 20px; color: var(--text-secondary); margin-bottom: 8px; }
 
-/* Cyber Loaders */
-.cyber-loader-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 100px 20px; gap: 20px; }
-.cyber-spinner { position: relative; width: 60px; height: 60px; }
-.spinner-ring { width: 100%; height: 100%; border: 3px solid rgba(255, 30, 66, 0.15); border-top-color: var(--brand); border-radius: 50%; animation: cyberSpin 0.9s linear infinite; }
+/* Pulse Loaders */
+.pulse-loader-wrap { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 100px 20px; gap: 20px; }
+.pulse-spinner { position: relative; width: 60px; height: 60px; }
+.spinner-ring { width: 100%; height: 100%; border: 3px solid rgba(255, 30, 66, 0.15); border-top-color: var(--brand); border-radius: 50%; animation: pulseSpin 0.9s linear infinite; }
 .spinner-core { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--cyan); font-size: 18px; }
-@keyframes cyberSpin { to { transform: rotate(360deg); } }
+@keyframes pulseSpin { to { transform: rotate(360deg); } }
 .loader-text { font-family: 'Space Grotesk', monospace; font-size: 12px; font-weight: 700; letter-spacing: 2px; color: var(--text-muted); }
 
 /* Footer */
@@ -1114,7 +1114,7 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
 @media (max-width: 768px) {
     /* Nav */
     .mobile-bottom-nav { display: flex; }
-    body.cyber-theme { padding-bottom: 80px; }
+    body.pulse-theme { padding-bottom: 80px; }
     .header-main { height: 62px; padding: 0 14px; }
     .header-top-bar { display: none; }
 
@@ -1127,9 +1127,9 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
     .slide-title { font-size: 20px; line-height: 1.2; }
     .slide-desc { font-size: 12px; -webkit-line-clamp: 2; }
     .slide-overlay { padding: 20px; }
-    .badge-cyber, .badge-rating { font-size: 9px; padding: 2px 7px; }
+    .badge-pulse, .badge-rating { font-size: 9px; padding: 2px 7px; }
     .carousel-nav-btn { width: 36px; height: 36px; font-size: 18px; }
-    .cyber-btn-primary, .cyber-btn-secondary { padding: 9px 14px; font-size: 12px; gap: 6px; }
+    .pulse-btn-primary, .pulse-btn-secondary { padding: 9px 14px; font-size: 12px; gap: 6px; }
 
     /* Cards */
     .content-grid { grid-template-columns: repeat(3, 1fr); gap: 10px; }
@@ -1163,7 +1163,7 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
     .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
 
     /* Page header */
-    .page-header-cyber { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .page-header-pulse { flex-direction: column; align-items: flex-start; gap: 8px; }
     .page-title { font-size: 19px; }
     .breadcrumb-nav { font-size: 11px; gap: 6px; }
 }
@@ -1212,7 +1212,7 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
     .carousel-slide { aspect-ratio: 1/1; min-height: 260px; }
     .slide-title { font-size: 16px; margin: 4px 0; }
     .slide-overlay { padding: 14px; }
-    .cyber-btn-primary, .cyber-btn-secondary { padding: 8px 12px; font-size: 11px; }
+    .pulse-btn-primary, .pulse-btn-secondary { padding: 8px 12px; font-size: 11px; }
     .carousel-nav-btn { width: 30px; height: 30px; font-size: 14px; }
     .slide-actions { gap: 8px !important; margin-top: 12px !important; }
 
@@ -1280,10 +1280,10 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
     .section-title { font-size: 14px; }
     .page-title { font-size: 15px; }
 
-    .cyber-btn-primary { padding: 7px 12px; font-size: 11px; }
+    .pulse-btn-primary { padding: 7px 12px; font-size: 11px; }
     .search-modal-overlay { padding-top: 40px; padding-left: 4px; padding-right: 4px; }
 
-    body.cyber-theme { padding-bottom: 76px; }
+    body.pulse-theme { padding-bottom: 76px; }
     .mobile-bottom-nav { height: 66px; }
     .mobile-bottom-nav-item { font-size: 10px; padding: 4px 8px; }
 }
@@ -1296,7 +1296,7 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
     .carousel-slide { aspect-ratio: 4/3; min-height: 190px; }
     .slide-title { font-size: 13px; letter-spacing: -0.01em; }
     .slide-overlay { padding: 10px; }
-    .cyber-btn-primary, .cyber-btn-secondary { padding: 6px 10px; font-size: 10px; }
+    .pulse-btn-primary, .pulse-btn-secondary { padding: 6px 10px; font-size: 10px; }
 
     .content-grid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
     .card-title { font-size: 10px; }
@@ -1316,7 +1316,7 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
     .section-title { font-size: 13px; }
     .page-title { font-size: 13px; }
 
-    body.cyber-theme { padding-bottom: 72px; }
+    body.pulse-theme { padding-bottom: 72px; }
     .mobile-bottom-nav { height: 60px; }
     .mobile-bottom-nav-item { font-size: 9px; padding: 3px 6px; }
 }
@@ -1347,7 +1347,7 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
 .breadcrumb-nav a:hover { color: var(--brand); }
 
 /* Page Header */
-.page-header-cyber {
+.page-header-pulse {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1426,8 +1426,8 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
     line-height: 1.7;
 }
 
-/* Cyber Buttons */
-.cyber-btn-primary {
+/* Pulse Buttons */
+.pulse-btn-primary {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -1443,13 +1443,13 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
     transition: var(--transition-smooth);
     text-decoration: none;
 }
-.cyber-btn-primary:hover {
+.pulse-btn-primary:hover {
     background: var(--brand-hover);
     box-shadow: 0 6px 20px -4px var(--brand-glow);
     transform: translateY(-1px);
 }
 
-.cyber-btn-sm {
+.pulse-btn-sm {
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -1465,16 +1465,16 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
     transition: var(--transition-smooth);
     text-decoration: none;
 }
-.cyber-btn-sm:hover {
+.pulse-btn-sm:hover {
     background: var(--brand-hover);
     box-shadow: 0 4px 16px -3px var(--brand-glow);
 }
-.cyber-btn-sm.danger {
+.pulse-btn-sm.danger {
     background: transparent;
     border: 1px solid var(--brand);
     color: var(--brand);
 }
-.cyber-btn-sm.danger:hover {
+.pulse-btn-sm.danger:hover {
     background: var(--brand);
     color: #fff;
 }
@@ -1496,7 +1496,7 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
 }
 .collection-card:hover {
     transform: translateY(-4px);
-    box-shadow: var(--shadow-cyber);
+    box-shadow: var(--shadow-pulse);
     border-color: var(--brand);
 }
 .collection-card.active {
@@ -1743,7 +1743,7 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
 .source-icon { position: relative; }
 @keyframes healthBlink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-/* Cyber Side Navigation Drawer */
+/* Pulse Side Navigation Drawer */
 .mobile-overlay {
     position: fixed;
     top: 0;
@@ -1878,10 +1878,10 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
 }
 
 /* =========================================================
-   AMAZING CYBER LOGO TOP ANIMATION SYSTEM
+   AMAZING PULSE LOGO TOP ANIMATION SYSTEM
    ========================================================= */
 
-.cyber-logo-wrap {
+.pulse-logo-wrap {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -2012,14 +2012,14 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
     filter: drop-shadow(0 0 12px rgba(255, 81, 104, 0.4));
 }
 
-/* Cyber Logo Hover FX */
-.cyber-logo-wrap:hover .logo-icon-box {
+/* Pulse Logo Hover FX */
+.pulse-logo-wrap:hover .logo-icon-box {
     transform: scale(1.1) rotate(-4deg);
     box-shadow: 0 0 25px rgba(0, 219, 233, 0.6), 0 0 40px rgba(255, 81, 104, 0.5);
     border-color: var(--cyan);
 }
 
-.cyber-logo-wrap:hover .logo-top-badge {
+.pulse-logo-wrap:hover .logo-top-badge {
     box-shadow: 0 0 20px rgba(255, 81, 104, 0.7);
     border-color: var(--brand);
 }

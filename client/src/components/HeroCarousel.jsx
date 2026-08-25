@@ -64,7 +64,7 @@ export default function HeroCarousel({ items }) {
                             <div className="slide-overlay">
                                 <div className="slide-info">
                                     <div className="slide-badges" style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px', flexWrap: 'wrap' }}>
-                                        <span className="badge-cyber" style={{ background: 'var(--primary-container)', color: '#fff', padding: '4px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: '700', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                                        <span className="badge-pulse" style={{ background: 'var(--primary-container)', color: '#fff', padding: '4px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: '700', letterSpacing: '0.5px', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
                                             <i className="fas fa-fire" style={{ fontSize: '11px' }}></i>
                                             {isTV ? 'Featured Series' : 'Featured Premiere'}
                                         </span>

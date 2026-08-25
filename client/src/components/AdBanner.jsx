@@ -52,7 +52,7 @@ export default function AdBanner({
 
     return (
         <div 
-            className={`cyber-ad-banner cyber-ad-${format}`}
+            className={`pulse-ad-banner pulse-ad-${format}`}
             style={{
                 position: 'relative',
                 margin: '16px 0',

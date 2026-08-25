@@ -10,7 +10,7 @@ export default function Footer() {
             <div className="footer-inner">
                 <div className="footer-grid">
                     <div className="footer-col">
-                        <Link to="/" className="cyber-logo-wrap" onClick={playClick}>
+                        <Link to="/" className="pulse-logo-wrap" onClick={playClick}>
                             <div className="logo-top-badge">
                                 <span className="logo-top-sparkle">✦</span>
                                 <span className="logo-top-text">CINESTREAM 4K</span>

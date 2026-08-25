@@ -28,8 +28,8 @@ const pageVariants = {
 // ── Suspense fallback ─────────────────────────────────────────────────
 function PageLoader() {
     return (
-        <div className="cyber-loader-wrap">
-            <div className="cyber-spinner">
+        <div className="pulse-loader-wrap">
+            <div className="pulse-spinner">
                 <div className="spinner-ring"></div>
                 <div className="spinner-core"><i className="fas fa-film"></i></div>
             </div>

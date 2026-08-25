@@ -82,8 +82,8 @@ export default function HomePage() {
 
     if (loading) {
         return (
-            <div className="cyber-loader-wrap">
-                <div className="cyber-spinner">
+            <div className="pulse-loader-wrap">
+                <div className="pulse-spinner">
                     <div className="spinner-ring"></div>
                     <div className="spinner-core"><i className="fas fa-film"></i></div>
                 </div>
@@ -106,14 +106,14 @@ export default function HomePage() {
                     <h2 className="section-title">
                         {currentHubItems.title} <span className="section-count">{currentHubItems.items.length} Titles</span>
                     </h2>
-                    <Link to={`/genre/0/${encodeURIComponent(currentHubItems.title)}?endpoint=${activeHub}`} className="see-all-cyber" onClick={playClick}>
+                    <Link to={`/genre/0/${encodeURIComponent(currentHubItems.title)}?endpoint=${activeHub}`} className="see-all-pulse" onClick={playClick}>
                         EXPLORE FULL FEED <i className="fas fa-arrow-right"></i>
                     </Link>
                 </div>
 
                 {hubLoading ? (
-                    <div className="cyber-loader-wrap" style={{ padding: '40px 0' }}>
-                        <div className="cyber-spinner">
+                    <div className="pulse-loader-wrap" style={{ padding: '40px 0' }}>
+                        <div className="pulse-spinner">
                             <div className="spinner-ring"></div>
                             <div className="spinner-core"><i className="fas fa-satellite-dish"></i></div>
                         </div>
@@ -147,7 +147,7 @@ export default function HomePage() {
                 <section style={{ marginBottom: '38px' }}>
                     <div className="section-header">
                         <h2 className="section-title">Global Blockbuster Movies</h2>
-                        <Link to="/genre/0/Popular%20Movies?endpoint=popular&mediaType=movie" className="see-all-cyber" onClick={playClick}>
+                        <Link to="/genre/0/Popular%20Movies?endpoint=popular&mediaType=movie" className="see-all-pulse" onClick={playClick}>
                             EXPLORE ALL <i className="fas fa-arrow-right"></i>
                         </Link>
                     </div>
@@ -164,7 +164,7 @@ export default function HomePage() {
                 <section style={{ marginBottom: '38px' }}>
                     <div className="section-header">
                         <h2 className="section-title">Binge-Worthy TV Series</h2>
-                        <Link to="/genre/0/Popular%20TV%20Series?endpoint=popular&mediaType=tv" className="see-all-cyber" onClick={playClick}>
+                        <Link to="/genre/0/Popular%20TV%20Series?endpoint=popular&mediaType=tv" className="see-all-pulse" onClick={playClick}>
                             EXPLORE ALL <i className="fas fa-arrow-right"></i>
                         </Link>
                     </div>
@@ -182,7 +182,7 @@ export default function HomePage() {
                     <div className="top-list-column">
                         <div className="section-header">
                             <h2 className="section-title">TOP RATED MOVIES</h2>
-                            <Link to="/genre/0/Top%20Rated%20Movies?endpoint=top_rated&mediaType=movie" className="see-all-cyber" onClick={playClick}>
+                            <Link to="/genre/0/Top%20Rated%20Movies?endpoint=top_rated&mediaType=movie" className="see-all-pulse" onClick={playClick}>
                                 TOP 50
                             </Link>
                         </div>
@@ -206,7 +206,7 @@ export default function HomePage() {
                     <div className="top-list-column">
                         <div className="section-header">
                             <h2 className="section-title">TOP TV SERIES</h2>
-                            <Link to="/genre/0/Top%20Rated%20TV%20Series?endpoint=top_rated&mediaType=tv" className="see-all-cyber" onClick={playClick}>
+                            <Link to="/genre/0/Top%20Rated%20TV%20Series?endpoint=top_rated&mediaType=tv" className="see-all-pulse" onClick={playClick}>
                                 TOP 50
                             </Link>
                         </div>

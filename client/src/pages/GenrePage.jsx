@@ -103,8 +103,8 @@ export default function GenrePage() {
 
     if (loading) {
         return (
-            <div className="cyber-loader-wrap">
-                <div className="cyber-spinner">
+            <div className="pulse-loader-wrap">
+                <div className="pulse-spinner">
                     <div className="spinner-ring"></div>
                     <div className="spinner-core"><i className="fas fa-layer-group"></i></div>
                 </div>
@@ -121,7 +121,7 @@ export default function GenrePage() {
                 <span style={{ color: '#fff', fontWeight: '600' }}>{decodeURIComponent(name || 'Browse')}</span>
             </nav>
 
-            <div className="page-header-cyber">
+            <div className="page-header-pulse">
                 <h1 className="page-title">
                     <i className="fas fa-fire text-brand"></i> {decodeURIComponent(name || 'Browse')}
                 </h1>

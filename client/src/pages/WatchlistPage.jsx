@@ -19,7 +19,7 @@ export default function WatchlistPage() {
 
     return (
         <div className="fade-in" style={{ paddingBottom: '40px' }}>
-            <div className="page-header-cyber" style={{ marginBottom: '20px' }}>
+            <div className="page-header-pulse" style={{ marginBottom: '20px' }}>
                 <h1 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span className="material-symbols-outlined" style={{ color: 'var(--brand)', fontVariationSettings: "'FILL' 1" }}>
                         bookmark
@@ -30,7 +30,7 @@ export default function WatchlistPage() {
                     <span className="section-count">{count} saved titles</span>
                     {count > 0 && (
                         <button
-                            className="cyber-btn-sm danger"
+                            className="pulse-btn-sm danger"
                             onClick={(e) => {
                                 e.preventDefault();
                                 playWhoosh();

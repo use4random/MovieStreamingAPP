@@ -1,11 +1,11 @@
 /* =========================================================
-   MULTIMOVIES — NEXT-GEN CYBER CINEMA DESIGN SYSTEM
+   MULTIMOVIES — NEXT-GEN PULSE CINEMA DESIGN SYSTEM
    ========================================================= */
 
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
 
 /* =========================================================
-   1. CSS RESET & CYBER TOKENS
+   1. CSS RESET & PULSE TOKENS
    ========================================================= */
 *, *::before, *::after {
     box-sizing: border-box;
@@ -54,7 +54,7 @@
     --radius-xl: 24px;
     
     /* Glows & Shadows */
-    --shadow-cyber: 0 10px 35px -10px rgba(0, 0, 0, 0.8), 0 0 20px -5px rgba(255, 30, 66, 0.15);
+    --shadow-pulse: 0 10px 35px -10px rgba(0, 0, 0, 0.8), 0 0 20px -5px rgba(255, 30, 66, 0.15);
     --shadow-player: 0 20px 60px -15px rgba(0, 0, 0, 0.9), 0 0 35px -5px rgba(255, 30, 66, 0.25);
     --glow-card: 0 0 20px rgba(255, 30, 66, 0.35);
     --transition-smooth: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
@@ -66,7 +66,7 @@ html {
     color-scheme: dark;
 }
 
-body.cyber-theme {
+body.pulse-theme {
     font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background-color: var(--bg-void);
     background-image: 
@@ -163,7 +163,7 @@ body.cinema-mode .player-section {
     border-color: var(--brand);
 }
 
-/* Cyber Scrollbar */
+/* Pulse Scrollbar */
 ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -182,7 +182,7 @@ body.cinema-mode .player-section {
 }
 
 /* =========================================================
-   3. CYBER HEADER & NAVIGATION
+   3. PULSE HEADER & NAVIGATION
    ========================================================= */
 .site-header {
     position: sticky;
@@ -434,8 +434,8 @@ body.cinema-mode .player-section {
     color: var(--brand);
 }
 
-/* Cyber Dropdown */
-.cyber-dropdown {
+/* Pulse Dropdown */
+.pulse-dropdown {
     position: absolute;
     top: calc(100% + 8px);
     left: 0;
@@ -456,13 +456,13 @@ body.cinema-mode .player-section {
     overflow-y: auto;
 }
 
-.main-nav > li:hover > .cyber-dropdown {
+.main-nav > li:hover > .pulse-dropdown {
     opacity: 1;
     visibility: visible;
     transform: translateY(0) scale(1);
 }
 
-.cyber-dropdown li a {
+.pulse-dropdown li a {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -474,7 +474,7 @@ body.cinema-mode .player-section {
     transition: var(--transition-smooth);
 }
 
-.cyber-dropdown li a:hover {
+.pulse-dropdown li a:hover {
     background: rgba(255, 30, 66, 0.14);
     color: #fff;
     transform: translateX(4px);
@@ -540,7 +540,7 @@ body.cinema-mode .player-section {
     text-overflow: ellipsis;
 }
 
-.cyber-kbd {
+.pulse-kbd {
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 4px;
@@ -781,7 +781,7 @@ body.cinema-mode .player-section {
 }
 
 /* =========================================================
-   6. CYBER HERO CAROUSEL
+   6. PULSE HERO CAROUSEL
    ========================================================= */
 .carousel-section {
     position: relative;
@@ -790,7 +790,7 @@ body.cinema-mode .player-section {
     margin-bottom: 36px;
     background: var(--bg-secondary);
     border: 1px solid var(--border-bright);
-    box-shadow: var(--shadow-cyber);
+    box-shadow: var(--shadow-pulse);
 }
 
 .carousel-track {
@@ -841,7 +841,7 @@ body.cinema-mode .player-section {
     margin-bottom: 12px;
 }
 
-.badge-cyber {
+.badge-pulse {
     display: inline-flex;
     align-items: center;
     gap: 5px;
@@ -892,7 +892,7 @@ body.cinema-mode .player-section {
     gap: 12px;
 }
 
-.cyber-btn-primary {
+.pulse-btn-primary {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -905,12 +905,12 @@ body.cinema-mode .player-section {
     box-shadow: 0 0 25px var(--brand-glow);
     transition: var(--transition-bounce);
 }
-.cyber-btn-primary:hover {
+.pulse-btn-primary:hover {
     transform: translateY(-2px) scale(1.03);
     box-shadow: 0 0 35px var(--brand);
 }
 
-.cyber-btn-secondary {
+.pulse-btn-secondary {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -924,7 +924,7 @@ body.cinema-mode .player-section {
     border-radius: var(--radius-md);
     transition: var(--transition-smooth);
 }
-.cyber-btn-secondary:hover {
+.pulse-btn-secondary:hover {
     background: rgba(255, 255, 255, 0.16);
     border-color: var(--cyan);
     color: var(--cyan);
@@ -1028,7 +1028,7 @@ body.cinema-mode .player-section {
     border-radius: 12px;
 }
 
-.see-all-cyber {
+.see-all-pulse {
     display: inline-flex;
     align-items: center;
     gap: 6px;
@@ -1043,7 +1043,7 @@ body.cinema-mode .player-section {
     border: 1px solid var(--border);
     transition: var(--transition-smooth);
 }
-.see-all-cyber:hover {
+.see-all-pulse:hover {
     background: var(--brand);
     border-color: var(--brand);
     color: #fff;
@@ -1878,8 +1878,8 @@ body.cinema-mode .player-section {
 .toast-error i { color: #ff3344; }
 .toast-info i { color: var(--cyan); }
 
-/* Cyber Loader Spinner */
-.cyber-loader-wrap {
+/* Pulse Loader Spinner */
+.pulse-loader-wrap {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1888,7 +1888,7 @@ body.cinema-mode .player-section {
     gap: 20px;
 }
 
-.cyber-spinner {
+.pulse-spinner {
     position: relative;
     width: 60px;
     height: 60px;
@@ -1900,7 +1900,7 @@ body.cinema-mode .player-section {
     border: 3px solid rgba(255, 30, 66, 0.15);
     border-top-color: var(--brand);
     border-radius: 50%;
-    animation: cyberSpin 0.9s linear infinite;
+    animation: pulseSpin 0.9s linear infinite;
     box-shadow: 0 0 20px var(--brand-glow);
 }
 
@@ -1915,7 +1915,7 @@ body.cinema-mode .player-section {
     animation: corePulse 1.8s ease-in-out infinite;
 }
 
-@keyframes cyberSpin {
+@keyframes pulseSpin {
     to { transform: rotate(360deg); }
 }
 
@@ -2371,7 +2371,7 @@ body.cinema-mode .player-section {
     gap: 10px;
 }
 
-.cyber-select {
+.pulse-select {
     background: rgba(0, 0, 0, 0.4);
     border: 1px solid var(--border-bright);
     color: #fff;
@@ -2383,7 +2383,7 @@ body.cinema-mode .player-section {
     cursor: pointer;
     transition: var(--transition-smooth);
 }
-.cyber-select:hover, .cyber-select:focus {
+.pulse-select:hover, .pulse-select:focus {
     border-color: var(--brand);
 }
 

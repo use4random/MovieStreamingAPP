@@ -56,8 +56,8 @@ export default function DetailPage() {
 
     if (loading) {
         return (
-            <div className="cyber-loader-wrap">
-                <div className="cyber-spinner">
+            <div className="pulse-loader-wrap">
+                <div className="pulse-spinner">
                     <div className="spinner-ring"></div>
                     <div className="spinner-core"><i className="fas fa-play"></i></div>
                 </div>
@@ -72,7 +72,7 @@ export default function DetailPage() {
                 <i className="fas fa-triangle-exclamation"></i>
                 <h3>Stream Metadata Unavailable</h3>
                 <p>Failed to sync with backend gateway. Check connection and retry.</p>
-                <button className="cyber-btn-primary" onClick={() => window.location.reload()} style={{ marginTop: '20px' }}>
+                <button className="pulse-btn-primary" onClick={() => window.location.reload()} style={{ marginTop: '20px' }}>
                     <i className="fas fa-rotate"></i> RETRY STREAM
                 </button>
             </div>
