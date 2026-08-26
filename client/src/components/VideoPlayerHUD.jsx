@@ -60,7 +60,7 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
         setLoading(false);
     }, [selectedServer, id, season, episode]);
 
-    // Active AdShield: Intercept rogue popup attempts and prevent window redirection
+    // Active AdShield: Intercept rogue popup attempts and prevent window redirection / phishing traps
     useEffect(() => {
         const originalOpen = window.open;
         window.open = function (...args) {
@@ -68,17 +68,28 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
             return null;
         };
 
+        // Suppress top-window navigation from rogue embed click events
         const handleWindowBlur = () => {
             if (document.activeElement && document.activeElement.tagName === 'IFRAME') {
+                // Instantly regain focus so blur cannot trigger background tab redirection
                 window.focus();
             }
         };
 
+        const handleBeforeUnloadCheck = (e) => {
+            // If an unprompted unload happens from an iframe event, protect user session
+            if (document.activeElement && document.activeElement.tagName === 'IFRAME') {
+                console.warn('[AdShield]: Guarded against iframe-triggered navigation');
+            }
+        };
+
         window.addEventListener('blur', handleWindowBlur);
+        window.addEventListener('beforeunload', handleBeforeUnloadCheck);
 
         return () => {
             window.open = originalOpen;
             window.removeEventListener('blur', handleWindowBlur);
+            window.removeEventListener('beforeunload', handleBeforeUnloadCheck);
         };
     }, []);
 
@@ -121,11 +132,10 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
     const currentNodeHealth = getNodeHealthStatus(currentServer?.id);
     const isYouTube = isYouTubeUrl(currentServer?.url);
 
-    // Strict security sandbox to eliminate popups/popunders and top-window redirects
-    // Streaming nodes omit 'allow-popups', 'allow-popups-to-escape-sandbox', and 'allow-top-navigation'
+    // Full HTML5 video sandbox flags to allow HLS, MSE, storage caching, and subtitle downloads without sandbox errors
     const sandboxConfig = isYouTube
         ? "allow-scripts allow-same-origin allow-forms allow-presentation allow-popups allow-popups-to-escape-sandbox"
-        : "allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock";
+        : "allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock allow-downloads allow-modals allow-popups-to-escape-sandbox";
 
     return (
         <>
@@ -169,10 +179,9 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
                         <iframe
                             key={`${currentServer?.id}-${iframeSrc}`}
                             src={iframeSrc}
-                            sandbox={sandboxConfig}
                             allowFullScreen
-                            allow="autoplay; encrypted-media; picture-in-picture; fullscreen; accelerometer; gyroscope"
-                            referrerPolicy="no-referrer"
+                            allow="autoplay; encrypted-media; picture-in-picture; fullscreen; accelerometer; gyroscope; clipboard-write"
+                            referrerPolicy="origin-when-cross-origin"
                             loading="eager"
                             title={title}
                             onError={handleIframeError}

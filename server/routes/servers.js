@@ -17,34 +17,10 @@ const STREAM_SERVERS = [
                 : `https://vidlink.pro/movie/${id}?primaryColor=e50914&secondaryColor=b81d24&iconColor=ffffff&title=true&poster=true&autoplay=true`
     },
     {
-        id: '2embed',
-        name: '2Embed Stream',
-        icon: 'fa-play-circle',
-        ping: '10ms',
-        quality: '1080p Multi-Sub',
-        type: 'Fast Reliable Edge Node',
-        getUrl: (type, id, s = 1, e = 1) =>
-            type === 'tv'
-                ? `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`
-                : `https://www.2embed.cc/embed/${id}`
-    },
-    {
-        id: 'videasy',
-        name: 'Videasy HD',
-        icon: 'fa-play',
-        ping: '11ms',
-        quality: '1080p Ultra',
-        type: 'Fast Direct Node',
-        getUrl: (type, id, s = 1, e = 1) =>
-            type === 'tv'
-                ? `https://player.videasy.to/tv/${id}/${s}/${e}`
-                : `https://player.videasy.to/movie/${id}`
-    },
-    {
         id: 'vidsrc_sbs',
         name: 'VidSrc SBS',
         icon: 'fa-film',
-        ping: '12ms',
+        ping: '10ms',
         quality: '4K IMAX',
         type: 'SBS Multi-Node',
         getUrl: (type, id, s = 1, e = 1) =>
@@ -53,22 +29,34 @@ const STREAM_SERVERS = [
                 : `https://vidsrc.sbs/embed/movie/${id}/`
     },
     {
-        id: 'autoembed',
-        name: 'AutoEmbed Club',
-        icon: 'fa-shield-halved',
-        ping: '14ms',
-        quality: '1080p 60FPS',
-        type: 'High-Speed Backup',
+        id: 'vidsrc_pm',
+        name: 'VidSrc PM',
+        icon: 'fa-server',
+        ping: '12ms',
+        quality: '1080p HD',
+        type: 'Cloud Edge Node',
         getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
-                ? `https://autoembed.co/tv/tmdb/${id}-${s}-${e}`
-                : `https://autoembed.co/movie/tmdb/${id}`
+                ? `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`
+                : `https://vidsrc.pm/embed/movie/${id}`
+    },
+    {
+        id: '2embed',
+        name: '2Embed Stream',
+        icon: 'fa-play-circle',
+        ping: '14ms',
+        quality: '1080p Multi-Sub',
+        type: 'Fast Reliable Edge Node',
+        getUrl: (type, id, s = 1, e = 1) =>
+            type === 'tv'
+                ? `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`
+                : `https://www.2embed.cc/embed/${id}`
     },
     {
         id: 'vidsrc_io',
         name: 'VidSrc IO',
         icon: 'fa-network-wired',
-        ping: '16ms',
+        ping: '15ms',
         quality: '1080p HD',
         type: 'Cloud Stream Node',
         getUrl: (type, id, s = 1, e = 1) =>
@@ -77,16 +65,16 @@ const STREAM_SERVERS = [
                 : `https://vidsrc.io/embed/movie/${id}`
     },
     {
-        id: 'vidsrc_pm',
-        name: 'VidSrc PM',
-        icon: 'fa-server',
-        ping: '17ms',
-        quality: '1080p HD',
-        type: 'Cloud Edge Node',
+        id: 'autoembed',
+        name: 'AutoEmbed Club',
+        icon: 'fa-shield-halved',
+        ping: '16ms',
+        quality: '1080p 60FPS',
+        type: 'High-Speed Backup',
         getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
-                ? `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`
-                : `https://vidsrc.pm/embed/movie/${id}`
+                ? `https://autoembed.co/tv/tmdb/${id}-${s}-${e}`
+                : `https://autoembed.co/movie/tmdb/${id}`
     },
     {
         id: 'vidsrc_me',
@@ -101,28 +89,16 @@ const STREAM_SERVERS = [
                 : `https://vidsrc.me/embed/movie?tmdb=${id}`
     },
     {
-        id: 'embedsu',
-        name: 'EmbedSu Cloud',
-        icon: 'fa-cloud',
-        ping: '19ms',
-        quality: '1080p HD',
-        type: 'Multi-Source Node',
-        getUrl: (type, id, s = 1, e = 1) =>
-            type === 'tv'
-                ? `https://embed.su/embed/tv/${id}/${s}/${e}`
-                : `https://embed.su/embed/movie/${id}`
-    },
-    {
-        id: 'vidsrc_cc',
-        name: 'VidSrc CC',
-        icon: 'fa-satellite',
+        id: 'videasy',
+        name: 'Videasy HD',
+        icon: 'fa-play',
         ping: '20ms',
-        quality: '1080p HD',
-        type: 'V2 Stream Engine',
+        quality: '1080p Ultra',
+        type: 'Fast Direct Node',
         getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
-                ? `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}`
-                : `https://vidsrc.cc/v2/embed/movie/${id}`
+                ? `https://player.videasy.to/tv/${id}/${s}/${e}`
+                : `https://player.videasy.to/movie/${id}`
     }
 ];
 
@@ -278,11 +254,11 @@ router.get('/', async (req, res) => {
         };
     });
 
-    // Remove permanently failing or unresponsive nodes from active pool, keeping VidLink HD as primary node
+    // Order functional nodes by speed and reliability (fastest healthy node first)
     servers = servers.filter(s => s.healthy !== false);
     servers.sort((a, b) => {
-        if (a.id === 'vidlink') return -1;
-        if (b.id === 'vidlink') return 1;
+        if (a.id === 'vidsrc_sbs') return -1;
+        if (b.id === 'vidsrc_sbs') return 1;
         return (a.responseTime || 999) - (b.responseTime || 999);
     });
 

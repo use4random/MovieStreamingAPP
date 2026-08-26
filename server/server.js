@@ -36,9 +36,21 @@ app.set('trust proxy', 1);
 // Performance: Gzip compress all API responses (60-80% size reduction)
 app.use(compression({ level: 6, threshold: 1024 }));
 
-// Security: Standard response headers (X-Content-Type-Options, HSTS, Referrer-Policy, etc.)
-// CSP disabled because it conflicts with proxied iframe embeds
-app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
+// Security: Standard response headers (X-Content-Type-Options, HSTS, Clickjacking protection)
+// CSP disabled because third-party streaming nodes load dynamic nested CDNs and player scripts
+app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+    frameguard: { action: 'sameorigin' }
+}));
+
+// Additional Security Headers (Permissions Policy & Referrer Policy)
+app.use((req, res, next) => {
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=(), payment=()');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    next();
+});
 
 // Cookie Parser Middleware
 app.use(cookieParser());
@@ -68,7 +80,11 @@ app.use(cors({
                 return callback(null, true);
             }
         }
-        // Default allow rather than crashing Express with unhandled Error
+        // In production, reject unverified external cross-origin requests
+        if (process.env.NODE_ENV === 'production') {
+            return callback(null, false);
+        }
+        // In development, permit request
         return callback(null, true);
     },
     credentials: true,

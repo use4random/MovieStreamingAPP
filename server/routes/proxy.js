@@ -119,19 +119,34 @@ const ALLOWED_HOSTS = [
  */
 function isPrivateOrLoopbackHost(hostname) {
     if (!hostname) return true;
-    const lower = hostname.toLowerCase().trim();
+    const lower = hostname.toLowerCase().trim().replace(/^\[|\]$/g, ''); // strip IPv6 brackets
 
-    if (lower === 'localhost' || lower === '127.0.0.1' || lower === '::1' || lower.endsWith('.local') || lower.endsWith('.internal')) {
+    // Loopback & local domains
+    if (lower === 'localhost' || lower === '127.0.0.1' || lower === '0.0.0.0' || lower === '::1' || lower === '::' ||
+        lower.endsWith('.local') || lower.endsWith('.internal') || lower.endsWith('.lan') || lower.endsWith('.localhost')) {
         return true;
     }
-    // Block Cloud metadata (AWS, GCP, Azure) at 169.254.169.254
+
+    // IPv6 loopback variants & IPv4-mapped IPv6
+    if (lower.startsWith('::ffff:127.') || lower.startsWith('::ffff:10.') || lower.startsWith('::ffff:192.168.') || lower.startsWith('::ffff:172.')) {
+        return true;
+    }
+
+    // Block Cloud metadata (AWS, GCP, Azure, DigitalOcean) at 169.254.169.254 and link-local range
     if (lower === '169.254.169.254' || lower.startsWith('169.254.')) {
         return true;
     }
+
     // Block RFC 1918 Private Subnets: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
     if (/^10\./.test(lower) || /^192\.168\./.test(lower) || /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(lower)) {
         return true;
     }
+
+    // Block CGNAT (100.64.0.0/10)
+    if (/^100\.(6[4-9]|[7-9][0-9]|1[0-1][0-9]|12[0-7])\./.test(lower)) {
+        return true;
+    }
+
     return false;
 }
 
