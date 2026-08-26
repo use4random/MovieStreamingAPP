@@ -130,7 +130,19 @@ export const api = {
     // User Persistence & History APIs (server derives userId from verified JWT token)
     getWatchlist: () => request('/user/watchlist'),
     saveWatchlist: (item) => requestMutate('/user/watchlist', 'POST', { item }),
+    addToWatchlist: (itemOrId, mediaType, title, poster_path, vote_average, release_date) => {
+        const item = typeof itemOrId === 'object' ? itemOrId : {
+            id: itemOrId,
+            media_type: mediaType || 'movie',
+            title: title || 'Untitled',
+            poster_path: poster_path || '',
+            vote_average: vote_average || 0,
+            release_date: release_date || ''
+        };
+        return requestMutate('/user/watchlist', 'POST', { item });
+    },
     removeWatchlist: (id, mediaType) => requestMutate('/user/watchlist', 'DELETE', { id, mediaType }),
+    removeFromWatchlist: (id, mediaType) => requestMutate('/user/watchlist', 'DELETE', { id, mediaType }),
     getPlaybackHistory: () => request('/user/history'),
     updatePlaybackProgress: (payload) => requestMutate('/user/history', 'POST', payload),
 

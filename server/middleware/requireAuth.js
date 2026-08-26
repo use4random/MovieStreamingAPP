@@ -34,9 +34,10 @@ export function requireAuth(req, res, next) {
  */
 export function optionalAuth(req, res, next) {
     const token = req.cookies?.session;
+    const guestFallback = req.headers['x-guest-id'] || 'guest';
 
     if (!token) {
-        req.userId = 'guest';
+        req.userId = guestFallback;
         return next();
     }
 
@@ -46,10 +47,10 @@ export function optionalAuth(req, res, next) {
             req.userId = decoded.sub;
             req.user = decoded;
         } else {
-            req.userId = 'guest';
+            req.userId = guestFallback;
         }
     } catch {
-        req.userId = 'guest';
+        req.userId = guestFallback;
     }
 
     next();
