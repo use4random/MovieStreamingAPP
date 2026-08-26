@@ -8,7 +8,7 @@ import { api } from '../services/api';
 export default function Navbar({ onOpenSearch }) {
     const location = useLocation();
     const { count } = useWatchlist();
-    const { enabled, toggleAudio, playClick } = useAudio();
+    const { playClick } = useAudio();
     const { user, isAuthenticated, logout, openAuthModal } = useAuth();
     const [genres, setGenres] = useState([]);
     const [mobileOpen, setMobileOpen] = useState(false);
@@ -46,18 +46,6 @@ export default function Navbar({ onOpenSearch }) {
 
     return (
         <header className="site-header" id="siteHeader">
-            {/* Top Bar */}
-            <div className="header-top-bar">
-                <div className="top-bar-content" style={{ justifyContent: 'flex-end' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <button className="sound-toggle-btn" onClick={toggleAudio} title="Toggle Audio FX">
-                            <i className={`fas fa-volume-${enabled ? 'up' : 'mute'}`}></i>
-                            <span>AUDIO: {enabled ? 'ON' : 'OFF'}</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
             {/* Main Header */}
             <div className="header-main">
                 <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
