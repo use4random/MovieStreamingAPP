@@ -105,8 +105,12 @@ try {
     getCatalogCountStmt = { get: () => ({ count: 0 }) };
 }
 
+if (!process.env.NODE_TLS_REJECT_UNAUTHORIZED && process.env.NODE_ENV !== 'production') {
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+}
+
 // ── TMDB Fetch Helper ────────────────────────────────────────────────────────
-async function fetchTMDB(endpoint, params = {}) {
+async function fetchTMDB(endpoint, params = {}, retries = 2) {
     if (!TMDB_KEY) throw new Error('[Sync] TMDB_KEY not set.');
 
     const url = new URL(TMDB_BASE + endpoint);
@@ -116,16 +120,19 @@ async function fetchTMDB(endpoint, params = {}) {
         if (v !== undefined && v !== null) url.searchParams.set(k, String(v));
     });
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10000);
-    try {
-        const res = await fetch(url.toString(), { signal: controller.signal });
-        clearTimeout(timeout);
-        if (!res.ok) throw new Error(`TMDB HTTP ${res.status}`);
-        return await res.json();
-    } catch (err) {
-        clearTimeout(timeout);
-        throw err;
+    for (let attempt = 0; attempt <= retries; attempt++) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 12000);
+        try {
+            const res = await fetch(url.toString(), { signal: controller.signal });
+            clearTimeout(timeout);
+            if (!res.ok) throw new Error(`TMDB HTTP ${res.status}`);
+            return await res.json();
+        } catch (err) {
+            clearTimeout(timeout);
+            if (attempt === retries) throw err;
+            await sleep(500);
+        }
     }
 }
 
