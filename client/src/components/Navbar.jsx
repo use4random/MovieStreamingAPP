@@ -48,7 +48,7 @@ export default function Navbar({ onOpenSearch }) {
         <header className="site-header" id="siteHeader">
             {/* Main Header */}
             <div className="header-main">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                <div className="header-left-group">
                     <button className="mobile-toggle" onClick={toggleMobile} aria-label="Toggle Menu" title="Open Navigation Drawer">
                         <i className="fas fa-bars" style={{ fontSize: '20px', color: '#fff' }}></i>
                     </button>
@@ -180,7 +180,7 @@ export default function Navbar({ onOpenSearch }) {
                     </ul>
                 </nav>
                 {/* Quick Search & Auth Triggers */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div className="header-right-group">
                     <button className="quick-search-trigger" onClick={onOpenSearch} title="Search">
                         <i className="fas fa-search" style={{ color: 'var(--brand)' }}></i>
                         <span className="search-placeholder">Quick Search...</span>
