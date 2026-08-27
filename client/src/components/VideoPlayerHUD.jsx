@@ -9,7 +9,100 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
     const [cinemaMode, setCinemaMode] = useState(false);
     const [healthData, setHealthData] = useState(null);
     const [iframeError, setIframeError] = useState(false);
-    const { playClick } = useAudio();
+    
+    // 2x Sound Booster state (1 = 100%, 1.5 = 150%, 2 = 200%)
+    const [boostLevel, setBoostLevel] = useState(() => {
+        try {
+            const saved = localStorage.getItem('cinepulse_sound_boost');
+            return saved ? parseFloat(saved) : 1;
+        } catch {
+            return 1;
+        }
+    });
+    const [toastMessage, setToastMessage] = useState(null);
+    const toastTimeoutRef = useRef(null);
+
+    // Web Audio Gain / Compressor Node references
+    const audioContextRef = useRef(null);
+    const gainNodeRef = useRef(null);
+    const compressorNodeRef = useRef(null);
+    const mediaSourcesRef = useRef(new WeakSet());
+
+    const { playClick, playWhoosh } = useAudio();
+
+    // Initialize or update the Web Audio gain amplification
+    const applyAudioBoost = useCallback((multiplier) => {
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return;
+
+            if (!audioContextRef.current) {
+                audioContextRef.current = new AudioCtx();
+                const ctx = audioContextRef.current;
+
+                // Dynamics Compressor to prevent clipping distortion when boosting to 200%
+                const compressor = ctx.createDynamicsCompressor();
+                compressor.threshold.setValueAtTime(-18, ctx.currentTime);
+                compressor.knee.setValueAtTime(30, ctx.currentTime);
+                compressor.ratio.setValueAtTime(8, ctx.currentTime);
+                compressor.attack.setValueAtTime(0.003, ctx.currentTime);
+                compressor.release.setValueAtTime(0.25, ctx.currentTime);
+                compressorNodeRef.current = compressor;
+
+                // Gain Node for 2x volume boost
+                const gain = ctx.createGain();
+                gain.gain.setValueAtTime(multiplier, ctx.currentTime);
+                gainNodeRef.current = gain;
+
+                gain.connect(compressor);
+                compressor.connect(ctx.destination);
+            } else {
+                const ctx = audioContextRef.current;
+                if (ctx.state === 'suspended') {
+                    ctx.resume().catch(() => {});
+                }
+                if (gainNodeRef.current) {
+                    gainNodeRef.current.gain.setTargetAtTime(multiplier, ctx.currentTime, 0.05);
+                }
+            }
+
+            // Hook into any active HTML5 video/audio elements
+            const mediaElements = document.querySelectorAll('video, audio');
+            mediaElements.forEach(el => {
+                if (!mediaSourcesRef.current.has(el)) {
+                    try {
+                        const source = audioContextRef.current.createMediaElementSource(el);
+                        source.connect(gainNodeRef.current);
+                        mediaSourcesRef.current.add(el);
+                    } catch (e) {}
+                }
+            });
+        } catch (err) {
+            console.warn('[AudioBooster]: Web Audio setup notice:', err.message);
+        }
+    }, []);
+
+    // Apply boost on mount and whenever boostLevel changes
+    useEffect(() => {
+        applyAudioBoost(boostLevel);
+    }, [boostLevel, applyAudioBoost]);
+
+    const handleCycleBoost = () => {
+        try { playClick(); } catch {}
+        const nextLevel = boostLevel === 1 ? 1.5 : boostLevel === 1.5 ? 2 : 1;
+        setBoostLevel(nextLevel);
+        applyAudioBoost(nextLevel);
+
+        try {
+            localStorage.setItem('cinepulse_sound_boost', String(nextLevel));
+        } catch {}
+
+        if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+        const label = nextLevel === 2 ? '2X SOUND BOOST (200% MAX)' : nextLevel === 1.5 ? '1.5X SOUND BOOST (150%)' : 'STANDARD AUDIO (100%)';
+        const sub = nextLevel === 2 ? '+6dB Cinema Audio Amplification • Anti-Clipping Enabled' : nextLevel === 1.5 ? '+3.5dB Dialogue Enhancer' : 'Normal Volume Level';
+        setToastMessage({ label, sub, level: nextLevel });
+        toastTimeoutRef.current = setTimeout(() => setToastMessage(null), 2500);
+    };
 
     // Combine cloud embed servers with official trailer if available
     const activeServers = [...servers];
@@ -155,7 +248,26 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
                             </span>
                         )}
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {/* 2x Sound Increaser / Audio Booster Button */}
+                        <button
+                            className={`hud-btn hud-sound-boost-btn ${boostLevel > 1 ? 'hud-sound-boost--active' : ''} ${boostLevel === 2 ? 'hud-sound-boost--max' : ''}`}
+                            onClick={handleCycleBoost}
+                            title={`Audio Increaser: ${boostLevel}x (${boostLevel === 2 ? '200% Maximum Boost' : boostLevel === 1.5 ? '150% Boost' : '100% Standard'}). Click to cycle.`}
+                            aria-label="Toggle 2x Sound Booster"
+                        >
+                            <i className={`fas ${boostLevel === 2 ? 'fa-volume-high text-brand' : boostLevel === 1.5 ? 'fa-volume-low text-cyan' : 'fa-volume-high'}`}></i>
+                            <span>{boostLevel === 2 ? '2x Boost' : boostLevel === 1.5 ? '1.5x Boost' : '1x Sound'}</span>
+                            {boostLevel > 1 && (
+                                <span className="boost-badge">
+                                    <span className="sound-wave-bar"></span>
+                                    <span className="sound-wave-bar"></span>
+                                    <span className="sound-wave-bar"></span>
+                                    {boostLevel * 100}%
+                                </span>
+                            )}
+                        </button>
+
                         <button className="hud-btn" onClick={(e) => { e.stopPropagation(); toggleCinema(); }} title="Toggle Cinema Lights">
                             <i className="fas fa-lightbulb"></i> Cinema Mode
                         </button>
@@ -166,6 +278,19 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
                 </div>
 
                 <div className="player-container">
+                    {/* Active Toast Overlay when Boost level changes */}
+                    {toastMessage && (
+                        <div className="audio-boost-toast">
+                            <div className="boost-toast-icon">
+                                <i className="fas fa-bolt"></i>
+                            </div>
+                            <div>
+                                <div className="boost-toast-title">{toastMessage.label}</div>
+                                <div className="boost-toast-sub">{toastMessage.sub}</div>
+                            </div>
+                        </div>
+                    )}
+
                     {loading || iframeError ? (
                         <div className="player-loading">
                             <div className="player-loading-spinner">
