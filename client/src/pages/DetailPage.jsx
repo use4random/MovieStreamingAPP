@@ -21,9 +21,28 @@ export default function DetailPage() {
     const navigate = useNavigate();
     const [mobilePlaying, setMobilePlaying] = useState(false);
 
+    const [boostLevel, setBoostLevel] = useState(() => {
+        try {
+            const s = localStorage.getItem('cinepulse_sound_boost');
+            return s ? parseFloat(s) : 1;
+        } catch { return 1; }
+    });
+
+    const handleToggleBoost = () => {
+        playClick();
+        const next = boostLevel === 2 ? 1 : 2;
+        setBoostLevel(next);
+        try { localStorage.setItem('cinepulse_sound_boost', String(next)); } catch {}
+        window.dispatchEvent(new CustomEvent('cinepulse_boost_change', { detail: next }));
+    };
+
     useEffect(() => {
-        setMobilePlaying(false);
-    }, [id, type]);
+        const handleSync = (e) => {
+            if (e && e.detail) setBoostLevel(e.detail);
+        };
+        window.addEventListener('cinepulse_boost_change', handleSync);
+        return () => window.removeEventListener('cinepulse_boost_change', handleSync);
+    }, []);
 
     // ── Cached media details (won't refetch if already in cache) ──
     const { data, isLoading } = useQuery({
@@ -179,31 +198,59 @@ export default function DetailPage() {
                         </div>
                     </div>
 
-                    <button
-                        className="glow-button"
-                        style={{
-                            background: inWatchlist ? 'rgba(255, 81, 104, 0.15)' : 'var(--brand)',
-                            color: inWatchlist ? 'var(--brand-light)' : '#fff',
-                            border: inWatchlist ? '1px solid var(--brand)' : 'none',
-                            padding: '12px 22px',
-                            borderRadius: '10px',
-                            fontFamily: 'var(--font-heading)',
-                            fontSize: '14px',
-                            fontWeight: '700',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '8px'
-                        }}
-                        onClick={() => {
-                            playClick();
-                            toggle(data);
-                        }}
-                    >
-                        <span className="material-symbols-outlined" style={{ fontVariationSettings: inWatchlist ? "'FILL' 1" : "'FILL' 0" }}>
-                            {inWatchlist ? 'check_circle' : 'bookmark_add'}
-                        </span>
-                        <span>{inWatchlist ? 'In Watchlist' : 'Add to Watchlist'}</span>
-                    </button>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                        {/* Dedicated 2x Sound Increaser Action Button */}
+                        <button
+                            className="glow-button"
+                            style={{
+                                background: boostLevel === 2 ? 'linear-gradient(135deg, #E50914 0%, #aa001e 100%)' : boostLevel === 1.5 ? 'rgba(0, 219, 233, 0.2)' : 'rgba(255, 255, 255, 0.07)',
+                                color: boostLevel === 2 ? '#fff' : boostLevel === 1.5 ? 'var(--cyan)' : '#e5e7eb',
+                                border: boostLevel === 2 ? '1px solid #ff5168' : boostLevel === 1.5 ? '1px solid rgba(0, 219, 233, 0.5)' : '1px solid rgba(255, 255, 255, 0.12)',
+                                padding: '12px 20px',
+                                borderRadius: '10px',
+                                fontFamily: 'var(--font-heading)',
+                                fontSize: '14px',
+                                fontWeight: '700',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                cursor: 'pointer',
+                                transition: 'all 0.25s ease',
+                                boxShadow: boostLevel === 2 ? '0 0 20px rgba(229, 9, 20, 0.4)' : 'none'
+                            }}
+                            onClick={handleToggleBoost}
+                            title="Toggle 2x Sound Amplification (+6dB Boost)"
+                        >
+                            <i className={`fas fa-${boostLevel === 2 ? 'bolt text-brand' : 'volume-high'}`} style={{ color: boostLevel === 2 ? '#fff' : 'var(--brand)' }}></i>
+                            <span>{boostLevel === 2 ? '2X SOUND (200% MAX)' : boostLevel === 1.5 ? '1.5X SOUND (150%)' : '2X SOUND INCREASER'}</span>
+                        </button>
+
+                        <button
+                            className="glow-button"
+                            style={{
+                                background: inWatchlist ? 'rgba(255, 81, 104, 0.15)' : 'var(--brand)',
+                                color: inWatchlist ? 'var(--brand-light)' : '#fff',
+                                border: inWatchlist ? '1px solid var(--brand)' : 'none',
+                                padding: '12px 22px',
+                                borderRadius: '10px',
+                                fontFamily: 'var(--font-heading)',
+                                fontSize: '14px',
+                                fontWeight: '700',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '8px'
+                            }}
+                            onClick={() => {
+                                playClick();
+                                toggle(data);
+                            }}
+                        >
+                            <span className="material-symbols-outlined" style={{ fontVariationSettings: inWatchlist ? "'FILL' 1" : "'FILL' 0" }}>
+                                {inWatchlist ? 'check_circle' : 'bookmark_add'}
+                            </span>
+                            <span>{inWatchlist ? 'In Watchlist' : 'Add to Watchlist'}</span>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -392,6 +439,14 @@ export default function DetailPage() {
                                 <div className="mobile-actions-row">
                                     <button onClick={() => { playClick(); setMobilePlaying(true); }} className="mobile-play-btn">
                                         <i className="fas fa-play"></i> Play Movie
+                                    </button>
+                                    <button
+                                        className="mobile-icon-btn"
+                                        onClick={handleToggleBoost}
+                                        title={`Audio Booster: ${boostLevel}x (${boostLevel === 2 ? '200% MAX' : '100% Normal'})`}
+                                        style={{ color: boostLevel === 2 ? '#E50914' : '#fff', borderColor: boostLevel === 2 ? '#E50914' : '' }}
+                                    >
+                                        <i className={`fas fa-${boostLevel === 2 ? 'bolt' : 'volume-high'}`}></i>
                                     </button>
                                     <button 
                                         className="mobile-icon-btn" 

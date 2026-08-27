@@ -978,6 +978,47 @@ body.cinema-mode .player-section { position: relative; z-index: 1000; box-shadow
 .hud-btn:hover { background: var(--brand); color: #fff; }
 
 /* 2x Sound Increaser / Audio Booster HUD Styling */
+.hud-boost-pill-group {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.45);
+    padding: 2px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    gap: 2px;
+}
+
+.hud-boost-pill {
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+}
+
+.hud-boost-pill:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.hud-boost-pill.active {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+}
+
+.hud-boost-pill.active.hud-boost-pill--max {
+    background: linear-gradient(135deg, #E50914 0%, #ff5168 100%);
+    color: #fff;
+    box-shadow: 0 0 10px rgba(229, 9, 20, 0.5);
+}
+
 .hud-sound-boost-btn {
     position: relative;
     border: 1px solid rgba(255, 255, 255, 0.12);

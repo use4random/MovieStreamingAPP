@@ -87,22 +87,29 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
         applyAudioBoost(boostLevel);
     }, [boostLevel, applyAudioBoost]);
 
-    const handleCycleBoost = () => {
+    const setBoost = (level) => {
         try { playClick(); } catch {}
-        const nextLevel = boostLevel === 1 ? 1.5 : boostLevel === 1.5 ? 2 : 1;
-        setBoostLevel(nextLevel);
-        applyAudioBoost(nextLevel);
-
-        try {
-            localStorage.setItem('cinepulse_sound_boost', String(nextLevel));
-        } catch {}
+        setBoostLevel(level);
+        applyAudioBoost(level);
+        try { localStorage.setItem('cinepulse_sound_boost', String(level)); } catch {}
 
         if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
-        const label = nextLevel === 2 ? '2X SOUND BOOST (200% MAX)' : nextLevel === 1.5 ? '1.5X SOUND BOOST (150%)' : 'STANDARD AUDIO (100%)';
-        const sub = nextLevel === 2 ? '+6dB Cinema Audio Amplification • Anti-Clipping Enabled' : nextLevel === 1.5 ? '+3.5dB Dialogue Enhancer' : 'Normal Volume Level';
-        setToastMessage({ label, sub, level: nextLevel });
+        const label = level === 2 ? '2X SOUND BOOST (200% MAX)' : level === 1.5 ? '1.5X SOUND BOOST (150%)' : 'STANDARD AUDIO (100%)';
+        const sub = level === 2 ? '+6dB Cinema Audio Amplification • Anti-Clipping Enabled' : level === 1.5 ? '+3.5dB Dialogue Enhancer' : 'Normal Volume Level';
+        setToastMessage({ label, sub, level });
         toastTimeoutRef.current = setTimeout(() => setToastMessage(null), 2500);
     };
+
+    // Listen to external boost change events (e.g. from DetailPage action button)
+    useEffect(() => {
+        const handleExternalBoost = (e) => {
+            if (e && e.detail) {
+                setBoost(e.detail);
+            }
+        };
+        window.addEventListener('cinepulse_boost_change', handleExternalBoost);
+        return () => window.removeEventListener('cinepulse_boost_change', handleExternalBoost);
+    }, []);
 
     // Combine cloud embed servers with official trailer if available
     const activeServers = [...servers];
@@ -249,24 +256,33 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
                         )}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        {/* 2x Sound Increaser / Audio Booster Button */}
-                        <button
-                            className={`hud-btn hud-sound-boost-btn ${boostLevel > 1 ? 'hud-sound-boost--active' : ''} ${boostLevel === 2 ? 'hud-sound-boost--max' : ''}`}
-                            onClick={handleCycleBoost}
-                            title={`Audio Increaser: ${boostLevel}x (${boostLevel === 2 ? '200% Maximum Boost' : boostLevel === 1.5 ? '150% Boost' : '100% Standard'}). Click to cycle.`}
-                            aria-label="Toggle 2x Sound Booster"
-                        >
-                            <i className={`fas ${boostLevel === 2 ? 'fa-volume-high text-brand' : boostLevel === 1.5 ? 'fa-volume-low text-cyan' : 'fa-volume-high'}`}></i>
-                            <span>{boostLevel === 2 ? '2x Boost' : boostLevel === 1.5 ? '1.5x Boost' : '1x Sound'}</span>
-                            {boostLevel > 1 && (
-                                <span className="boost-badge">
-                                    <span className="sound-wave-bar"></span>
-                                    <span className="sound-wave-bar"></span>
-                                    <span className="sound-wave-bar"></span>
-                                    {boostLevel * 100}%
-                                </span>
-                            )}
-                        </button>
+                        {/* Quick Audio Boost Pills */}
+                        <div className="hud-boost-pill-group">
+                            <button
+                                type="button"
+                                className={`hud-boost-pill ${boostLevel === 1 ? 'active' : ''}`}
+                                onClick={() => setBoost(1)}
+                                title="1.0x Standard Volume (100%)"
+                            >
+                                <i className="fas fa-volume-low"></i> 1x
+                            </button>
+                            <button
+                                type="button"
+                                className={`hud-boost-pill ${boostLevel === 1.5 ? 'active' : ''}`}
+                                onClick={() => setBoost(1.5)}
+                                title="1.5x Enhanced Sound (150%)"
+                            >
+                                <i className="fas fa-volume-high text-cyan"></i> 1.5x
+                            </button>
+                            <button
+                                type="button"
+                                className={`hud-boost-pill hud-boost-pill--max ${boostLevel === 2 ? 'active' : ''}`}
+                                onClick={() => setBoost(2)}
+                                title="2.0x Maximum Sound Increaser (+6dB Boost)"
+                            >
+                                <i className="fas fa-bolt text-brand"></i> 2x Boost
+                            </button>
+                        </div>
 
                         <button className="hud-btn" onClick={(e) => { e.stopPropagation(); toggleCinema(); }} title="Toggle Cinema Lights">
                             <i className="fas fa-lightbulb"></i> Cinema Mode
