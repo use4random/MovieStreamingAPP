@@ -251,7 +251,9 @@ export const upsertHistoryItemStmt = createStmt(
 );
 
 export const upsertCoWatchStmt = createStmt(
-    `INSERT INTO co_watch_matrix (item_a_id, item_a_type, item_b_id, item_b_type, co_count, updated_at) VALUES (?, ?, ?, ?, 1, CURRENT_TIMESTAMP)`,
+    `INSERT INTO co_watch_matrix (item_a_id, item_a_type, item_b_id, item_b_type, co_count, updated_at)
+     VALUES (?, ?, ?, ?, 1, CURRENT_TIMESTAMP)
+     ON CONFLICT(item_a_id, item_a_type, item_b_id, item_b_type) DO UPDATE SET co_count = co_count + 1, updated_at = CURRENT_TIMESTAMP`,
     { run: () => ({ changes: 1 }) }
 );
 

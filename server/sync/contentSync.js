@@ -105,10 +105,6 @@ try {
     getCatalogCountStmt = { get: () => ({ count: 0 }) };
 }
 
-if (!process.env.NODE_TLS_REJECT_UNAUTHORIZED && process.env.NODE_ENV !== 'production') {
-    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-}
-
 // ── TMDB Fetch Helper ────────────────────────────────────────────────────────
 async function fetchTMDB(endpoint, params = {}, retries = 2) {
     if (!TMDB_KEY) throw new Error('[Sync] TMDB_KEY not set.');

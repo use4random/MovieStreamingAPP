@@ -320,6 +320,7 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
                         <iframe
                             key={`${currentServer?.id}-${iframeSrc}`}
                             src={iframeSrc}
+                            sandbox={sandboxConfig}
                             allowFullScreen
                             allow="autoplay; encrypted-media; picture-in-picture; fullscreen; accelerometer; gyroscope; clipboard-write"
                             referrerPolicy="origin-when-cross-origin"

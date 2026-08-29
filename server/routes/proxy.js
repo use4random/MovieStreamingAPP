@@ -213,23 +213,23 @@ router.get('/embed', async (req, res) => {
             });
         }
 
-        const contentType = finalResponse.headers.get('content-type') || 'text/html';
+        const contentType = response.headers.get('content-type') || 'text/html';
 
         res.setHeader('Content-Type', contentType);
         res.setHeader('Cache-Control', 'no-store');
 
         if (contentType.includes('text/html')) {
-            let html = await finalResponse.text();
+            let html = await response.text();
             html = rewriteUrls(html, targetUrl.toString());
             res.setHeader('X-Frame-Options', 'ALLOWALL');
             return res.send(html);
         }
 
         // Stream binary non-HTML payload directly to res without buffering in RAM
-        if (finalResponse.body && typeof Readable.fromWeb === 'function') {
-            return Readable.fromWeb(finalResponse.body).pipe(res);
+        if (response.body && typeof Readable.fromWeb === 'function') {
+            return Readable.fromWeb(response.body).pipe(res);
         }
-        const buffer = await finalResponse.arrayBuffer();
+        const buffer = await response.arrayBuffer();
         return res.send(Buffer.from(buffer));
 
     } catch (err) {

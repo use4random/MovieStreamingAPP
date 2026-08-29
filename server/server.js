@@ -66,15 +66,15 @@ app.use(cors({
         if (!origin) return callback(null, true);
 
         const lower = origin.toLowerCase();
-        // Allow localhost / 127.0.0.1
-        if (lower.includes('localhost') || lower.includes('127.0.0.1')) {
+        // Allow localhost / 127.0.0.1 on any port for local development
+        if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(lower)) {
             return callback(null, true);
         }
-        // Allow Vercel preview and production deployment domains (*.vercel.app)
-        if (lower.endsWith('.vercel.app') || lower.includes('binge-streaming-three')) {
+        // Allow explicit project Vercel domains
+        if (/^https:\/\/(cinepulse[a-z0-9-]*|binge-streaming-[a-z0-9-]+)\.vercel\.app$/.test(lower)) {
             return callback(null, true);
         }
-        // Allow explicitly configured origins
+        // Allow explicitly configured origins in ALLOWED_ORIGINS
         if (allowedOrigins.length > 0) {
             if (allowedOrigins.includes('*') || allowedOrigins.includes(lower)) {
                 return callback(null, true);

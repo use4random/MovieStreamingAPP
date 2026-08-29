@@ -26,7 +26,7 @@ export function createRateLimiter(options = {}) {
 
     return (req, res, next) => {
         const ip = req.ip || 'unknown';
-        const isAuthUser = Boolean(req.headers.authorization || req.headers['x-guest-id']);
+        const isAuthUser = Boolean(req.cookies?.session || req.headers?.authorization || req.user);
         const effectiveMax = isAuthUser ? baseMaxRequests * 3 : baseMaxRequests;
         const key = `${options.name || 'global'}:${ip}`;
         const now = Date.now();
