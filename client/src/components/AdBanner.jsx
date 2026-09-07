@@ -45,7 +45,6 @@ export default function AdBanner({
     const [dismissed, setDismissed] = useState(false);
     const bannerRef = useRef(null);
 
-    // 💡 ONE-LINE MASTER SWITCH: Return null if ENABLE_ADS is set to false in src/config/ads.js
     if (!ENABLE_ADS || dismissed) return null;
 
     const adData = TEMPORARY_ADS[format] || TEMPORARY_ADS.sidebar;

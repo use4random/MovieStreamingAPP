@@ -160,32 +160,27 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
         setLoading(false);
     }, [selectedServer, id, season, episode]);
 
-    // Ref to throttle iframe error handling and prevent looping node switches
     const lastErrorTimeRef = useRef(0);
 
-    // Active AdShield: Intercept rogue popup attempts and prevent window redirection / phishing traps
     useEffect(() => {
         const previousOpen = window.open;
         const noop = () => {};
         const dummyWindow = { focus: noop, blur: noop, close: noop, postMessage: noop, location: { href: '' } };
 
         window.open = function (...args) {
-            console.warn('[AdShield]: Intercepted unauthorized popup/tab opening attempt');
+            console.warn('Intercepted popup attempt');
             return dummyWindow;
         };
 
-        // Suppress top-window navigation from rogue embed click events
         const handleWindowBlur = () => {
             if (document.activeElement && document.activeElement.tagName === 'IFRAME') {
-                // Instantly regain focus so blur cannot trigger background tab redirection
                 window.focus();
             }
         };
 
         const handleBeforeUnloadCheck = (e) => {
-            // If an unprompted unload happens from an iframe event, protect user session
             if (document.activeElement && document.activeElement.tagName === 'IFRAME') {
-                console.warn('[AdShield]: Guarded against iframe-triggered navigation');
+                console.warn('Guarded against iframe navigation');
             }
         };
 
@@ -214,7 +209,7 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
 
     const handleIframeError = useCallback(() => {
         const now = Date.now();
-        if (now - lastErrorTimeRef.current < 3000) return; // 3s cooldown to prevent rapid switching loops
+        if (now - lastErrorTimeRef.current < 3000) return;
         lastErrorTimeRef.current = now;
         setIframeError(true);
         setSelectedServer(prev => (prev + 1) % Math.max(activeServers.length, 1));
@@ -232,7 +227,6 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
 
     const getIframeSrc = (rawUrl) => {
         if (!rawUrl) return '';
-        // Direct stream embedding for maximum speed, zero proxy latency, and 100% node availability
         return rawUrl;
     };
 
@@ -241,7 +235,6 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
     const currentNodeHealth = getNodeHealthStatus(currentServer?.id);
     const isYouTube = isYouTubeUrl(currentServer?.url);
 
-    // Strict HTML5 video sandbox flags: Permits scripts, HLS media, forms & presentation while completely blocking all popups and new tabs on mobile/desktop
     const sandboxConfig = "allow-scripts allow-same-origin allow-forms allow-presentation";
 
     return (

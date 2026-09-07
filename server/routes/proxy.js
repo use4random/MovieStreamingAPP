@@ -28,9 +28,6 @@ const SPOOF_HEADERS = {
     'Sec-Fetch-Site': 'cross-site',
 };
 
-/**
- * Known mobile ad network host patterns to strip from proxied embed HTML
- */
 const AD_SCRIPT_PATTERNS = [
     /https?:\/\/[^"'\s>]*adsterra[^"'\s>]*/gi,
     /https?:\/\/[^"'\s>]*exoclick[^"'\s>]*/gi,
@@ -41,9 +38,6 @@ const AD_SCRIPT_PATTERNS = [
     /https?:\/\/[^"'\s>]*clickadu[^"'\s>]*/gi,
 ];
 
-/**
- * Rewrite relative URLs inside HTML and inject strict Anti-Popup defense script.
- */
 function rewriteUrls(html, baseUrl) {
     const base = new URL(baseUrl);
     const origin = base.origin;
@@ -54,7 +48,7 @@ function rewriteUrls(html, baseUrl) {
         var noop = function() {};
         var dummyWin = { focus: noop, blur: noop, close: noop, postMessage: noop, location: { href: '' } };
         window.open = function() {
-            console.warn('[Proxy Shield] Intercepted window.open inside iframe');
+            console.warn('Intercepted window.open inside iframe');
             return dummyWin;
         };
         window.showModalDialog = function() { return null; };
@@ -67,7 +61,7 @@ function rewriteUrls(html, baseUrl) {
             HTMLAnchorElement.prototype.click = function() {
                 var href = this.getAttribute('href') || this.href || '';
                 if (this.target === '_blank' || (typeof href === 'string' && href.indexOf('http') === 0 && href.indexOf(window.location.origin) !== 0)) {
-                    console.warn('[Proxy Shield] Intercepted dynamic anchor click inside iframe:', href);
+                    console.warn('Intercepted anchor click inside iframe:', href);
                     return;
                 }
                 return origClick.apply(this, arguments);
@@ -77,13 +71,11 @@ function rewriteUrls(html, baseUrl) {
     </script>
     `;
 
-    // Strip known ad network scripts
     let sanitizedHtml = html;
     AD_SCRIPT_PATTERNS.forEach(pattern => {
         sanitizedHtml = sanitizedHtml.replace(pattern, '');
     });
 
-    // Inject base tag and anti-popup defense script into <head>
     return sanitizedHtml.replace(/<head([^>]*)>/i, `<head$1><base href="${origin}/">${antiPopupScript}`);
 }
 

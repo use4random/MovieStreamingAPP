@@ -10,7 +10,6 @@ import MobileBottomNav from './components/MobileBottomNav';
 import { useCinePulseStore } from './store/useCinePulseStore';
 import { useAuth } from './context/AuthContext';
 
-// ── Code-split page imports (each becomes its own JS chunk) ──────────
 const HomePage = lazy(() => import('./pages/HomePage'));
 const DetailPage = lazy(() => import('./pages/DetailPage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
@@ -18,15 +17,12 @@ const GenrePage = lazy(() => import('./pages/GenrePage'));
 const CollectionsPage = lazy(() => import('./pages/CollectionsPage'));
 const WatchlistPage = lazy(() => import('./pages/WatchlistPage'));
 
-
-// ── Page transition animation variants ───────────────────────────────
 const pageVariants = {
     initial: { opacity: 0, y: 12 },
     animate: { opacity: 1, y: 0, transition: { duration: 0.22, ease: 'easeOut' } },
     exit: { opacity: 0, y: -8, transition: { duration: 0.15, ease: 'easeIn' } },
 };
 
-// ── Suspense fallback ─────────────────────────────────────────────────
 function PageLoader() {
     return (
         <div className="pulse-loader-wrap">
@@ -34,7 +30,7 @@ function PageLoader() {
                 <div className="spinner-ring"></div>
                 <div className="spinner-core"><i className="fas fa-film"></i></div>
             </div>
-            <div className="loader-text">LOADING MODULE...</div>
+            <div className="loader-text">LOADING...</div>
         </div>
     );
 }
@@ -44,7 +40,6 @@ export default function App() {
     const { openAuthModal } = useAuth();
     const location = useLocation();
 
-    // Route based auth modal trigger
     useEffect(() => {
         if (location.pathname === '/signup' || location.pathname === '/register') {
             openAuthModal('register');
@@ -53,7 +48,7 @@ export default function App() {
         }
     }, [location.pathname]);
 
-    // Global Anti-Popunder & Strict Mobile Ad Interceptor
+    // Prevent unauthorized external redirects and popups
     useEffect(() => {
         const isInternalUrl = (url) => {
             if (!url || typeof url !== 'string') return false;
@@ -66,7 +61,6 @@ export default function App() {
             }
         };
 
-        // Dummy window object to safely swallow ad script method calls (.focus(), .blur(), .close())
         const dummyWindow = {
             focus: () => {},
             blur: () => {},
@@ -75,21 +69,19 @@ export default function App() {
             location: { href: '' }
         };
 
-        // 1. Override window.open to trap all popup attempts across mobile and desktop
         const nativeOpen = window.open;
         window.open = function (url, target, features) {
             try {
                 if (url && isInternalUrl(url)) {
                     return nativeOpen.call(window, url, target, features);
                 }
-                console.warn('[Popunder Shield] Blocked external window.open popup attempt:', url || 'empty_url');
+                console.warn('Blocked external popup:', url || 'empty_url');
                 return dummyWindow;
             } catch {
                 return dummyWindow;
             }
         };
 
-        // 2. Override HTMLAnchorElement.prototype.click to catch dynamic hidden anchor insertions
         let nativeAnchorClick = null;
         if (typeof HTMLAnchorElement !== 'undefined' && HTMLAnchorElement.prototype) {
             nativeAnchorClick = HTMLAnchorElement.prototype.click;
@@ -97,17 +89,16 @@ export default function App() {
                 try {
                     const href = this.getAttribute('href') || this.href;
                     if (href && !isInternalUrl(href) && (this.target === '_blank' || (typeof href === 'string' && href.startsWith('http')))) {
-                        console.warn('[Popunder Shield] Blocked dynamic anchor ad click:', href);
+                        console.warn('Blocked external link click:', href);
                         return;
                     }
                     return nativeAnchorClick.apply(this, arguments);
                 } catch {
-                    // Prevent illegal invocation exceptions
+                    // Ignore error
                 }
             };
         }
 
-        // 3. Capture-phase listener for click and mobile touch events to trap click-jacking popunders
         const handleGlobalEvent = (e) => {
             let target = e.target;
             while (target && target !== document) {
@@ -117,7 +108,7 @@ export default function App() {
                         e.preventDefault();
                         e.stopPropagation();
                         if (e.stopImmediatePropagation) e.stopImmediatePropagation();
-                        console.warn('[Popunder Shield] Intercepted external link popunder event:', href);
+                        console.warn('Intercepted external link event:', href);
                         return false;
                     }
                 }
@@ -128,10 +119,9 @@ export default function App() {
         const eventTypes = ['click', 'touchstart', 'touchend', 'pointerdown'];
         eventTypes.forEach(type => window.addEventListener(type, handleGlobalEvent, true));
 
-        // 4. Guard against unprompted top-frame navigation attempts initiated by iframe embeds on mobile
         const handleBeforeUnload = (e) => {
             if (document.activeElement && document.activeElement.tagName === 'IFRAME') {
-                console.warn('[Popunder Shield] Blocked unprompted top-frame navigation attempt from iframe');
+                console.warn('Blocked navigation from iframe');
             }
         };
         window.addEventListener('beforeunload', handleBeforeUnload);
