@@ -70,8 +70,8 @@ app.use(cors({
         if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(lower)) {
             return callback(null, true);
         }
-        // Allow explicit project Vercel domains
-        if (/^https:\/\/(cinepulse[a-z0-9-]*|binge-streaming-[a-z0-9-]+)\.vercel\.app$/.test(lower)) {
+        // Allow any Vercel deployment domain (*.vercel.app)
+        if (/^https:\/\/[a-z0-9-]+\.vercel\.app$/.test(lower)) {
             return callback(null, true);
         }
         // Allow explicitly configured origins in ALLOWED_ORIGINS

@@ -160,12 +160,18 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
         setLoading(false);
     }, [selectedServer, id, season, episode]);
 
+    // Ref to throttle iframe error handling and prevent looping node switches
+    const lastErrorTimeRef = useRef(0);
+
     // Active AdShield: Intercept rogue popup attempts and prevent window redirection / phishing traps
     useEffect(() => {
-        const originalOpen = window.open;
+        const previousOpen = window.open;
+        const noop = () => {};
+        const dummyWindow = { focus: noop, blur: noop, close: noop, postMessage: noop, location: { href: '' } };
+
         window.open = function (...args) {
             console.warn('[AdShield]: Intercepted unauthorized popup/tab opening attempt');
-            return null;
+            return dummyWindow;
         };
 
         // Suppress top-window navigation from rogue embed click events
@@ -187,7 +193,7 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
         window.addEventListener('beforeunload', handleBeforeUnloadCheck);
 
         return () => {
-            window.open = originalOpen;
+            window.open = previousOpen;
             window.removeEventListener('blur', handleWindowBlur);
             window.removeEventListener('beforeunload', handleBeforeUnloadCheck);
         };
@@ -207,6 +213,9 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
     };
 
     const handleIframeError = useCallback(() => {
+        const now = Date.now();
+        if (now - lastErrorTimeRef.current < 3000) return; // 3s cooldown to prevent rapid switching loops
+        lastErrorTimeRef.current = now;
         setIframeError(true);
         setSelectedServer(prev => (prev + 1) % Math.max(activeServers.length, 1));
     }, [activeServers.length]);
@@ -232,10 +241,8 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
     const currentNodeHealth = getNodeHealthStatus(currentServer?.id);
     const isYouTube = isYouTubeUrl(currentServer?.url);
 
-    // Full HTML5 video sandbox flags to allow HLS, MSE, storage caching, and subtitle downloads without sandbox errors
-    const sandboxConfig = isYouTube
-        ? "allow-scripts allow-same-origin allow-forms allow-presentation allow-popups allow-popups-to-escape-sandbox"
-        : "allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock allow-downloads allow-modals allow-popups-to-escape-sandbox";
+    // Strict HTML5 video sandbox flags: Permits scripts, HLS media, forms & presentation while completely blocking all popups and new tabs on mobile/desktop
+    const sandboxConfig = "allow-scripts allow-same-origin allow-forms allow-presentation";
 
     return (
         <>

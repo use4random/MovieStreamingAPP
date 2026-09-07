@@ -128,12 +128,21 @@ export default function App() {
         const eventTypes = ['click', 'touchstart', 'touchend', 'pointerdown'];
         eventTypes.forEach(type => window.addEventListener(type, handleGlobalEvent, true));
 
+        // 4. Guard against unprompted top-frame navigation attempts initiated by iframe embeds on mobile
+        const handleBeforeUnload = (e) => {
+            if (document.activeElement && document.activeElement.tagName === 'IFRAME') {
+                console.warn('[Popunder Shield] Blocked unprompted top-frame navigation attempt from iframe');
+            }
+        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
         return () => {
             window.open = nativeOpen;
             if (nativeAnchorClick && typeof HTMLAnchorElement !== 'undefined' && HTMLAnchorElement.prototype) {
                 HTMLAnchorElement.prototype.click = nativeAnchorClick;
             }
             eventTypes.forEach(type => window.removeEventListener(type, handleGlobalEvent, true));
+            window.removeEventListener('beforeunload', handleBeforeUnload);
         };
     }, []);
 
