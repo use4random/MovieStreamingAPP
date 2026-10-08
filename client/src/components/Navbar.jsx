@@ -46,199 +46,97 @@ export default function Navbar({ onOpenSearch }) {
 
     return (
         <header className="site-header" id="siteHeader">
-            {/* Main Header */}
             <div className="header-main">
                 <div className="header-left-group">
                     <button className="mobile-toggle" onClick={toggleMobile} aria-label="Toggle Menu" title="Open Navigation Drawer">
-                        <i className="fas fa-bars" style={{ fontSize: '20px', color: '#fff' }}></i>
+                        <i className="fas fa-bars" style={{ fontSize: '18px', color: '#fff' }}></i>
                     </button>
 
-                    {/* Desktop Logo */}
-                    <Link to="/" className="pulse-logo-wrap hidden-mobile" onClick={playClick}>
-                        <div className="logo-top-badge">
-                            <span className="logo-top-sparkle">✦</span>
-                            <span className="logo-top-text">CINESTREAM 4K</span>
-                            <span className="logo-top-sparkle">✦</span>
-                            <div className="logo-top-laser"></div>
-                        </div>
-                        <div className="logo-main-group">
-                            <div className="logo-icon-box">
-                                <div className="logo-orbit-ring"></div>
-                                <i className="fas fa-play logo-play-icon"></i>
-                                <span className="logo-pulse-dot"></span>
-                            </div>
-                            <div className="logo-text">
-                                <span className="logo-cine">CINE</span>
-                                <span className="logo-pulse">PULSE</span>
-                            </div>
-                        </div>
-                    </Link>
-
-                    {/* Mobile Logo: CinePulse */}
-                    <Link to="/" className="visible-mobile-only" style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }} onClick={playClick}>
-                        <div style={{
-                            width: '32px',
-                            height: '32px',
-                            backgroundColor: '#E50914',
-                            borderRadius: '8px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: '#fff',
-                            boxShadow: '0 0 12px rgba(229,9,20,0.4)'
-                        }}>
-                            <i className="fas fa-play text-xs" style={{ marginLeft: '2px' }}></i>
-                        </div>
-                        <span style={{
-                            fontWeight: '800',
-                            fontSize: '20px',
-                            letterSpacing: '-0.03em',
-                            color: '#fff',
-                            fontFamily: 'var(--font-heading)'
-                        }}>
-                            Cine<span style={{ color: '#E50914' }}>Pulse</span>
-                        </span>
+                    {/* MultiMovies Style Logo */}
+                    <Link to="/" className="multimovies-logo" onClick={playClick}>
+                        <span className="logo-multi">MULTI</span>
+                        <span className="logo-movies">MOVIES</span>
                     </Link>
                 </div>
 
-                {/* Desktop Nav */}
+                {/* Capsule Center Nav */}
                 <nav className="main-nav-wrap">
-                    <ul className="main-nav">
-                        <li>
-                            <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active' : ''}`} onClick={playClick}>
-                                Home
-                            </Link>
-                        </li>
-                        <li>
-                            <Link to="/collections" className={`nav-link ${location.pathname === '/collections' ? 'active' : ''}`} onClick={playClick}>
-                                Discover
-                            </Link>
-                        </li>
-                        <li>
-                            <Link to="/watchlist" className={`nav-link ${location.pathname === '/watchlist' ? 'active' : ''}`} onClick={playClick}>
-                                Watchlist
-                                {count > 0 && <span className="watchlist-nav-pill">{count}</span>}
-                            </Link>
-                        </li>
-
-                        {/* Genre Dropdown */}
-                        <li className="has-dropdown">
-                            <a href="#" className="nav-link" onClick={e => e.preventDefault()}>Genre <i className="fas fa-angle-down"></i></a>
-                            <ul className="dropdown-menu pulse-dropdown">
-                                {genres.map(g => (
-                                    <li key={g.id}>
-                                        <Link to={`/genre/${g.id}/${encodeURIComponent(g.name)}`} onClick={playClick}>
-                                            {g.name}
-                                        </Link>
-                                    </li>
-                                ))}
-                            </ul>
-                        </li>
-
-                        {/* Categories Dropdown */}
-                        <li className="has-dropdown">
-                            <a href="#" className="nav-link" onClick={e => e.preventDefault()}>Category <i className="fas fa-angle-down"></i></a>
-                            <ul className="dropdown-menu pulse-dropdown">
-                                <li><Link to="/genre/0/Trending%20Today?endpoint=trending_day" onClick={playClick}><i className="fas fa-fire text-brand"></i> Trending Today</Link></li>
-                                <li><Link to="/genre/0/Trending%20This%20Week?endpoint=trending" onClick={playClick}><i className="fas fa-bolt text-cyan"></i> Trending This Week</Link></li>
-                                <li><Link to="/genre/0/Top%20Rated?endpoint=top_rated" onClick={playClick}><i className="fas fa-star text-gold"></i> Top Rated All-Time</Link></li>
-                                <li><Link to="/genre/0/Hollywood?endpoint=hollywood" onClick={playClick}><i className="fas fa-film"></i> Hollywood Movies</Link></li>
-                                <li><Link to="/genre/10749/Bollywood?endpoint=bollywood" onClick={playClick}><i className="fas fa-video"></i> Bollywood Pan-India</Link></li>
-                                <li><Link to="/genre/0/KDrama?endpoint=kdrama" onClick={playClick}><i className="fas fa-heart text-purple"></i> Korean Wave (K-Drama)</Link></li>
-                            </ul>
-                        </li>
-
-                        {/* OTT Streams Dropdown */}
-                        <li className="has-dropdown">
-                            <a href="#" className="nav-link" onClick={e => e.preventDefault()}>OTT Streams <i className="fas fa-angle-down"></i></a>
-                            <ul className="dropdown-menu pulse-dropdown">
-                                <li><Link to="/genre/0/Netflix?endpoint=netflix" onClick={playClick}><span className="ott-tag netflix">N</span> Netflix Originals</Link></li>
-                                <li><Link to="/genre/0/Prime%20Video?endpoint=prime" onClick={playClick}><span className="ott-tag prime">P</span> Prime Video</Link></li>
-                                <li><Link to="/genre/0/Disney+?endpoint=disney" onClick={playClick}><span className="ott-tag disney">D+</span> Disney+ Originals</Link></li>
-                                <li><Link to="/genre/0/Apple%20TV+?endpoint=appletv" onClick={playClick}><span className="ott-tag apple"></span> Apple TV+</Link></li>
-                                <li><Link to="/genre/0/HBO%20Max?endpoint=hbo" onClick={playClick}><span className="ott-tag hbo">HBO</span> HBO Max</Link></li>
-                                <li><Link to="/genre/0/Paramount+?endpoint=paramount" onClick={playClick}><span className="ott-tag prime" style={{ background: '#0055ff' }}>P+</span> Paramount+</Link></li>
-                            </ul>
-                        </li>
-
-                        {/* Universes Dropdown */}
-                        <li className="has-dropdown">
-                            <a href="#" className="nav-link" onClick={e => e.preventDefault()}>Universes <i className="fas fa-angle-down"></i></a>
-                            <ul className="dropdown-menu pulse-dropdown">
-                                <li><Link to="/genre/0/Marvel%20Cinematic%20Universe?endpoint=marvel" onClick={playClick}><i className="fas fa-shield-halved text-brand"></i> Marvel Cinematic (MCU)</Link></li>
-                                <li><Link to="/genre/0/DC%20Universe%20%26%20DCEU?endpoint=dc" onClick={playClick}><i className="fas fa-mask" style={{ color: '#0055ff' }}></i> DC Universe (DCEU)</Link></li>
-                                <li><Link to="/genre/0/Star%20Wars%20Galactic%20Universe?endpoint=starwars" onClick={playClick}><i className="fas fa-jedi" style={{ color: '#ffe81f' }}></i> Star Wars Saga</Link></li>
-                                <li><Link to="/genre/0/Wizarding%20World?endpoint=wizarding_world" onClick={playClick}><i className="fas fa-wand-magic-sparkles" style={{ color: '#d4af37' }}></i> Wizarding World</Link></li>
-                                <li><Link to="/genre/0/Legendary%20MonsterVerse?endpoint=monsterverse" onClick={playClick}><i className="fas fa-dragon" style={{ color: '#ff4500' }}></i> MonsterVerse</Link></li>
-                                <li><Link to="/genre/0/Middle-earth%20Saga?endpoint=middle_earth" onClick={playClick}><i className="fas fa-ring" style={{ color: '#d4af37' }}></i> Middle-earth (LOTR)</Link></li>
-                                <li><Link to="/genre/0/Spider-Verse%20%26%20SSU?endpoint=spider_verse" onClick={playClick}><i className="fas fa-spider" style={{ color: '#e50914' }}></i> Spider-Verse & SSU</Link></li>
-                                <li><Link to="/genre/0/X-Men%20Mutant%20Universe?endpoint=xmen" onClick={playClick}><i className="fas fa-dna text-gold"></i> X-Men Universe</Link></li>
-                                <li><Link to="/genre/0/Fast%20%26%20Furious%20Saga?endpoint=fast_and_furious" onClick={playClick}><i className="fas fa-car text-brand"></i> Fast Saga</Link></li>
-                                <li><Link to="/genre/0/John%20Wick%20Universe?endpoint=john_wick" onClick={playClick}><i className="fas fa-crosshairs text-cyan"></i> John Wick Universe</Link></li>
-                            </ul>
-                        </li>
-                    </ul>
+                    <div className="capsule-nav-bar">
+                        <ul className="main-nav">
+                            <li>
+                                <Link to="/" className={`nav-link ${location.pathname === '/' ? 'active-pill' : ''}`} onClick={playClick}>
+                                    Home
+                                </Link>
+                            </li>
+                            <li className="has-dropdown">
+                                <a href="#" className="nav-link" onClick={e => e.preventDefault()}>Genre <i className="fas fa-chevron-down nav-arrow"></i></a>
+                                <ul className="dropdown-menu pulse-dropdown">
+                                    {genres.map(g => (
+                                        <li key={g.id}>
+                                            <Link to={`/genre/${g.id}/${encodeURIComponent(g.name)}`} onClick={playClick}>
+                                                {g.name}
+                                            </Link>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </li>
+                            <li className="has-dropdown">
+                                <a href="#" className="nav-link" onClick={e => e.preventDefault()}>Category <i className="fas fa-chevron-down nav-arrow"></i></a>
+                                <ul className="dropdown-menu pulse-dropdown">
+                                    <li><Link to="/genre/0/Trending%20Today?endpoint=trending_day" onClick={playClick}><i className="fas fa-fire text-brand"></i> Trending Today</Link></li>
+                                    <li><Link to="/genre/0/Trending%20This%20Week?endpoint=trending" onClick={playClick}><i className="fas fa-bolt text-cyan"></i> Trending This Week</Link></li>
+                                    <li><Link to="/genre/0/Top%20Rated?endpoint=top_rated" onClick={playClick}><i className="fas fa-star text-gold"></i> Top Rated All-Time</Link></li>
+                                    <li><Link to="/genre/0/Hollywood?endpoint=hollywood" onClick={playClick}><i className="fas fa-film"></i> Hollywood Movies</Link></li>
+                                    <li><Link to="/genre/10749/Bollywood?endpoint=bollywood" onClick={playClick}><i className="fas fa-video"></i> Bollywood Pan-India</Link></li>
+                                    <li><Link to="/genre/0/KDrama?endpoint=kdrama" onClick={playClick}><i className="fas fa-heart text-purple"></i> Korean Wave (K-Drama)</Link></li>
+                                </ul>
+                            </li>
+                            <li className="has-dropdown">
+                                <a href="#" className="nav-link" onClick={e => e.preventDefault()}>OTT <i className="fas fa-chevron-down nav-arrow"></i></a>
+                                <ul className="dropdown-menu pulse-dropdown">
+                                    <li><Link to="/genre/0/Netflix?endpoint=netflix" onClick={playClick}><span className="ott-tag netflix">N</span> Netflix Originals</Link></li>
+                                    <li><Link to="/genre/0/Prime%20Video?endpoint=prime" onClick={playClick}><span className="ott-tag prime">P</span> Prime Video</Link></li>
+                                    <li><Link to="/genre/0/Disney+?endpoint=disney" onClick={playClick}><span className="ott-tag disney">D+</span> Disney+ Originals</Link></li>
+                                    <li><Link to="/genre/0/Apple%20TV+?endpoint=appletv" onClick={playClick}><span className="ott-tag apple"></span> Apple TV+</Link></li>
+                                    <li><Link to="/genre/0/HBO%20Max?endpoint=hbo" onClick={playClick}><span className="ott-tag hbo">HBO</span> HBO Max</Link></li>
+                                </ul>
+                            </li>
+                            <li className="has-dropdown">
+                                <a href="#" className="nav-link" onClick={e => e.preventDefault()}>Gen Z <i className="fas fa-chevron-down nav-arrow"></i></a>
+                                <ul className="dropdown-menu pulse-dropdown">
+                                    <li><Link to="/genre/0/Anime%20Mega-Vault?endpoint=anime_hub" onClick={playClick}><i className="fas fa-dragon text-gold"></i> Anime Vault</Link></li>
+                                    <li><Link to="/genre/0/KDrama?endpoint=kdrama" onClick={playClick}><i className="fas fa-heart text-purple"></i> K-Drama Hits</Link></li>
+                                </ul>
+                            </li>
+                            <li className="has-dropdown">
+                                <a href="#" className="nav-link" onClick={e => e.preventDefault()}>Collection <i className="fas fa-chevron-down nav-arrow"></i></a>
+                                <ul className="dropdown-menu pulse-dropdown">
+                                    <li><Link to="/genre/0/Marvel%20Cinematic%20Universe?endpoint=marvel" onClick={playClick}><i className="fas fa-shield-halved text-brand"></i> Marvel MCU</Link></li>
+                                    <li><Link to="/genre/0/DC%20Universe%20%26%20DCEU?endpoint=dc" onClick={playClick}><i className="fas fa-mask" style={{ color: '#0055ff' }}></i> DC Universe</Link></li>
+                                    <li><Link to="/genre/0/Star%20Wars%20Galactic%20Universe?endpoint=starwars" onClick={playClick}><i className="fas fa-jedi" style={{ color: '#ffe81f' }}></i> Star Wars Saga</Link></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
                 </nav>
-                {/* Quick Search & Auth Triggers */}
+
+                {/* Right Action Icons */}
                 <div className="header-right-group">
-                    <button className="quick-search-trigger" onClick={onOpenSearch} title="Search">
-                        <i className="fas fa-search" style={{ color: 'var(--brand)' }}></i>
-                        <span className="search-placeholder">Quick Search...</span>
+                    <button className="circle-action-btn" onClick={onOpenSearch} title="Search Content">
+                        <i className="fas fa-search"></i>
                     </button>
- 
+                    <Link to="/watchlist" className="circle-action-btn" title="Saved Watchlist" onClick={playClick}>
+                        <i className="fas fa-bookmark"></i>
+                        {count > 0 && <span className="circle-badge">{count}</span>}
+                    </Link>
                     {isAuthenticated && user ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <div className="hidden-mobile" style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 12px', borderRadius: '8px', background: 'rgba(0, 219, 233, 0.1)', border: '1px solid rgba(0, 219, 233, 0.3)', color: '#fff', fontSize: '13px', fontWeight: '600' }}>
-                                <i className="fas fa-user-astronaut text-cyan"></i>
-                                <span>{user.username}</span>
-                            </div>
-                            <button
-                                type="button"
-                                onClick={logout}
-                                title="Sign Out"
-                                className="hidden-mobile"
-                                style={{ padding: '8px 12px', borderRadius: '8px', background: 'rgba(255, 81, 104, 0.1)', border: '1px solid rgba(255, 81, 104, 0.3)', color: 'var(--brand)', cursor: 'pointer', fontSize: '13px' }}
-                            >
-                                <i className="fas fa-right-from-bracket"></i>
-                            </button>
-                            <button
-                                type="button"
-                                onClick={logout}
-                                title={`Sign Out (${user.username})`}
-                                className="visible-mobile-only mobile-user-avatar"
-                            >
-                                <i className="fas fa-user text-sm"></i>
-                            </button>
-                        </div>
+                        <button className="circle-action-btn active-user-btn" onClick={logout} title={`Sign Out (${user.username})`}>
+                            <i className="fas fa-user-check" style={{ color: 'var(--cyan)' }}></i>
+                        </button>
                     ) : (
-                        <div className="nav-auth-group">
-                            <button
-                                type="button"
-                                onClick={() => openAuthModal('login')}
-                                className="hidden-mobile nav-auth-btn nav-signin-btn"
-                                title="Sign In to your account"
-                            >
-                                <i className="fas fa-right-to-bracket"></i>
-                                <span>Sign In</span>
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => openAuthModal('register')}
-                                className="hidden-mobile nav-auth-btn nav-signup-btn"
-                                title="Create a new profile"
-                            >
-                                <i className="fas fa-user-plus"></i>
-                                <span>Sign Up</span>
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => openAuthModal('login')}
-                                className="visible-mobile-only mobile-user-avatar"
-                                title="Sign In / Register"
-                            >
-                                <i className="fas fa-user text-sm"></i>
-                            </button>
-                        </div>
+                        <button className="circle-action-btn" onClick={() => openAuthModal('login')} title="Sign In / Account">
+                            <i className="fas fa-sliders-h"></i>
+                        </button>
                     )}
                 </div>
             </div>

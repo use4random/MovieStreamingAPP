@@ -140,15 +140,20 @@ export default function HomePage() {
             {/* Multi-Site Network Filter Pills */}
             <MultiHubPills activeHub={activeHub} onSelectHub={handleSelectHub} />
 
-            {/* Dynamic Home Feed */}
-            <section style={{ marginBottom: '38px' }}>
-                <div className="section-header">
-                    <h2 className="section-title">
-                        {currentHubItems.title} <span className="section-count">{currentHubItems.items.length} Titles</span>
-                    </h2>
-                    <Link to={`/genre/0/${encodeURIComponent(currentHubItems.title)}?endpoint=${activeHub}`} className="see-all-pulse" onClick={playClick}>
-                        EXPLORE FULL FEED <i className="fas fa-arrow-right"></i>
-                    </Link>
+            {/* Dynamic Continue Watching / Featured Section */}
+            <section style={{ marginBottom: '38px', padding: '0 24px' }}>
+                <div style={{ marginBottom: '16px' }}>
+                    <div style={{ fontSize: '11px', fontWeight: '800', letterSpacing: '0.12em', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>
+                        PICK UP YOUR STORY
+                    </div>
+                    <div className="section-header" style={{ marginTop: 0, padding: 0 }}>
+                        <h2 className="section-title" style={{ fontSize: '26px', fontWeight: '800' }}>
+                            Continue watching
+                        </h2>
+                        <Link to="/watchlist" className="see-all-pulse" onClick={playClick} style={{ color: 'var(--text-secondary)', fontSize: '13px', fontWeight: '600' }}>
+                            View history <i className="fas fa-chevron-right" style={{ fontSize: '11px', marginLeft: '4px' }}></i>
+                        </Link>
+                    </div>
                 </div>
 
                 {hubLoading ? (
@@ -157,7 +162,7 @@ export default function HomePage() {
                             <div className="spinner-ring"></div>
                             <div className="spinner-core"><i className="fas fa-satellite-dish"></i></div>
                         </div>
-                        <div className="loader-text">SWITCHING SATELLITE FEED...</div>
+                        <div className="loader-text">SWITCHING NETWORK FEED...</div>
                     </div>
                 ) : (
                     <div className="content-grid wide">
