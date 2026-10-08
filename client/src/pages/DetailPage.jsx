@@ -178,7 +178,7 @@ export default function DetailPage() {
                                         backgroundColor: data.universe_details.color || 'var(--brand)',
                                         color: '#fff',
                                         fontSize: '11px',
-                                        fontWeight: '800',
+                        fontWeight: '800',
                                         padding: '4px 10px',
                                         borderRadius: '6px',
                                         textDecoration: 'none',

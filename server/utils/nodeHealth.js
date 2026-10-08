@@ -12,16 +12,16 @@ export const STREAM_SERVERS = [
                 : `https://vidlink.pro/movie/${id}?primaryColor=e50914&secondaryColor=b81d24&iconColor=ffffff&title=true&poster=true&autoplay=true`
     },
     {
-        id: 'vidsrc_sbs',
-        name: 'VidSrc SBS',
-        icon: 'fa-film',
+        id: 'vidsrc_me',
+        name: 'VidSrc Classic',
+        icon: 'fa-play-circle',
         ping: '10ms',
-        quality: '4K IMAX',
-        type: 'SBS Multi-Node',
+        quality: '1080p Ultra',
+        type: 'Ultra Fast Node',
         getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
-                ? `https://vidsrc.sbs/embed/tv/${id}/${s}/${e}/`
-                : `https://vidsrc.sbs/embed/movie/${id}/`
+                ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
+                : `https://vidsrc.me/embed/movie?tmdb=${id}`
     },
     {
         id: 'vidsrc_pm',
@@ -36,28 +36,28 @@ export const STREAM_SERVERS = [
                 : `https://vidsrc.pm/embed/movie/${id}`
     },
     {
-        id: '2embed',
-        name: '2Embed Stream',
-        icon: 'fa-play-circle',
-        ping: '14ms',
-        quality: '1080p Multi-Sub',
-        type: 'Fast Reliable Edge Node',
-        getUrl: (type, id, s = 1, e = 1) =>
-            type === 'tv'
-                ? `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`
-                : `https://www.2embed.cc/embed/${id}`
-    },
-    {
         id: 'vidsrc_io',
         name: 'VidSrc IO',
         icon: 'fa-network-wired',
-        ping: '15ms',
+        ping: '14ms',
         quality: '1080p HD',
         type: 'Cloud Stream Node',
         getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
                 ? `https://vidsrc.io/embed/tv/${id}/${s}/${e}`
                 : `https://vidsrc.io/embed/movie/${id}`
+    },
+    {
+        id: 'vidsrc_su',
+        name: 'VidSrc SU',
+        icon: 'fa-globe',
+        ping: '15ms',
+        quality: '4K Multi-Lang',
+        type: 'Global CDN Node',
+        getUrl: (type, id, s = 1, e = 1) =>
+            type === 'tv'
+                ? `https://vidsrc.su/embed/tv/${id}/${s}/${e}`
+                : `https://vidsrc.su/embed/movie/${id}`
     },
     {
         id: 'autoembed',
@@ -72,22 +72,34 @@ export const STREAM_SERVERS = [
                 : `https://autoembed.co/movie/tmdb/${id}`
     },
     {
-        id: 'vidsrc_me',
-        name: 'VidSrc Classic',
-        icon: 'fa-play-circle',
+        id: 'vidsrc_vip',
+        name: 'VidSrc VIP',
+        icon: 'fa-crown',
         ping: '18ms',
-        quality: '1080p Ultra',
-        type: 'Classic Backup Node',
+        quality: '1080p HD',
+        type: 'VIP Failover Node',
         getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
-                ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
-                : `https://vidsrc.me/embed/movie?tmdb=${id}`
+                ? `https://vidsrc.vip/embed/tv/${id}/${s}/${e}`
+                : `https://vidsrc.vip/embed/movie/${id}`
+    },
+    {
+        id: '2embed',
+        name: '2Embed Stream',
+        icon: 'fa-play-circle',
+        ping: '20ms',
+        quality: '1080p Multi-Sub',
+        type: 'Fast Reliable Edge Node',
+        getUrl: (type, id, s = 1, e = 1) =>
+            type === 'tv'
+                ? `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`
+                : `https://www.2embed.cc/embed/${id}`
     },
     {
         id: 'videasy',
         name: 'Videasy HD',
         icon: 'fa-play',
-        ping: '20ms',
+        ping: '22ms',
         quality: '1080p Ultra',
         type: 'Fast Direct Node',
         getUrl: (type, id, s = 1, e = 1) =>
@@ -115,8 +127,8 @@ export async function checkNodeHealth(server) {
 
     try {
         const controller = new AbortController();
-        // Aggressive timeout of 1800ms to instantly prune slow or laggy nodes
-        const timeoutId = setTimeout(() => controller.abort(), 1800);
+        // 3000ms timeout for accurate ping measurement without false negatives
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
 
         const res = await fetch(url, {
             method: 'GET',
@@ -144,7 +156,7 @@ export async function checkNodeHealth(server) {
         } else if (res.status === 200) {
             status = 'HEALTHY';
         } else if (res.status >= 300 && res.status < 400) {
-            status = 'REDIRECT';
+            status = 'HEALTHY';
         } else {
             status = 'PARTIAL';
         }
@@ -167,3 +179,4 @@ export async function checkNodeHealth(server) {
         healthy: status === 'HEALTHY'
     };
 }
+

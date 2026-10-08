@@ -235,7 +235,7 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
     const currentNodeHealth = getNodeHealthStatus(currentServer?.id);
     const isYouTube = isYouTubeUrl(currentServer?.url);
 
-    const sandboxConfig = "allow-scripts allow-same-origin allow-forms allow-presentation";
+    const sandboxConfig = "allow-scripts allow-same-origin allow-forms allow-presentation allow-pointer-lock allow-downloads";
 
     return (
         <>

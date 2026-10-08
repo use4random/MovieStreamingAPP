@@ -95,14 +95,15 @@ router.get('/', async (req, res) => {
     });
 
     // Order functional nodes by speed and reliability (fastest healthy node first)
-    servers = servers.filter(s => s.healthy !== false);
-    servers.sort((a, b) => {
-        if (a.id === 'vidsrc_sbs') return -1;
-        if (b.id === 'vidsrc_sbs') return 1;
+    const healthyServers = servers.filter(s => s.healthy !== false);
+    const serverPool = healthyServers.length > 0 ? healthyServers : servers;
+    serverPool.sort((a, b) => {
+        if (a.healthy && !b.healthy) return -1;
+        if (!a.healthy && b.healthy) return 1;
         return (a.responseTime || 999) - (b.responseTime || 999);
     });
 
-    res.json(servers);
+    res.json(serverPool);
 });
 
 export default router;
