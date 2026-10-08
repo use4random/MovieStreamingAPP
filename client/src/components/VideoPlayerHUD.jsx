@@ -9,6 +9,7 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
     const [cinemaMode, setCinemaMode] = useState(false);
     const [healthData, setHealthData] = useState(null);
     const [iframeError, setIframeError] = useState(false);
+    const [nodeFilter, setNodeFilter] = useState('all'); // 'all' | 'multilang'
     
     // 2x Sound Booster state (1 = 100%, 1.5 = 150%, 2 = 200%)
     const [boostLevel, setBoostLevel] = useState(() => {
@@ -333,62 +334,109 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
 
             {/* Video Cloud Nodes */}
             <div className="sources-section">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
-                    <h3 className="sources-title" style={{ margin: 0 }}>
-                        <i className="fas fa-server text-brand"></i> Streaming Cloud Nodes (Multi-Language Prioritization Active)
-                    </h3>
-                    {currentServer?.recommendationReason && (
-                        <span style={{ fontSize: '11px', color: '#00FFE0', background: 'rgba(0, 255, 224, 0.1)', padding: '4px 10px', borderRadius: '12px', border: '1px solid rgba(0, 255, 224, 0.3)', fontFamily: 'var(--font-mono)' }}>
-                            {currentServer.recommendationReason}
-                        </span>
-                    )}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', marginBottom: '16px' }}>
+                    <div>
+                        <h3 className="sources-title" style={{ margin: 0, display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                            <i className="fas fa-server text-brand"></i> Streaming Cloud Nodes (Multi-Language Active)
+                        </h3>
+                        {currentServer?.recommendationReason && (
+                            <span style={{ fontSize: '11px', color: '#00FFE0', background: 'rgba(0, 255, 224, 0.1)', padding: '4px 10px', borderRadius: '12px', border: '1px solid rgba(0, 255, 224, 0.3)', fontFamily: 'var(--font-mono)', marginLeft: '10px' }}>
+                                {currentServer.recommendationReason}
+                            </span>
+                        )}
+                    </div>
+
+                    {/* Multi-Language & Audio Filter Tabs */}
+                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                        <button
+                            type="button"
+                            onClick={() => { playClick(); setNodeFilter('all'); }}
+                            style={{
+                                background: nodeFilter === 'all' ? 'var(--brand)' : 'rgba(255,255,255,0.06)',
+                                color: nodeFilter === 'all' ? '#fff' : 'var(--text-secondary)',
+                                border: '1px solid rgba(255,255,255,0.1)',
+                                padding: '5px 12px',
+                                borderRadius: '8px',
+                                fontSize: '12px',
+                                fontWeight: '700',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease'
+                            }}
+                        >
+                            ALL NODES ({activeServers.length})
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => { playClick(); setNodeFilter('multilang'); }}
+                            style={{
+                                background: nodeFilter === 'multilang' ? 'linear-gradient(135deg, #00dbe9 0%, #0094a0 100%)' : 'rgba(0,219,233,0.1)',
+                                color: nodeFilter === 'multilang' ? '#001a1c' : 'var(--cyan)',
+                                border: '1px solid rgba(0,219,233,0.4)',
+                                padding: '5px 12px',
+                                borderRadius: '8px',
+                                fontSize: '12px',
+                                fontWeight: '800',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s ease',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '5px'
+                            }}
+                        >
+                            <i className="fas fa-globe"></i> 🌐 MULTI-AUDIO / MULTI-LANG ONLY ({activeServers.filter(s => s.isMultiLang).length})
+                        </button>
+                    </div>
                 </div>
+
                 <div className="servers-grid">
-                    {activeServers.map((server, idx) => {
-                        const nodeHealth = getNodeHealthStatus(server.id);
-                        const isRecommended = server.recommended || idx === 0;
-                        return (
-                            <div
-                                key={server.id || idx}
-                                className={`source-item ${selectedServer === idx ? 'active' : ''} ${nodeHealth && !nodeHealth.healthy ? 'source-item--unhealthy' : ''}`}
-                                onClick={() => handleServerSelect(idx)}
-                                style={{ position: 'relative' }}
-                            >
-                                <div className="source-icon">
-                                    <i className={`fas ${server.icon || 'fa-play'}`}></i>
-                                    {nodeHealth && (
-                                        <span className="source-health-dot" style={{
-                                            backgroundColor: nodeHealth.healthy ? 'var(--green)' : 'var(--brand)'
-                                        }}></span>
-                                    )}
-                                </div>
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div className="source-name" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                        <span>{server.name}</span>
-                                        {server.isMultiLang && (
-                                            <span style={{ fontSize: '9px', background: 'rgba(0,219,233,0.2)', color: 'var(--cyan)', border: '1px solid rgba(0,219,233,0.4)', padding: '1px 5px', borderRadius: '4px', fontWeight: '700' }}>
-                                                🌐 Multi-Lang
-                                            </span>
-                                        )}
-                                        {isRecommended && (
-                                            <span style={{ fontSize: '9px', background: 'rgba(229,9,20,0.25)', color: '#ff5168', border: '1px solid rgba(229,9,20,0.5)', padding: '1px 5px', borderRadius: '4px', fontWeight: '800' }}>
-                                                ★ Best Choice
-                                            </span>
-                                        )}
-                                    </div>
-                                    <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
-                                        {server.type || server.quality}
+                    {activeServers
+                        .map((server, originalIdx) => ({ server, originalIdx }))
+                        .filter(({ server }) => nodeFilter === 'all' || server.isMultiLang)
+                        .map(({ server, originalIdx }) => {
+                            const nodeHealth = getNodeHealthStatus(server.id);
+                            const isRecommended = server.recommended || originalIdx === 0;
+                            return (
+                                <div
+                                    key={server.id || originalIdx}
+                                    className={`source-item ${selectedServer === originalIdx ? 'active' : ''} ${nodeHealth && !nodeHealth.healthy ? 'source-item--unhealthy' : ''}`}
+                                    onClick={() => handleServerSelect(originalIdx)}
+                                    style={{ position: 'relative' }}
+                                >
+                                    <div className="source-icon">
+                                        <i className={`fas ${server.icon || 'fa-play'}`}></i>
                                         {nodeHealth && (
-                                            <span style={{ marginLeft: '6px', color: nodeHealth.healthy ? 'var(--green)' : 'var(--brand)' }}>
-                                                ({nodeHealth.responseTime}ms)
-                                            </span>
+                                            <span className="source-health-dot" style={{
+                                                backgroundColor: nodeHealth.healthy ? 'var(--green)' : 'var(--brand)'
+                                            }}></span>
                                         )}
                                     </div>
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div className="source-name" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                            <span>{server.name}</span>
+                                            {server.isMultiLang && (
+                                                <span style={{ fontSize: '9px', background: 'rgba(0,219,233,0.2)', color: 'var(--cyan)', border: '1px solid rgba(0,219,233,0.4)', padding: '1px 5px', borderRadius: '4px', fontWeight: '700' }}>
+                                                    🌐 Multi-Lang
+                                                </span>
+                                            )}
+                                            {isRecommended && (
+                                                <span style={{ fontSize: '9px', background: 'rgba(229,9,20,0.25)', color: '#ff5168', border: '1px solid rgba(229,9,20,0.5)', padding: '1px 5px', borderRadius: '4px', fontWeight: '800' }}>
+                                                    ★ Best Choice
+                                                </span>
+                                            )}
+                                        </div>
+                                        <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                                            {server.type || server.quality}
+                                            {nodeHealth && (
+                                                <span style={{ marginLeft: '6px', color: nodeHealth.healthy ? 'var(--green)' : 'var(--brand)' }}>
+                                                    ({nodeHealth.responseTime}ms)
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <span className="source-ping">{server.ping || 'Online'}</span>
                                 </div>
-                                <span className="source-ping">{server.ping || 'Online'}</span>
-                            </div>
-                        );
-                    })}
+                            );
+                        })}
                 </div>
             </div>
         </>
