@@ -5,55 +5,21 @@ export const STREAM_SERVERS = [
         icon: 'fa-bolt',
         ping: '8ms',
         quality: '4K Ultra HDR',
-        type: 'Primary Node (Fastest)',
+        type: 'Primary Multi-Lang Node',
+        isMultiLang: true,
         getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
                 ? `https://vidlink.pro/tv/${id}/${s}/${e}?primaryColor=e50914&secondaryColor=b81d24&iconColor=ffffff&title=true&poster=true&autoplay=true`
                 : `https://vidlink.pro/movie/${id}?primaryColor=e50914&secondaryColor=b81d24&iconColor=ffffff&title=true&poster=true&autoplay=true`
     },
     {
-        id: 'vidsrc_me',
-        name: 'VidSrc Classic',
-        icon: 'fa-play-circle',
-        ping: '10ms',
-        quality: '1080p Ultra',
-        type: 'Ultra Fast Node',
-        getUrl: (type, id, s = 1, e = 1) =>
-            type === 'tv'
-                ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
-                : `https://vidsrc.me/embed/movie?tmdb=${id}`
-    },
-    {
-        id: 'vidsrc_pm',
-        name: 'VidSrc PM',
-        icon: 'fa-server',
-        ping: '12ms',
-        quality: '1080p HD',
-        type: 'Cloud Edge Node',
-        getUrl: (type, id, s = 1, e = 1) =>
-            type === 'tv'
-                ? `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`
-                : `https://vidsrc.pm/embed/movie/${id}`
-    },
-    {
-        id: 'vidsrc_io',
-        name: 'VidSrc IO',
-        icon: 'fa-network-wired',
-        ping: '14ms',
-        quality: '1080p HD',
-        type: 'Cloud Stream Node',
-        getUrl: (type, id, s = 1, e = 1) =>
-            type === 'tv'
-                ? `https://vidsrc.io/embed/tv/${id}/${s}/${e}`
-                : `https://vidsrc.io/embed/movie/${id}`
-    },
-    {
         id: 'vidsrc_su',
         name: 'VidSrc SU',
         icon: 'fa-globe',
-        ping: '15ms',
+        ping: '10ms',
         quality: '4K Multi-Lang',
-        type: 'Global CDN Node',
+        type: 'Global Multi-Audio Node',
+        isMultiLang: true,
         getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
                 ? `https://vidsrc.su/embed/tv/${id}/${s}/${e}`
@@ -63,37 +29,79 @@ export const STREAM_SERVERS = [
         id: 'autoembed',
         name: 'AutoEmbed Club',
         icon: 'fa-shield-halved',
-        ping: '16ms',
-        quality: '1080p 60FPS',
-        type: 'High-Speed Backup',
+        ping: '12ms',
+        quality: '1080p Multi-Sub',
+        type: 'Multi-Language Backup Node',
+        isMultiLang: true,
         getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
                 ? `https://autoembed.co/tv/tmdb/${id}-${s}-${e}`
                 : `https://autoembed.co/movie/tmdb/${id}`
     },
     {
-        id: 'vidsrc_vip',
-        name: 'VidSrc VIP',
-        icon: 'fa-crown',
-        ping: '18ms',
-        quality: '1080p HD',
-        type: 'VIP Failover Node',
-        getUrl: (type, id, s = 1, e = 1) =>
-            type === 'tv'
-                ? `https://vidsrc.vip/embed/tv/${id}/${s}/${e}`
-                : `https://vidsrc.vip/embed/movie/${id}`
-    },
-    {
         id: '2embed',
         name: '2Embed Stream',
-        icon: 'fa-play-circle',
-        ping: '20ms',
+        icon: 'fa-language',
+        ping: '14ms',
         quality: '1080p Multi-Sub',
-        type: 'Fast Reliable Edge Node',
+        type: 'Multi-Subtitle Node',
+        isMultiLang: true,
         getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
                 ? `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`
                 : `https://www.2embed.cc/embed/${id}`
+    },
+    {
+        id: 'vidsrc_me',
+        name: 'VidSrc Classic',
+        icon: 'fa-play-circle',
+        ping: '15ms',
+        quality: '1080p Ultra',
+        type: 'Ultra Fast Node',
+        isMultiLang: false,
+        getUrl: (type, id, s = 1, e = 1) =>
+            type === 'tv'
+                ? `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`
+                : `https://vidsrc.me/embed/movie?tmdb=${id}`
+    },
+    {
+        id: 'vidsrc_pm',
+        name: 'VidSrc PM',
+        icon: 'fa-server',
+        ping: '16ms',
+        quality: '1080p HD',
+        type: 'Cloud Edge Node',
+        isMultiLang: false,
+        getUrl: (type, id, s = 1, e = 1) =>
+            type === 'tv'
+                ? `https://vidsrc.pm/embed/tv/${id}/${s}/${e}`
+                : `https://vidsrc.pm/embed/movie/${id}`
+    },
+    {
+        id: 'vidsrc_io',
+        name: 'VidSrc IO',
+        icon: 'fa-network-wired',
+        ping: '18ms',
+        quality: '1080p HD',
+        type: 'Cloud Stream Node',
+        isMultiLang: false,
+        getUrl: (type, id, s = 1, e = 1) =>
+            type === 'tv'
+                ? `https://vidsrc.io/embed/tv/${id}/${s}/${e}`
+                : `https://vidsrc.io/embed/movie/${id}`
+    },
+    {
+        id: 'vidsrc_vip',
+        name: 'VidSrc VIP',
+        icon: 'fa-crown',
+        ping: '20ms',
+        quality: '1080p HD',
+        type: 'VIP Direct Node',
+        isMultiLang: false,
+        getUrl: (type, id, s = 1, e = 1) =>
+            type === 'tv'
+                ? `https://vidsrc.vip/embed/tv/${id}/${s}/${e}`
+                : `https://vidsrc.vip/embed/movie/${id}`
     },
     {
         id: 'videasy',
@@ -102,6 +110,7 @@ export const STREAM_SERVERS = [
         ping: '22ms',
         quality: '1080p Ultra',
         type: 'Fast Direct Node',
+        isMultiLang: false,
         getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
                 ? `https://player.videasy.to/tv/${id}/${s}/${e}`

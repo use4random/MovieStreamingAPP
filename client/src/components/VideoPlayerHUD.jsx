@@ -333,15 +333,26 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
 
             {/* Video Cloud Nodes */}
             <div className="sources-section">
-                <h3 className="sources-title"><i className="fas fa-server text-brand"></i> Fast Streaming Cloud Nodes (Auto-Select Enabled)</h3>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                    <h3 className="sources-title" style={{ margin: 0 }}>
+                        <i className="fas fa-server text-brand"></i> Streaming Cloud Nodes (Multi-Language Prioritization Active)
+                    </h3>
+                    {currentServer?.recommendationReason && (
+                        <span style={{ fontSize: '11px', color: '#00FFE0', background: 'rgba(0, 255, 224, 0.1)', padding: '4px 10px', borderRadius: '12px', border: '1px solid rgba(0, 255, 224, 0.3)', fontFamily: 'var(--font-mono)' }}>
+                            {currentServer.recommendationReason}
+                        </span>
+                    )}
+                </div>
                 <div className="servers-grid">
                     {activeServers.map((server, idx) => {
                         const nodeHealth = getNodeHealthStatus(server.id);
+                        const isRecommended = server.recommended || idx === 0;
                         return (
                             <div
                                 key={server.id || idx}
                                 className={`source-item ${selectedServer === idx ? 'active' : ''} ${nodeHealth && !nodeHealth.healthy ? 'source-item--unhealthy' : ''}`}
                                 onClick={() => handleServerSelect(idx)}
+                                style={{ position: 'relative' }}
                             >
                                 <div className="source-icon">
                                     <i className={`fas ${server.icon || 'fa-play'}`}></i>
@@ -352,7 +363,19 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
                                     )}
                                 </div>
                                 <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div className="source-name">{server.name}</div>
+                                    <div className="source-name" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                        <span>{server.name}</span>
+                                        {server.isMultiLang && (
+                                            <span style={{ fontSize: '9px', background: 'rgba(0,219,233,0.2)', color: 'var(--cyan)', border: '1px solid rgba(0,219,233,0.4)', padding: '1px 5px', borderRadius: '4px', fontWeight: '700' }}>
+                                                🌐 Multi-Lang
+                                            </span>
+                                        )}
+                                        {isRecommended && (
+                                            <span style={{ fontSize: '9px', background: 'rgba(229,9,20,0.25)', color: '#ff5168', border: '1px solid rgba(229,9,20,0.5)', padding: '1px 5px', borderRadius: '4px', fontWeight: '800' }}>
+                                                ★ Best Choice
+                                            </span>
+                                        )}
+                                    </div>
                                     <div style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
                                         {server.type || server.quality}
                                         {nodeHealth && (
