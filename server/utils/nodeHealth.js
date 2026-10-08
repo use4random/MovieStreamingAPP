@@ -136,8 +136,8 @@ export async function checkNodeHealth(server) {
 
     try {
         const controller = new AbortController();
-        // 3000ms timeout for accurate ping measurement without false negatives
-        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        // 2500ms timeout for accurate ping measurement
+        const timeoutId = setTimeout(() => controller.abort(), 2500);
 
         const res = await fetch(url, {
             method: 'GET',
@@ -188,4 +188,73 @@ export async function checkNodeHealth(server) {
         healthy: status === 'HEALTHY'
     };
 }
+
+// In-Memory Fast Health Cache (Instant <5ms response, non-blocking background refresh)
+let memoryHealthCache = {
+    nodes: STREAM_SERVERS.map(s => ({
+        id: s.id,
+        name: s.name,
+        status: 'HEALTHY',
+        statusCode: 200,
+        responseTime: parseInt(s.ping) || 150,
+        healthy: true
+    })),
+    summary: { total: STREAM_SERVERS.length, healthy: STREAM_SERVERS.length, failed: 0, avgResponseTime: 150 },
+    timestamp: new Date().toISOString()
+};
+
+let isRefreshing = false;
+
+export async function refreshHealthCacheBackground() {
+    if (isRefreshing) return memoryHealthCache;
+    isRefreshing = true;
+
+    try {
+        const results = await Promise.allSettled(
+            STREAM_SERVERS.map(s => checkNodeHealth(s))
+        );
+
+        const nodes = results.map((r, i) => {
+            if (r.status === 'fulfilled') return r.value;
+            return { id: STREAM_SERVERS[i].id, name: STREAM_SERVERS[i].name, status: 'FAILED', responseTime: 9999, healthy: false };
+        });
+
+        let healthyCount = 0;
+        let totalTime = 0;
+        nodes.forEach(n => {
+            if (n.healthy) {
+                healthyCount++;
+                totalTime += n.responseTime;
+            }
+        });
+
+        memoryHealthCache = {
+            nodes,
+            summary: {
+                total: STREAM_SERVERS.length,
+                healthy: healthyCount,
+                failed: STREAM_SERVERS.length - healthyCount,
+                avgResponseTime: healthyCount > 0 ? Math.round(totalTime / healthyCount) : 0
+            },
+            timestamp: new Date().toISOString()
+        };
+    } catch (err) {
+        console.warn('[NodeHealth]: Background refresh warning:', err.message);
+    } finally {
+        isRefreshing = false;
+    }
+
+    return memoryHealthCache;
+}
+
+// Returns warm health data instantly without blocking the HTTP request
+export function getInstantHealthData() {
+    // Trigger background refresh if stale (> 60 seconds)
+    const age = Date.now() - new Date(memoryHealthCache.timestamp).getTime();
+    if (age > 60000 && !isRefreshing) {
+        refreshHealthCacheBackground().catch(() => {});
+    }
+    return memoryHealthCache;
+}
+
 
