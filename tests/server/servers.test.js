@@ -25,8 +25,8 @@ describe('Streaming Servers Node Provider Unit Tests', () => {
         await cache.set('server-health', {
             nodes: [
                 { id: 'vidlink', name: 'VidLink HD', healthy: true, responseTime: 8 },
-                { id: '2embed', name: '2Embed Stream', healthy: true, responseTime: 10 },
-                { id: 'videasy', name: 'Videasy HD', healthy: true, responseTime: 11 }
+                { id: 'vidsrc_su', name: 'VidSrc SU', healthy: true, responseTime: 10 },
+                { id: 'vidsrc_dev', name: 'VidSrc Dev', healthy: true, responseTime: 14 }
             ]
         }, 300);
 

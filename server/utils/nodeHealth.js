@@ -39,17 +39,17 @@ export const STREAM_SERVERS = [
                 : `https://autoembed.co/movie/tmdb/${id}`
     },
     {
-        id: '2embed',
-        name: '2Embed Stream',
-        icon: 'fa-language',
+        id: 'vidsrc_dev',
+        name: 'VidSrc Dev',
+        icon: 'fa-microchip',
         ping: '14ms',
-        quality: '1080p Multi-Sub',
-        type: 'Multi-Subtitle Node',
-        isMultiLang: true,
+        quality: '1080p Ultra HD',
+        type: 'High-Speed Edge Node',
+        isMultiLang: false,
         getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
-                ? `https://www.2embed.cc/embedtv/${id}&s=${s}&e=${e}`
-                : `https://www.2embed.cc/embed/${id}`
+                ? `https://vidsrc.dev/embed/tv/${id}/${s}/${e}`
+                : `https://vidsrc.dev/embed/movie/${id}`
     },
     {
         id: 'vidsrc_me',
@@ -91,30 +91,17 @@ export const STREAM_SERVERS = [
                 : `https://vidsrc.io/embed/movie/${id}`
     },
     {
-        id: 'vidsrc_vip',
-        name: 'VidSrc VIP',
-        icon: 'fa-crown',
+        id: 'vidsrc_bz',
+        name: 'VidSrc BZ',
+        icon: 'fa-tower-broadcast',
         ping: '20ms',
-        quality: '1080p HD',
-        type: 'VIP Direct Node',
-        isMultiLang: false,
+        quality: '1080p Multi-Sub',
+        type: 'Ultra Resilient Node',
+        isMultiLang: true,
         getUrl: (type, id, s = 1, e = 1) =>
             type === 'tv'
-                ? `https://vidsrc.vip/embed/tv/${id}/${s}/${e}`
-                : `https://vidsrc.vip/embed/movie/${id}`
-    },
-    {
-        id: 'videasy',
-        name: 'Videasy HD',
-        icon: 'fa-play',
-        ping: '22ms',
-        quality: '1080p Ultra',
-        type: 'Fast Direct Node',
-        isMultiLang: false,
-        getUrl: (type, id, s = 1, e = 1) =>
-            type === 'tv'
-                ? `https://player.videasy.to/tv/${id}/${s}/${e}`
-                : `https://player.videasy.to/movie/${id}`
+                ? `https://vidsrc.bz/embed/tv/${id}/${s}/${e}`
+                : `https://vidsrc.bz/embed/movie/${id}`
     }
 ];
 
@@ -136,8 +123,8 @@ export async function checkNodeHealth(server) {
 
     try {
         const controller = new AbortController();
-        // 2500ms timeout for accurate ping measurement
-        const timeoutId = setTimeout(() => controller.abort(), 2500);
+        // 4000ms timeout for accurate ping measurement
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
 
         const res = await fetch(url, {
             method: 'GET',

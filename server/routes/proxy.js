@@ -106,6 +106,8 @@ const ALLOWED_HOSTS = [
     'vidbinge.dev',
     'vidsrc.pro',
     'vidsrc.xyz',
+    'vidsrc.dev',
+    'vidsrc.bz',
     'embed.su',
     'smashystream.com',
     'vid2fcdn.xyz',

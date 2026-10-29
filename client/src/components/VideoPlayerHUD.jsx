@@ -83,6 +83,16 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
         }
     }, []);
 
+    // Clean up AudioContext on unmount to prevent resource exhaustion
+    useEffect(() => {
+        return () => {
+            if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+                audioContextRef.current.close().catch(() => {});
+                audioContextRef.current = null;
+            }
+        };
+    }, []);
+
     // Apply boost on mount and whenever boostLevel changes
     useEffect(() => {
         applyAudioBoost(boostLevel);
@@ -126,7 +136,14 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
         });
     }
 
-    // Fetch health data once and auto-select fastest healthy server
+    // Reset selected server to primary recommended node (0) whenever content, season or episode changes
+    useEffect(() => {
+        setSelectedServer(0);
+        setIframeError(false);
+        setLoading(false);
+    }, [id, season, episode]);
+
+    // Fetch node health data and populate live latency ping indicators
     useEffect(() => {
         let cancelled = false;
 
@@ -135,31 +152,29 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
                 const health = await api.getServerHealth();
                 if (!cancelled && health && health.nodes) {
                     setHealthData(health);
-                    const healthyNodes = health.nodes.filter(n => n.healthy);
-                    if (healthyNodes.length > 0 && servers.length > 0) {
-                        const fastestHealthy = healthyNodes[0];
-                        const idx = activeServers.findIndex(s => s.id === fastestHealthy.id);
-                        if (idx >= 0) {
-                            setSelectedServer(idx);
-                        }
-                    }
                 }
             } catch (err) {
-                console.warn('Health check fetch failed, using default server order');
+                console.warn('Health check fetch notice, using active server pool');
             }
         }
 
-        if (servers.length > 0) {
-            loadHealth();
-        }
-
+        loadHealth();
         return () => { cancelled = true; };
-    }, [id, season, episode]);
+    }, [id, season, episode, servers.length]);
 
     useEffect(() => {
         setIframeError(false);
         setLoading(false);
-    }, [selectedServer, id, season, episode]);
+    }, [selectedServer]);
+
+    const handleSwitchToNextNode = (e) => {
+        if (e && e.stopPropagation) e.stopPropagation();
+        try { playClick(); } catch {}
+        setIframeError(false);
+        setLoading(true);
+        setSelectedServer(prev => (prev + 1) % Math.max(activeServers.length, 1));
+        setTimeout(() => setLoading(false), 200);
+    };
 
     const lastErrorTimeRef = useRef(0);
 
@@ -289,7 +304,10 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
                             <i className="fas fa-lightbulb"></i> Cinema Mode
                         </button>
                         <button className="hud-btn" onClick={(e) => { e.stopPropagation(); setLoading(true); setIframeError(false); setTimeout(() => setLoading(false), 150); }} title="Re-sync Buffer">
-                            <i className="fas fa-rotate"></i> Fast Re-Sync
+                            <i className="fas fa-rotate"></i> Re-Sync
+                        </button>
+                        <button className="hud-btn hud-btn--backup" onClick={handleSwitchToNextNode} title="Switch to Next Working Streaming Node" style={{ borderColor: 'rgba(0, 219, 233, 0.4)', color: 'var(--cyan)' }}>
+                            <i className="fas fa-forward-step"></i> Next Node ({selectedServer + 1}/{activeServers.length || 1})
                         </button>
                     </div>
                 </div>
@@ -329,6 +347,25 @@ export default function VideoPlayerHUD({ mediaType, id, season = 1, episode = 1,
                             onError={handleIframeError}
                         />
                     )}
+                </div>
+
+                {/* Instant Stream Diagnostic Bar */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', padding: '10px 16px', background: 'rgba(255,255,255,0.02)', borderBottomLeftRadius: '12px', borderBottomRightRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', borderTop: 'none', fontSize: '12px', color: 'var(--text-muted)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: currentNodeHealth?.healthy ? 'var(--green)' : 'var(--brand)', display: 'inline-block' }}></span>
+                        <span>Active Stream: <strong style={{ color: '#fff' }}>{currentServer?.name || 'Primary Node'}</strong> ({currentServer?.quality || 'HD'})</span>
+                        {currentServer?.isMultiLang && (
+                            <span style={{ fontSize: '10px', background: 'rgba(0,219,233,0.15)', color: 'var(--cyan)', padding: '2px 6px', borderRadius: '4px', fontWeight: '700' }}>Multi-Audio & Subtitles Ready</span>
+                        )}
+                    </div>
+                    <button
+                        type="button"
+                        onClick={handleSwitchToNextNode}
+                        style={{ background: 'transparent', border: 'none', color: 'var(--cyan)', cursor: 'pointer', fontSize: '12px', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '5px', padding: '4px 8px', borderRadius: '6px' }}
+                    >
+                        <span>Lagging or slow? Switch to next backup node</span>
+                        <i className="fas fa-arrow-right" style={{ fontSize: '10px' }}></i>
+                    </button>
                 </div>
             </div>
 

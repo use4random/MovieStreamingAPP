@@ -44,6 +44,15 @@ export default function DetailPage() {
         return () => window.removeEventListener('cinepulse_boost_change', handleSync);
     }, []);
 
+    // ── Reset state on route or content change to ensure pristine playback ──
+    useEffect(() => {
+        setSeason(1);
+        setEpisode(1);
+        setManualServers(null);
+        setMobilePlaying(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [type, id]);
+
     // ── Cached media details (won't refetch if already in cache) ──
     const { data, isLoading } = useQuery({
         queryKey: ['media-detail', type, id],
@@ -53,10 +62,10 @@ export default function DetailPage() {
 
     const imdbId = data?.external_ids?.imdb_id;
 
-    // ── Cached initial servers ──
-    const { data: initialServers } = useQuery({
-        queryKey: ['servers', type, id, 1, 1, imdbId],
-        queryFn: () => api.getServers(type, id, 1, 1, imdbId),
+    // ── Cached servers for active season & episode ──
+    const { data: episodeServers } = useQuery({
+        queryKey: ['servers', type, id, season, episode, imdbId],
+        queryFn: () => api.getServers(type, id, season, episode, imdbId),
         enabled: !!id,
     });
 
@@ -67,18 +76,13 @@ export default function DetailPage() {
         enabled: !!id,
     });
 
-    const servers = manualServers ?? initialServers ?? [];
+    const servers = manualServers ?? episodeServers ?? [];
     const loading = isLoading;
-
 
     const handleSelectEpisode = (s, e) => {
         setSeason(s);
         setEpisode(e);
-        const currentImdbId = data?.external_ids?.imdb_id;
-        // Refresh server URLs for this specific episode
-        api.getServers(type, id, s, e, currentImdbId).then(res => {
-            if (res) setManualServers(res);
-        });
+        setManualServers(null);
     };
 
     if (loading) {
