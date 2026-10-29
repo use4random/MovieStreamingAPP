@@ -507,10 +507,10 @@ export default function DetailPage() {
                 </ComponentErrorBoundary>
             )}
 
-            {/* Hybrid Recommendation Rail */}
-            <ComponentErrorBoundary name="Neural Recommendations Rail">
+            {/* Recommendations Rail */}
+            <ComponentErrorBoundary name="Recommendations Rail">
                 <RecommendationRail
-                    title="Neural Match Recommendations"
+                    title="Recommended For You"
                     reason={recReason}
                     items={recItems}
                     isLoading={recLoading}
