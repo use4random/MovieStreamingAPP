@@ -147,10 +147,10 @@ export default function ThanosSnap() {
     const toastTimerRef = useRef(null);
     const location = useLocation();
 
-    const showToast = (message, type = 'snap', quote = '') => {
+    const showToast = (message, type = 'snap') => {
         if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
-        setToast({ message, type, quote });
-        toastTimerRef.current = setTimeout(() => setToast(null), 3600);
+        setToast({ message, type });
+        toastTimerRef.current = setTimeout(() => setToast(null), 3000);
     };
 
     const restoreAllElements = useCallback(() => {
@@ -504,7 +504,7 @@ export default function ThanosSnap() {
         });
 
         setIsSnapped(true);
-        showToast('“I am inevitable.”', 'snap', 'The entire page disintegrated into 16 dust layers. Click Time Stone to restore.');
+        showToast('I am inevitable', 'snap');
     };
 
     // ── TRIGGER TIME STONE REVERSE (RESTORE THE ENTIRE PAGE) ──────────────
@@ -558,7 +558,7 @@ export default function ThanosSnap() {
             }, 1400);
         });
 
-        showToast('“I am Iron Man.”', 'restore', 'The 16 layers have reassembled. Entire universe restored.');
+        showToast('I am Iron Man', 'restore');
     };
 
     return (
@@ -568,8 +568,8 @@ export default function ThanosSnap() {
                 type="button"
                 className={`thanos-snap-btn ${isSnapped ? 'is-snapped' : ''}`}
                 onClick={isSnapped ? handleRestore : handleSnap}
-                title={isSnapped ? 'Time Stone: Reverse Snap (Restore Whole Page)' : 'Thanos Snap: Disintegrate Whole Page into Dust'}
-                aria-label={isSnapped ? 'Time Stone Reverse' : 'Thanos Snap'}
+                title={isSnapped ? 'I am Iron Man' : 'I am inevitable'}
+                aria-label={isSnapped ? 'I am Iron Man' : 'I am inevitable'}
                 disabled={isAnimating}
             >
                 {isSnapped ? (
@@ -619,11 +619,9 @@ export default function ThanosSnap() {
             {/* Cinematic Toast Notification */}
             {toast && (
                 <div className={`thanos-cinematic-toast ${toast.type}`}>
-                    <i className={`fas ${toast.type === 'snap' ? 'fa-skull text-gold' : 'fa-hourglass-start text-green'}`} />
-                    <div>
-                        <span style={{ color: toast.type === 'snap' ? '#ffd700' : '#00ff88', marginRight: '6px' }}>{toast.message}</span>
-                        <span style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>{toast.quote}</span>
-                    </div>
+                    <span style={{ color: toast.type === 'snap' ? '#ffd700' : '#00ff88', fontWeight: '800', letterSpacing: '0.04em', fontSize: '14px' }}>
+                        {toast.message}
+                    </span>
                 </div>
             )}
         </>
