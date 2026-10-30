@@ -6,14 +6,16 @@ import '../styles/thanos.css';
  * FIDEV.IO / SNAPPABLE (Marcin Szałek) Thanos Snap Disintegration Algorithm
  * Reference: https://fidev.io/thanos-snap-effect-in-flutter/
  *
- * Architecture:
- * 1. Decomposition: Elements are split into `NUMBER_OF_BUCKETS` (16) discrete layers.
- * 2. Directional Weights: Pixels are weighted by vertical (y) and horizontal (x) position
- *    so the top-right / top edge turns to dust first, flowing organically downward.
- * 3. Layer Dispersal: Each bucket animates with staggered interval curves, random wind angles,
+ * Full-Page Architecture:
+ * 1. Decomposition: Elements and visible page content are split into `NUMBER_OF_BUCKETS` (16) discrete layers.
+ * 2. Directional Weights: Pixels and elements are weighted by vertical (y) and horizontal (x) position
+ *    (normY * 0.62 + (1.0 - normX) * 0.38) so the top-right / upper edge turns to dust first, flowing organically downward to bottom-left.
+ * 3. Whole-Page Application: Applies across the entire page (Video Player HUD, Hero Carousel, Bento grids,
+ *    Content Grids, Sidebar, Detail rows, and Footer), while preserving the navigation header so the user can reverse the snap.
+ * 4. Layer Dispersal: Each bucket animates with staggered interval curves, random wind angles,
  *    velocity offsets, thermal lift, and rotation.
- * 4. Time Stone Reversal: The animation controller can rewind in reverse to reconstitute
- *    all layers back into the original content.
+ * 5. Time Stone Reversal: The animation controller can rewind in reverse to reconstitute
+ *    all 16 layers back into the original content cleanly without breaking playback or page layout.
  */
 const NUMBER_OF_BUCKETS = 16;
 const SNAP_DURATION_MS = 2400;
@@ -38,7 +40,7 @@ function createThanosAudio() {
         const t = audioCtx.currentTime;
 
         try {
-            // High-frequency finger snap click (noise transient)
+            // 1. High-frequency finger snap click (noise transient)
             const bufferSize = Math.floor(audioCtx.sampleRate * 0.05);
             const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
             const data = buffer.getChannelData(0);
@@ -62,7 +64,7 @@ function createThanosAudio() {
             noiseGain.connect(audioCtx.destination);
             noise.start(t);
 
-            // Body pop
+            // 2. Body pop
             const popOsc = audioCtx.createOscillator();
             const popGain = audioCtx.createGain();
             popOsc.type = 'triangle';
@@ -75,7 +77,7 @@ function createThanosAudio() {
             popOsc.start(t);
             popOsc.stop(t + 0.06);
 
-            // Cosmic cinematic sub-rumble
+            // 3. Cosmic cinematic sub-rumble
             const subOsc = audioCtx.createOscillator();
             const subGain = audioCtx.createGain();
             subOsc.type = 'sine';
@@ -98,7 +100,7 @@ function createThanosAudio() {
         const t = audioCtx.currentTime;
 
         try {
-            // Harmonic mystic chime chord (Doctor Strange time stone rewind)
+            // Harmonic mystic chime chord (Doctor Strange time stone rewind arpeggio)
             const freqs = [329.63, 440.0, 554.37, 659.25, 880.0];
             freqs.forEach((f, idx) => {
                 const osc = audioCtx.createOscillator();
@@ -157,6 +159,9 @@ export default function ThanosSnap() {
                 if (el && el.classList) {
                     el.classList.remove('snappable-dissolved');
                     el.classList.remove('snappable-restoring');
+                    el.classList.remove('snappable-container-dissolved');
+                    el.classList.remove('snappable-container-restoring');
+                    delete el.dataset.isContainer;
                     el.style.visibility = '';
                     el.style.opacity = '';
                     el.style.transform = '';
@@ -165,6 +170,10 @@ export default function ThanosSnap() {
             });
             snappedElementsRef.current = [];
         }
+
+        const header = document.getElementById('siteHeader');
+        if (header) header.classList.remove('thanos-universe-snapped');
+
         layersRef.current = [];
         setIsSnapped(false);
         if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
@@ -187,70 +196,112 @@ export default function ThanosSnap() {
     }, [restoreAllElements]);
 
     /**
-     * Decomposes target DOM elements into 16 weighted bucket layers as defined by Fidev.io
+     * Decomposes the whole page and visible elements into 16 weighted bucket layers as defined by Fidev.io
+     * Directional weighting: top-right dissolved into earlier buckets (0..4), middle into (5..11), bottom-left into (12..15).
      */
     const buildFidevLayers = (elements) => {
-        const layers = [];
-        const ashColors = ['#424242', '#616161', '#757575', '#9e9e9e', '#bcaaa4', '#37474f', '#212121'];
-        const emberColors = ['#ff7043', '#ffab40', '#ffd54f'];
+        const layers = Array.from({ length: NUMBER_OF_BUCKETS }, (_, bIndex) => {
+            // Interval curve matching Flutter Curves.easeOut / Interval
+            const startInterval = (bIndex / NUMBER_OF_BUCKETS) * 0.54;
+            const endInterval = Math.min(1.0, startInterval + 0.46);
 
+            // Directional drift: top-right wind direction (-0.2 rad ≈ -11 deg) + organic variance
+            const angle = -0.2 + (Math.random() - 0.5) * 0.4;
+            const distance = 180 + Math.random() * 220;
+            const rotation = (Math.random() - 0.5) * 1.8;
+            const lift = 45 + Math.random() * 55;
+
+            return {
+                index: bIndex,
+                startInterval,
+                endInterval,
+                angle,
+                distance,
+                rotation,
+                lift,
+                particles: []
+            };
+        });
+
+        const ashColors = ['#262626', '#3d3d3d', '#525252', '#6e6e6e', '#888888', '#9e9e9e', '#bcaaa4', '#1f2427'];
+        const emberColors = ['#ff5722', '#ff9800', '#ffb74d', '#ffd54f', '#ff7043', '#00ff88', '#ba68c8'];
+
+        const viewW = window.innerWidth;
+        const viewH = window.innerHeight;
+        const topOffset = 70; // protect header area
+        const contentH = Math.max(100, viewH - topOffset);
+
+        // Dynamic particle count scaled to screen size for smooth 60 FPS
+        const totalTargetParticles = Math.min(2200, Math.max(1000, Math.floor((viewW * viewH) / 950)));
+
+        // Collect visible bounding boxes of content on screen
+        const visibleBoxes = [];
         elements.forEach(el => {
-            const rect = el.getBoundingClientRect();
-            if (rect.width <= 0 || rect.height <= 0) return;
+            const r = el.getBoundingClientRect();
+            if (r.bottom > topOffset && r.top < viewH && r.right > 0 && r.left < viewW && r.width > 20 && r.height > 20) {
+                visibleBoxes.push({
+                    x1: Math.max(0, r.left),
+                    y1: Math.max(topOffset, r.top),
+                    x2: Math.min(viewW, r.right),
+                    y2: Math.min(viewH, r.bottom),
+                    area: (Math.min(viewW, r.right) - Math.max(0, r.left)) * (Math.min(viewH, r.bottom) - Math.max(topOffset, r.top))
+                });
+            }
+        });
 
-            // Generate buckets for this element
-            const elementBuckets = Array.from({ length: NUMBER_OF_BUCKETS }, (_, bIndex) => {
-                // Interval curve for this bucket layer
-                const startInterval = (bIndex / NUMBER_OF_BUCKETS) * 0.58;
-                const endInterval = Math.min(1.0, startInterval + 0.42);
+        // Helper to assign a screen coordinate to a Fidev.io layer bucket
+        const assignToBucket = (x, y) => {
+            const normX = Math.min(1, Math.max(0, x / viewW));
+            const normY = Math.min(1, Math.max(0, (y - topOffset) / contentH));
 
-                // Flight physics parameters per bucket
-                const angle = -0.18 + (Math.random() - 0.5) * 0.45; // drifting right and upward
-                const distance = 160 + Math.random() * 200;
-                const rotation = (Math.random() - 0.5) * 1.6;
-                const lift = 35 + Math.random() * 45;
+            // FIDEV DIRECTIONAL WEIGHT FORMULA:
+            // Top-right corner dissolves first (normY = 0, normX = 1 -> weight = 0 -> bucket 0)
+            // Bottom-left dissolves last (normY = 1, normX = 0 -> weight = 1 -> bucket 15)
+            const directionalWeight = normY * 0.62 + (1.0 - normX) * 0.38;
+            const randomized = directionalWeight + (Math.random() - 0.5) * 0.28;
+            return Math.min(NUMBER_OF_BUCKETS - 1, Math.max(0, Math.floor(randomized * NUMBER_OF_BUCKETS)));
+        };
 
-                return {
-                    index: bIndex,
-                    startInterval,
-                    endInterval,
-                    angle,
-                    distance,
-                    rotation,
-                    lift,
-                    particles: []
-                };
-            });
+        const elementParticleCount = Math.floor(totalTargetParticles * 0.75);
+        const ambientParticleCount = totalTargetParticles - elementParticleCount;
 
-            // Sample particle grid across the element using Fidev.io probability distribution
-            const sampleStep = 12; // grid resolution
-            for (let y = 0; y < rect.height; y += sampleStep) {
-                for (let x = 0; x < rect.width; x += sampleStep) {
-                    const normX = x / rect.width;
-                    const normY = y / rect.height;
+        // A. Sample particles from visible elements on screen
+        if (visibleBoxes.length > 0) {
+            const totalArea = visibleBoxes.reduce((acc, b) => acc + b.area, 0);
+            visibleBoxes.forEach(box => {
+                const count = Math.max(3, Math.floor((box.area / totalArea) * elementParticleCount));
+                for (let i = 0; i < count; i++) {
+                    const px = box.x1 + Math.random() * (box.x2 - box.x1);
+                    const py = box.y1 + Math.random() * (box.y2 - box.y1);
+                    const bIdx = assignToBucket(px, py);
 
-                    // FIDEV.IO DIRECTIONAL WEIGHT FORMULA:
-                    // Pixels higher up and to the right disintegrate into earlier buckets first
-                    const weight = (normY * 0.65 + normX * 0.35);
-                    const randomizedWeight = weight + (Math.random() - 0.5) * 0.28;
-                    const bucketIndex = Math.min(
-                        NUMBER_OF_BUCKETS - 1,
-                        Math.max(0, Math.floor(randomizedWeight * NUMBER_OF_BUCKETS))
-                    );
-
-                    const isEmber = Math.random() < 0.15;
-                    elementBuckets[bucketIndex].particles.push({
-                        originX: rect.left + x + (Math.random() - 0.5) * 6,
-                        originY: rect.top + y + (Math.random() - 0.5) * 6,
-                        size: isEmber ? Math.random() * 2.2 + 1.2 : Math.random() * 3.5 + 1.8,
+                    const isEmber = Math.random() < 0.22;
+                    layers[bIdx].particles.push({
+                        originX: px,
+                        originY: py,
+                        size: isEmber ? Math.random() * 2.8 + 1.2 : Math.random() * 3.6 + 1.8,
                         color: isEmber ? emberColors[Math.floor(Math.random() * emberColors.length)] : ashColors[Math.floor(Math.random() * ashColors.length)],
                         isEmber
                     });
                 }
-            }
+            });
+        }
 
-            layers.push(...elementBuckets);
-        });
+        // B. Full-screen ambient dust blanket across entire visible page
+        for (let i = 0; i < ambientParticleCount; i++) {
+            const px = Math.random() * viewW;
+            const py = topOffset + Math.random() * contentH;
+            const bIdx = assignToBucket(px, py);
+
+            const isEmber = Math.random() < 0.2;
+            layers[bIdx].particles.push({
+                originX: px,
+                originY: py,
+                size: isEmber ? Math.random() * 2.4 + 1.0 : Math.random() * 3.2 + 1.5,
+                color: isEmber ? emberColors[Math.floor(Math.random() * emberColors.length)] : ashColors[Math.floor(Math.random() * ashColors.length)],
+                isEmber
+            });
+        }
 
         return layers;
     };
@@ -311,7 +362,7 @@ export default function ThanosSnap() {
 
                     if (p.isEmber) {
                         ctx.shadowBlur = 8;
-                        ctx.shadowColor = '#ffab40';
+                        ctx.shadowColor = p.color;
                         ctx.beginPath();
                         ctx.arc(0, 0, p.size, 0, Math.PI * 2);
                         ctx.fill();
@@ -336,7 +387,7 @@ export default function ThanosSnap() {
         animFrameRef.current = requestAnimationFrame(renderFrame);
     };
 
-    // ── TRIGGER THANOS SNAP (FIDEV.IO ALGORITHM) ───────────────────────────
+    // ── TRIGGER THANOS SNAP ACROSS THE WHOLE PAGE (FIDEV.IO ALGORITHM) ────
     const handleSnap = () => {
         if (isAnimating) return;
         setIsAnimating(true);
@@ -348,60 +399,115 @@ export default function ThanosSnap() {
         setFlash(true);
         setTimeout(() => setFlash(false), 850);
 
-        // 3. Select 50% of candidate content widgets
-        const targetSelectors = [
-            '.movie-card',
+        // 3. Mark site header with universe altered aura
+        const header = document.getElementById('siteHeader');
+        if (header) header.classList.add('thanos-universe-snapped');
+
+        // 4. Collect ALL content sections and components across the whole page
+        const containerSelectors = [
+            '#mainContent',
+            '.main-content',
+            '.sidebar',
+            '.site-footer',
+            'footer',
+            '#playerSection',
+            '.player-section'
+        ];
+        const containers = Array.from(document.querySelectorAll(containerSelectors.join(','))).filter(el => {
+            return !el.closest('#siteHeader') && !el.closest('.thanos-snap-btn');
+        });
+
+        const itemSelectors = [
+            '#playerSection > *',
+            '.player-section > *',
+            '.player-hud-wrap',
+            '.hero-carousel',
             '.hero-carousel-slide',
+            '.detail-header-row',
+            '.mobile-details-container',
+            '.mobile-backdrop-header',
+            '.bento-card',
             '.glass-card',
             '.glass-panel',
+            '.movie-card',
+            '.content-grid > *',
             '.network-card',
             '.watchlist-card',
             '.sidebar-widget',
-            '.bento-card'
+            '.recommendations-wrap',
+            'main section',
+            '#mainContent > *',
+            '.sidebar > *',
+            '.site-footer > *'
         ];
-
-        const candidates = Array.from(document.querySelectorAll(targetSelectors.join(','))).filter(el => {
-            if (el.closest('.site-header') || el.closest('#playerSection') || el.closest('.auth-modal') || el.closest('.thanos-snap-btn')) {
-                return false;
-            }
-            const r = el.getBoundingClientRect();
-            return r.width > 30 && r.height > 30 && r.bottom > 0 && r.top < window.innerHeight;
+        const items = Array.from(document.querySelectorAll(itemSelectors.join(','))).filter(el => {
+            if (el.closest('#siteHeader') || el.closest('.thanos-snap-btn') || el.classList.contains('thanos-snap-btn')) return false;
+            if (el.classList.contains('thanos-particle-canvas') || el.classList.contains('thanos-cosmic-flash') || el.classList.contains('thanos-time-ring') || el.classList.contains('thanos-cinematic-toast')) return false;
+            return true;
         });
 
-        let pool = candidates;
-        if (pool.length < 4) {
-            pool = Array.from(document.querySelectorAll('.main-content > *, .content-grid > *')).filter(el => {
+        let allItems = Array.from(new Set(items));
+        if (allItems.length < 5) {
+            const fallback = Array.from(document.querySelectorAll('.site-container *')).filter(el => {
+                if (el.closest('#siteHeader') || el.closest('.thanos-snap-btn')) return false;
                 const r = el.getBoundingClientRect();
-                return r.width > 40 && r.height > 40 && r.bottom > 0 && r.top < window.innerHeight;
+                return r.width > 50 && r.height > 50;
             });
+            allItems = Array.from(new Set([...allItems, ...fallback]));
         }
 
-        const shuffled = [...pool].sort(() => 0.5 - Math.random());
-        const victims = shuffled.slice(0, Math.ceil(pool.length / 2));
-        snappedElementsRef.current = victims;
+        // Tag container elements for distinct smooth container-level dissolve
+        containers.forEach(c => {
+            c.dataset.isContainer = 'true';
+        });
 
-        // 4. Construct Fidev.io 16-bucket layers
-        const layers = buildFidevLayers(victims);
+        const allVictims = Array.from(new Set([...allItems, ...containers]));
+        snappedElementsRef.current = allVictims;
+
+        // 5. Construct Fidev.io 16-bucket layers across whole page
+        const layers = buildFidevLayers(allItems);
         layersRef.current = layers;
 
-        // Stagger fade out of victim DOM elements in sync with bucket layers
-        victims.forEach((el, elIdx) => {
-            const delay = (elIdx * 70) % 500;
+        // 6. Stagger fade out of victim elements according to their Fidev directional weight (top-right to bottom-left)
+        const viewW = window.innerWidth;
+        const viewH = window.innerHeight;
+
+        allItems.forEach((el) => {
+            const r = el.getBoundingClientRect();
+            const cx = r.left + r.width / 2;
+            const cy = r.top + r.height / 2;
+            const normX = Math.min(1, Math.max(0, cx / viewW));
+            const normY = Math.min(1, Math.max(0, cy / viewH));
+            // Fidev directional weight formula:
+            const weight = normY * 0.62 + (1.0 - normX) * 0.38;
+            const delay = Math.min(650, Math.max(0, Math.floor(weight * 600 + (Math.random() - 0.5) * 80)));
+
             setTimeout(() => {
-                el.classList.add('snappable-dissolved');
+                if (el && el.classList) {
+                    el.classList.add('snappable-dissolved');
+                }
             }, delay);
         });
 
-        // 5. Run Fidev.io Layer Animation Loop
+        // Containers dissolve smoothly near the middle of the wave
+        containers.forEach(c => {
+            setTimeout(() => {
+                if (c && c.classList) {
+                    c.classList.add('snappable-container-dissolved');
+                }
+            }, 380);
+        });
+
+        // 7. Run Fidev.io Layer Animation Loop
         animateFidevSnap(layers, false, () => {
             setIsAnimating(false);
         });
 
         setIsSnapped(true);
-        showToast('“I am inevitable.”', 'snap', '50% of the screen turned into 16 dust layers. Click Time Stone to restore.');
+        showToast('“I am inevitable.”', 'snap', 'The entire page disintegrated into 16 dust layers. Click Time Stone to restore.');
     };
 
-    // ── TRIGGER TIME STONE REVERSE (RESTORE ALL LAYERS) ────────────────────
+    // ── TRIGGER TIME STONE REVERSE (RESTORE THE ENTIRE PAGE) ──────────────
     const handleRestore = () => {
         if (isAnimating) return;
         setIsAnimating(true);
@@ -416,12 +522,20 @@ export default function ThanosSnap() {
         const victims = snappedElementsRef.current;
         const layers = layersRef.current;
 
-        // Animate buckets converging in reverse (1.0 -> 0.0)
+        const header = document.getElementById('siteHeader');
+        if (header) header.classList.remove('thanos-universe-snapped');
+
+        // 3. Animate buckets converging in reverse (1.0 -> 0.0)
         animateFidevSnap(layers, true, () => {
             victims.forEach(el => {
                 if (el && el.classList) {
                     el.classList.remove('snappable-dissolved');
-                    el.classList.add('snappable-restoring');
+                    el.classList.remove('snappable-container-dissolved');
+                    if (el.dataset.isContainer === 'true') {
+                        el.classList.add('snappable-container-restoring');
+                    } else {
+                        el.classList.add('snappable-restoring');
+                    }
                 }
             });
 
@@ -429,6 +543,12 @@ export default function ThanosSnap() {
                 victims.forEach(el => {
                     if (el && el.classList) {
                         el.classList.remove('snappable-restoring');
+                        el.classList.remove('snappable-container-restoring');
+                        delete el.dataset.isContainer;
+                        el.style.visibility = '';
+                        el.style.opacity = '';
+                        el.style.transform = '';
+                        el.style.filter = '';
                     }
                 });
                 snappedElementsRef.current = [];
@@ -438,7 +558,7 @@ export default function ThanosSnap() {
             }, 1400);
         });
 
-        showToast('“I am Iron Man.”', 'restore', 'The 16 layers have reassembled. Universe restored.');
+        showToast('“I am Iron Man.”', 'restore', 'The 16 layers have reassembled. Entire universe restored.');
     };
 
     return (
@@ -448,7 +568,7 @@ export default function ThanosSnap() {
                 type="button"
                 className={`thanos-snap-btn ${isSnapped ? 'is-snapped' : ''}`}
                 onClick={isSnapped ? handleRestore : handleSnap}
-                title={isSnapped ? 'Time Stone: Reverse Snap (Restore Universe)' : 'Thanos Snap (Turn 50% of Content into Dust)'}
+                title={isSnapped ? 'Time Stone: Reverse Snap (Restore Whole Page)' : 'Thanos Snap: Disintegrate Whole Page into Dust'}
                 aria-label={isSnapped ? 'Time Stone Reverse' : 'Thanos Snap'}
                 disabled={isAnimating}
             >

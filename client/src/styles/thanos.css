@@ -55,13 +55,20 @@
     }
 }
 
+/* Site Header Universe Altered Aura */
+#siteHeader.thanos-universe-snapped {
+    border-bottom: 1px solid rgba(0, 255, 136, 0.35) !important;
+    box-shadow: 0 4px 30px rgba(0, 255, 136, 0.18) !important;
+    transition: all 0.6s ease;
+}
+
 /* Cosmic Screen Flash Shockwave */
 .thanos-cosmic-flash {
     position: fixed;
     inset: 0;
     pointer-events: none;
     z-index: 99998;
-    background: radial-gradient(circle at center, rgba(255, 230, 140, 0.6) 0%, rgba(186, 104, 200, 0.35) 45%, rgba(0, 0, 0, 0.6) 90%);
+    background: radial-gradient(circle at center, rgba(255, 230, 140, 0.65) 0%, rgba(186, 104, 200, 0.4) 45%, rgba(0, 0, 0, 0.65) 90%);
     opacity: 0;
     animation: thanosFlashAnim 0.85s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
 }
@@ -156,6 +163,33 @@
     }
 }
 
+/* Container-level Dissolution (smooth fade without geometric distortion on large wrappers) */
+.snappable-container-dissolved {
+    animation: snappableContainerDissolve 2.3s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+    pointer-events: none !important;
+    user-select: none !important;
+}
+
+@keyframes snappableContainerDissolve {
+    0% {
+        opacity: 1;
+        filter: blur(0px);
+    }
+    35% {
+        opacity: 0.75;
+        filter: blur(1.5px);
+    }
+    70% {
+        opacity: 0.2;
+        filter: blur(4px);
+    }
+    100% {
+        opacity: 0;
+        filter: blur(8px);
+        visibility: hidden;
+    }
+}
+
 /* Reversing / Restoring Elements */
 .snappable-restoring {
     visibility: visible !important;
@@ -176,6 +210,27 @@
     100% {
         opacity: 1;
         transform: translate(0, 0) scale(1);
+        filter: drop-shadow(0 0 0px transparent);
+    }
+}
+
+/* Container-level Restoration */
+.snappable-container-restoring {
+    visibility: visible !important;
+    animation: snappableContainerRestore 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards !important;
+}
+
+@keyframes snappableContainerRestore {
+    0% {
+        opacity: 0;
+        filter: blur(6px) drop-shadow(0 0 25px rgba(0, 255, 136, 0.8));
+    }
+    60% {
+        opacity: 0.85;
+        filter: blur(1px) drop-shadow(0 0 15px rgba(0, 255, 136, 0.5));
+    }
+    100% {
+        opacity: 1;
         filter: drop-shadow(0 0 0px transparent);
     }
 }
