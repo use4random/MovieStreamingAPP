@@ -1,0 +1,229 @@
+/* =========================================================
+   CINEPULSE — THANOS SNAP EASTER EGG STYLES
+   ========================================================= */
+
+/* Thanos Action Button in Header */
+.thanos-snap-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, rgba(255, 215, 0, 0.25) 0%, rgba(20, 20, 25, 0.9) 100%);
+    border: 1px solid rgba(255, 215, 0, 0.45);
+    color: #ffd700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.25);
+    padding: 0;
+}
+
+.thanos-snap-btn:hover {
+    background: radial-gradient(circle at 35% 35%, rgba(255, 215, 0, 0.4) 0%, rgba(25, 25, 32, 0.95) 100%);
+    border-color: rgba(255, 215, 0, 0.8);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 0 16px rgba(255, 215, 0, 0.5), 0 0 30px rgba(229, 9, 20, 0.25);
+}
+
+.thanos-snap-btn:active {
+    transform: scale(0.92);
+}
+
+/* Snapped state: Time Stone Active */
+.thanos-snap-btn.is-snapped {
+    background: radial-gradient(circle at 35% 35%, rgba(0, 255, 136, 0.3) 0%, rgba(8, 24, 18, 0.95) 100%);
+    border-color: rgba(0, 255, 136, 0.7);
+    color: #00ff88;
+    box-shadow: 0 0 14px rgba(0, 255, 136, 0.5), 0 0 28px rgba(0, 219, 233, 0.3);
+    animation: timeStonePulse 2s infinite ease-in-out;
+}
+
+.thanos-snap-btn.is-snapped:hover {
+    border-color: #00ff88;
+    box-shadow: 0 0 22px rgba(0, 255, 136, 0.8), 0 0 40px rgba(0, 255, 136, 0.4);
+}
+
+@keyframes timeStonePulse {
+    0%, 100% {
+        box-shadow: 0 0 12px rgba(0, 255, 136, 0.4), inset 0 0 6px rgba(0, 255, 136, 0.2);
+    }
+    50% {
+        box-shadow: 0 0 22px rgba(0, 255, 136, 0.75), inset 0 0 12px rgba(0, 255, 136, 0.4);
+    }
+}
+
+/* Infinity Stones Mini Glow Indicators on Gauntlet */
+.gauntlet-stone-dot {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    filter: drop-shadow(0 0 3px currentColor);
+}
+
+/* Cosmic Screen Flash Shockwave */
+.thanos-cosmic-flash {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 99998;
+    background: radial-gradient(circle at center, rgba(255, 230, 140, 0.6) 0%, rgba(186, 104, 200, 0.35) 45%, rgba(0, 0, 0, 0.6) 90%);
+    opacity: 0;
+    animation: thanosFlashAnim 0.85s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
+}
+
+@keyframes thanosFlashAnim {
+    0% { opacity: 0; }
+    20% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Time Stone Cosmic Reversal Ring */
+.thanos-time-ring {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.1);
+    width: 140vmax;
+    height: 140vmax;
+    border-radius: 50%;
+    border: 3px solid rgba(0, 255, 136, 0.75);
+    box-shadow: 0 0 60px rgba(0, 255, 136, 0.7), inset 0 0 60px rgba(0, 255, 136, 0.4);
+    pointer-events: none;
+    z-index: 99998;
+    opacity: 0;
+    animation: timeRingExpand 1.25s cubic-bezier(0.1, 0.85, 0.25, 1) forwards;
+}
+
+@keyframes timeRingExpand {
+    0% {
+        opacity: 0.9;
+        transform: translate(-50%, -50%) scale(0.05);
+    }
+    70% {
+        opacity: 0.7;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* Fullscreen Particle Dust Canvas */
+.thanos-particle-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 99997;
+}
+
+/* Snapped Victim Elements — Dissolving into Dust */
+.thanos-dissolving {
+    animation: thanosDustDisintegrate 2.2s cubic-bezier(0.25, 1, 0.5, 1) forwards !important;
+    pointer-events: none !important;
+    user-select: none !important;
+}
+
+@keyframes thanosDustDisintegrate {
+    0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1) rotate(0deg);
+        filter: blur(0px) brightness(1);
+    }
+    20% {
+        opacity: 0.9;
+        transform: translate(4px, -2px) scale(0.99) rotate(0.3deg);
+        filter: blur(1.5px) contrast(135%) brightness(1.2) sepia(20%);
+    }
+    50% {
+        opacity: 0.5;
+        transform: translate(16px, -6px) scale(0.97) rotate(0.8deg);
+        filter: blur(3.5px) contrast(150%) brightness(1.35) sepia(35%);
+    }
+    80% {
+        opacity: 0.15;
+        transform: translate(30px, -12px) scale(0.95) rotate(1.4deg);
+        filter: blur(6px) brightness(1.5);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(45px, -18px) scale(0.92) rotate(2deg);
+        filter: blur(10px);
+        visibility: hidden;
+    }
+}
+
+/* Reversing / Restoring Elements */
+.thanos-restoring {
+    visibility: visible !important;
+    animation: thanosTimeRestore 1.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards !important;
+}
+
+@keyframes thanosTimeRestore {
+    0% {
+        opacity: 0;
+        transform: translate(35px, -14px) scale(0.93);
+        filter: blur(8px) drop-shadow(0 0 25px rgba(0, 255, 136, 0.9));
+    }
+    50% {
+        opacity: 0.8;
+        transform: translate(8px, -2px) scale(0.99);
+        filter: blur(2px) drop-shadow(0 0 20px rgba(0, 255, 136, 0.7));
+    }
+    100% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+        filter: drop-shadow(0 0 0px transparent);
+    }
+}
+
+/* Cinematic Toast / Banner Notification */
+.thanos-cinematic-toast {
+    position: fixed;
+    top: 86px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    z-index: 99999;
+    padding: 10px 22px;
+    border-radius: 30px;
+    font-family: var(--font-heading);
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    pointer-events: none;
+    animation: thanosToastSlide 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    white-space: nowrap;
+}
+
+.thanos-cinematic-toast.snap {
+    background: linear-gradient(135deg, rgba(25, 15, 20, 0.95) 0%, rgba(10, 10, 15, 0.95) 100%);
+    border: 1px solid rgba(255, 215, 0, 0.5);
+    color: #fff;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+.thanos-cinematic-toast.restore {
+    background: linear-gradient(135deg, rgba(10, 25, 18, 0.95) 0%, rgba(5, 15, 10, 0.95) 100%);
+    border: 1px solid rgba(0, 255, 136, 0.6);
+    color: #fff;
+    box-shadow: 0 0 25px rgba(0, 255, 136, 0.4);
+}
+
+@keyframes thanosToastSlide {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px) scale(0.95);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0) scale(1);
+    }
+}

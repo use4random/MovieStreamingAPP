@@ -4,6 +4,7 @@ import { useWatchlist } from '../context/WatchlistContext';
 import { useAudio } from '../context/AudioContext';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
+import ThanosSnap from './ThanosSnap';
 
 export default function Navbar({ onOpenSearch }) {
     const location = useLocation();
@@ -122,6 +123,9 @@ export default function Navbar({ onOpenSearch }) {
 
                 {/* Right Action Icons */}
                 <div className="header-right-group">
+                    {/* Thanos Snap Easter Egg */}
+                    <ThanosSnap />
+
                     <button className="circle-action-btn" onClick={onOpenSearch} title="Search Content">
                         <i className="fas fa-search"></i>
                     </button>
